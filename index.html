@@ -2458,6 +2458,7 @@ window.STANDARD_LEVELS = [
 
   function tr(key) { return copy[state.language][key]; }
   function currentLevel() { return levels[state.levelIndex]; }
+  function allStandardLevelsCompleted() { return state.completed.size >= levels.length; }
   function currentLevelCopy() {
     const [title, subtitle, purpose, hint] = levelCopy[currentLevel().id];
     return { title, subtitle, purpose, hint };
@@ -2708,7 +2709,9 @@ window.STANDARD_LEVELS = [
         ? "自定义挑战完成！你可以查看结果对比，或返回编辑继续调整原子位置与约束。"
         : state.levelIndex < levels.length - 1
           ? `这一组选择两两兼容。下一关是“${levelCopy[levels[state.levelIndex + 1].id][0]}”。`
-          : "十个策略关卡全部完成！你可以继续进入几何编辑器，设计自己的 MIS / MWIS。")
+          : allStandardLevelsCompleted()
+            ? "十个策略关卡全部完成！你可以继续进入几何编辑器，设计自己的 MIS / MWIS。"
+            : `第十关完成！目前已完成 ${state.completed.size} / ${levels.length}。你可以通过关卡导航补做其他关卡，也可以继续进入几何编辑器。`)
       : adviceForSubmission(score, optimum);
     verdict.innerHTML = `<strong>${title}</strong><span>${detail}</span>`;
     verdict.classList.toggle("mistake", !correct);
