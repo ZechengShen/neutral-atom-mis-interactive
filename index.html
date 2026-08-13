@@ -298,7 +298,13 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 .switch-copy { display: grid; gap: 2px; }.switch-copy small { color: var(--subtle); font-size: 12px; font-weight: 500; line-height: 1.45; }
 .switch-line input { width: 19px; height: 19px; accent-color: var(--accent); }
 .edit-help { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
-.weight-editor { padding-top: 11px; border-top: 1px solid var(--line); }
+.weight-editor { padding-top: 13px; border-top: 1px solid var(--line); }
+.weight-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.weight-heading b { color: var(--muted); font-size: 14px; }
+.weight-heading output { min-width: 52px; padding: 5px 10px; color: var(--white); text-align: center; border-radius: 999px; background: var(--accent); font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.weight-editor input[type="range"] { height: 26px; cursor: grab; }.weight-editor input[type="range"]:active { cursor: grabbing; }
+.range-scale { display: flex; justify-content: space-between; color: var(--subtle); font-size: 12px; font-variant-numeric: tabular-nums; }
+.range-scale i { font-style: normal; }
 
 /* Conflict edges are primary puzzle information: always visible, high enough
    contrast to survive the soft background and blockade overlays. */
@@ -2424,6 +2430,7 @@ window.STANDARD_LEVELS = [
     dragging: null,
     feedbackTimer: null,
     verdictTimer: null,
+    weightTimer: null,
     resizeTimer: null,
     quantumPreview: null,
   };
@@ -2469,6 +2476,7 @@ window.STANDARD_LEVELS = [
   }
   function clonePoints(points) { return points.map((point) => ({ x: point.x, y: point.y })); }
   function snapPoint(point) { return { x: Math.round(point.x * 2) / 2, y: Math.round(point.y * 2) / 2 }; }
+  function formatWeight(value) { return Number(value).toFixed(1).replace(/\.0$/, ""); }
   function scoreSelection() {
     if (!state.weighted) return state.selection.selected.size;
     return [...state.selection.selected].reduce((sum, i) => sum + (state.weights[i] || 1), 0);
@@ -2601,7 +2609,7 @@ window.STANDARD_LEVELS = [
       group.append(indexLabel);
       if (state.weighted) {
         const label = svgElement("text", { x: point.x, y: point.y - 21 * screenCompensation, class: "atom-label", style: `font-size:${13 * screenCompensation}px` });
-        label.textContent = `权重 ${state.weights[i]}`;
+        label.textContent = `权重 ${formatWeight(state.weights[i])}`;
         group.append(label);
       }
       group.setAttribute("role", "button");
@@ -2950,7 +2958,7 @@ window.STANDARD_LEVELS = [
         <label class="field-label">有效 blockade 半径 Rb · <span id="radius-value">${state.radius.toFixed(2)}</span><input id="radius-input" type="range" min="0.65" max="1.8" step="0.01" value="${state.radius}"></label>
         <label class="switch-line"><span class="switch-copy">吸附到 0.5 网格<small>${state.snap ? "已开启：拖动与新增都会落在网格交点" : "开启后同时对齐现有原子"}</small></span><input id="snap-input" type="checkbox" ${state.snap ? "checked" : ""}></label>
         <label class="switch-line">启用 MWIS<input id="weighted-input" type="checkbox" ${state.weighted ? "checked" : ""}></label>
-        ${state.weighted && state.builderSelected !== null ? `<label class="field-label weight-editor">所选原子的权重<input id="weight-input" type="number" min="1" max="9" step="1" value="${state.weights[state.builderSelected] || 1}"></label>` : ""}
+        ${state.weighted && state.builderSelected !== null ? `<label class="field-label weight-editor"><span class="weight-heading"><b>所选原子的权重</b><output id="weight-value" for="weight-input">${formatWeight(state.weights[state.builderSelected] || 1)}</output></span><input id="weight-input" type="range" min="0.5" max="5" step="0.5" value="${state.weights[state.builderSelected] || 1}" aria-label="所选原子的权重"><span class="range-scale" aria-hidden="true"><i>0.5</i><i>5.0</i></span></label>` : ""}
       </div>
       <div class="metrics">
         <div><span>原子</span><strong>${state.points.length}</strong></div>
@@ -2995,10 +3003,8 @@ window.STANDARD_LEVELS = [
       } else renderPlay();
     };
     $("#weighted-input").onchange = (event) => { state.weighted = event.target.checked; computeExact(); renderPlay(); };
-    $("#weight-input")?.addEventListener("change", (event) => {
-      state.weights[state.builderSelected] = Math.max(1, Math.min(9, Number(event.target.value) || 1));
-      computeExact(); renderPlay();
-    });
+    $("#weight-input")?.addEventListener("input", updateSelectedWeight);
+    $("#weight-input")?.addEventListener("change", (event) => updateSelectedWeight(event, true));
     $("#done-builder").onclick = () => {
       if (!state.points.length) { showFeedback("请先添加至少一个原子。"); return; }
       state.mode = "custom"; state.selection = MIS.createSelectionState(); state.solved = false; renderPlay();
@@ -3008,6 +3014,25 @@ window.STANDARD_LEVELS = [
     $("#perturb").onclick = perturbPoints;
     $("#clear-board").onclick = () => { state.points = []; state.weights = []; state.builderSelected = null; rebuildCustom(true); };
     $("#builder-back-to-standard").onclick = returnToStandard;
+  }
+
+  function updateSelectedWeight(event, recomputeNow = false) {
+    if (state.builderSelected === null) return;
+    const weight = Math.max(.5, Math.min(5, Math.round((Number(event.target.value) || 1) * 2) / 2));
+    state.weights[state.builderSelected] = weight;
+    event.target.value = weight;
+    $("#weight-value").textContent = formatWeight(weight);
+    $("#metric-exact").textContent = "…";
+    renderBoard();
+    clearTimeout(state.weightTimer);
+    const refreshExact = () => {
+      computeExact();
+      const metric = $("#metric-exact");
+      if (metric) metric.textContent = state.exact.score === null ? "…" : formatWeight(state.exact.score);
+      state.weightTimer = null;
+    };
+    if (recomputeNow) refreshExact();
+    else state.weightTimer = setTimeout(refreshExact, 120);
   }
 
   function applyPreset(name) {
@@ -3316,7 +3341,7 @@ window.STANDARD_LEVELS = [
     learnText(svg, 207, 19, "冲突图", "learn-diagram-title");
     svg.append(svgElement("circle", { cx:left[2].x, cy:left[2].y, r:53, class:"learn-radius" }));
     left.forEach((point, i) => learnNode(svg, point, String(i + 1), i === 2 ? "selected" : "", 12));
-    learnText(svg, 132, 92, "→", "learn-diagram-note accent");
+    learnText(svg, 153, 92, "→", "learn-diagram-note accent");
     learnLine(svg, right[0], right[2], 12);
     learnLine(svg, right[1], right[2], 12);
     right.forEach((point, i) => learnNode(svg, point, String(i + 1), i === 2 ? "selected" : "", 12));
