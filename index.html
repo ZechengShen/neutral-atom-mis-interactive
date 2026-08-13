@@ -430,6 +430,7 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
   .mapping-logic, .blockade-bridge { grid-template-columns: 1fr; }.mapping-logic ol { grid-template-columns: 1fr 1fr 1fr; }
   .mapping-card { grid-template-columns: 1fr; }.mapping-card > header, .mapping-card > .case-question, .mapping-card > .mapping-diagram, .mapping-card > .flow-strip, .mapping-card > .case-logic { grid-column: 1; grid-row: auto; }.mapping-card > .case-logic { margin-top: 17px; }
   .control-panel, .quantum-controls { min-height: 0; }
+  .control-panel .level-picker { order: 10; margin-top: 4px; }
   .mobile-game-actions:not(:empty) { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; padding: 12px; border-top: 1px solid var(--line); background: var(--paper-2); }
   .mobile-game-actions .ghost-button { min-width: 0; padding: 0 8px; }
   .mobile-hint-slot { grid-column: 1 / -1; }
