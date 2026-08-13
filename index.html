@@ -38,7 +38,7 @@
 * { box-sizing: border-box; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 svg { shape-rendering: geometricPrecision; text-rendering: optimizeLegibility; }
-html { min-width: 320px; min-height: 100%; background: var(--paper); color: var(--ink); }
+html { min-width: 320px; min-height: 100%; background: var(--paper); color: var(--ink); overflow-anchor: none; }
 body {
   margin: 0;
   min-height: 100vh;
@@ -74,17 +74,17 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 .brand-mark i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
 .brand-mark i:nth-child(2) { transform: translateY(-5px); }
 .nav { align-self: stretch; display: flex; gap: clamp(18px, 2.5vw, 38px); }
-.nav-button { position: relative; min-width: 52px; padding: 0 2px; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 14px; font-weight: 700; letter-spacing: .06em; }
+.nav-button { position: relative; min-width: 52px; padding: 0 2px; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 15px; font-weight: 700; letter-spacing: .05em; }
 .nav-button::after { content: ""; position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; background: transparent; }
 .nav-button:hover, .nav-button.active { color: var(--ink); }
 .nav-button.active::after { background: var(--accent); }
-.header-note { justify-self: end; color: var(--subtle); font-size: 12px; font-weight: 700; letter-spacing: .1em; }
+.header-note { justify-self: end; color: var(--subtle); font-size: 13px; font-weight: 700; letter-spacing: .09em; }
 
 main { width: min(1500px, 100%); margin: 0 auto; }
 .page { display: none; padding: clamp(28px, 3.5vw, 48px) clamp(24px, 3.5vw, 54px) 46px; }
 .page.active { display: block; animation: page-in 220ms ease-out; }
 @keyframes page-in { from { opacity: .3; transform: translateY(5px); } }
-.eyebrow { margin: 0 0 10px; color: var(--accent); font-size: 13px; font-weight: 800; letter-spacing: .09em; }
+.eyebrow { margin: 0 0 10px; color: var(--accent); font-size: 14px; font-weight: 800; letter-spacing: .08em; }
 h1 { max-width: 900px; margin: 0; font-size: clamp(32px, 3.2vw, 48px); font-weight: 670; line-height: 1.14; letter-spacing: -.03em; }
 h2 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -.015em; }
 .page-heading { margin-bottom: 24px; }
@@ -112,8 +112,10 @@ h2 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -.015em; }
 .ghost-button { min-height: 44px; padding: 0 14px; color: var(--muted); background: transparent; border-color: var(--line); }
 .ghost-button:hover { color: var(--ink); background: rgba(255,255,255,.38); border-color: var(--line-dark); }
 .solution-button { min-height: 52px; padding: 9px 15px; color: var(--warm); background: var(--warm-soft); border: 1px solid color-mix(in srgb,var(--warm) 55%,var(--line)); border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 800; }
-.solution-button span { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; font-weight: 500; }
+.solution-button span { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; font-weight: 500; }
 .solution-button:hover { background: color-mix(in srgb,var(--warm-soft) 78%,white); border-color: var(--warm); }
+.solution-slot:empty { display: none; }
+.solution-slot > * { width: 100%; }
 button:disabled { opacity: .42; cursor: not-allowed; transform: none !important; }
 
 .intro-page.active {
@@ -179,7 +181,7 @@ button:disabled { opacity: .42; cursor: not-allowed; transform: none !important;
 .mapping-card > header, .mapping-card > .case-question, .mapping-card > .mapping-diagram, .mapping-card > .flow-strip { grid-column: 1; }
 .mapping-card > .case-logic { grid-column: 2; grid-row: 1 / span 4; align-self: center; }
 .mapping-card header { display: flex; align-items: center; gap: 12px; }
-.case-tag { margin-left: auto; padding: 5px 9px; color: var(--accent); background: var(--accent-soft); border-radius: 999px; font-size: 11px; font-style: normal; font-weight: 800; }
+.case-tag { margin-left: auto; padding: 5px 9px; color: var(--accent); background: var(--accent-soft); border-radius: 999px; font-size: 12px; font-style: normal; font-weight: 800; }
 .case-tag.outer-tag { color: var(--warm); background: var(--warm-soft); }
 .mapping-card header > span, .learn-copy > span { color: var(--accent); font-size: 13px; font-weight: 800; letter-spacing: .08em; }
 .warm-card header > span, .warm-card .learn-copy > span { color: var(--warm); }
@@ -219,8 +221,8 @@ button:disabled { opacity: .42; cursor: not-allowed; transform: none !important;
 
 .play-heading { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 18px; }
 .play-heading h1 { font-size: clamp(30px, 2.7vw, 41px); }
-.play-heading p:last-child { max-width: 820px; margin: 9px 0 0; color: var(--muted); font-size: 16px; line-height: 1.65; }
-.progress-wrap { width: min(240px, 24vw); color: var(--muted); text-align: right; font-size: 14px; }
+.play-heading p:last-child { max-width: 840px; margin: 9px 0 0; color: var(--muted); font-size: 17px; line-height: 1.65; }
+.progress-wrap { width: min(240px, 24vw); color: var(--muted); text-align: right; font-size: 15px; }
 .progress-track { height: 4px; margin-top: 9px; background: var(--line); overflow: hidden; }
 .progress-track i { display: block; width: 0; height: 100%; background: var(--accent); transition: width 250ms ease; }
 .play-layout { display: grid; grid-template-columns: minmax(0, 980px) 365px; gap: 22px; align-items: stretch; justify-content: center; }
@@ -238,46 +240,59 @@ button:disabled { opacity: .42; cursor: not-allowed; transform: none !important;
 .board-verdict.mistake { color: var(--warm); background: rgba(253,248,243,.98); border-color: var(--warm); }
 .board-verdict.mistake::before { content: "!"; background: var(--warm); }
 @keyframes verdict-in { from { opacity: 0; transform: translateY(-8px) scale(.98); } }
-.board-legend { display: flex; justify-content: center; gap: 28px; padding: 17px 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+.board-legend { display: flex; justify-content: center; gap: 30px; padding: 18px 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 15px; }
 .board-legend span { display: inline-flex; align-items: center; gap: 9px; white-space: nowrap; }
-.board-legend b { min-width: 24px; height: 24px; display: inline-grid; place-items: center; margin-left: 1px; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.board-legend b { min-width: 26px; height: 26px; display: inline-grid; place-items: center; margin-left: 1px; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
+#excited-count { color: var(--white); border-color: var(--accent); background: var(--accent); }
+#blocked-count { color: #454a45; border-color: #929790; background: var(--blocked); }
 .legend-line { width: 26px; border-top: 2px solid var(--edge); }
 .legend-dot { width: 11px; height: 11px; border: 1.5px solid var(--line-dark); border-radius: 50%; background: var(--surface); }
 .legend-dot.excited { background: var(--accent); border-color: var(--accent); }
 .legend-dot.blocked { background: var(--blocked); border-color: var(--blocked); }
-.control-panel { min-height: 600px; padding: 26px; display: flex; flex-direction: column; gap: 19px; border-radius: var(--radius); background: var(--paper-2); }
+.control-panel { min-height: 600px; padding: 26px; display: flex; flex-direction: column; gap: 19px; border-radius: var(--radius); background: var(--paper-2); overflow-anchor: none; }
 .control-panel h2 { margin: 0; font-size: 22px; }
-.level-subtitle { margin: -12px 0 0; color: var(--muted); font-size: 14px; }
-.level-purpose { margin: 0; font-size: 15px; line-height: 1.7; }
+.level-subtitle { margin: -12px 0 0; color: var(--muted); font-size: 15px; }
+.level-purpose { margin: 0; font-size: 16px; line-height: 1.7; }
 .level-select-label, .field-label { display: grid; gap: 8px; color: var(--muted); font-size: 14px; font-weight: 700; }
 .level-picker { padding: 13px; border: 1px solid var(--line); border-radius: 12px; background: rgba(251,250,247,.58); }
-.level-picker-heading { display: flex; align-items: center; justify-content: space-between; margin: 0 2px 9px; color: var(--muted); font-size: 13px; }
-.level-picker-heading b { color: var(--accent); font-size: 12px; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+.level-picker-heading { display: flex; align-items: center; justify-content: space-between; margin: 0 2px 9px; color: var(--muted); font-size: 14px; }
+.level-picker-heading b { color: var(--accent); font-size: 13px; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
 .level-picker-row { display: grid; grid-template-columns: 48px minmax(0,1fr) 48px; gap: 8px; }
 .level-step { width: 48px; min-height: 48px; display: grid; place-items: center; color: var(--accent); border: 1px solid var(--line-dark); border-radius: 9px; background: var(--surface); cursor: pointer; font-size: 20px; font-weight: 700; transition: 140ms ease; }
 .level-step:hover:not(:disabled) { color: var(--white); border-color: var(--accent); background: var(--accent); transform: translateY(-1px); }
 .level-select-shell { position: relative; min-width: 0; }
-.level-select-shell select { min-height: 48px; padding: 0 39px 0 13px; appearance: none; border-color: var(--accent); background: var(--surface); cursor: pointer; font-size: 14px; font-weight: 700; text-overflow: ellipsis; }
+.level-select-shell select { min-height: 48px; padding: 0 39px 0 13px; appearance: none; border-color: var(--accent); background: var(--surface); cursor: pointer; font-size: 15px; font-weight: 700; text-overflow: ellipsis; }
 .level-select-shell i { position: absolute; top: 50%; right: 13px; color: var(--accent); transform: translateY(-57%); font-size: 18px; font-style: normal; pointer-events: none; }
 .level-select-shell:focus-within select { box-shadow: 0 0 0 3px var(--accent-wash); }
 select, input[type="number"] { width: 100%; min-height: 48px; padding: 0 12px; color: var(--ink); background: rgba(255,255,255,.52); border: 1px solid var(--line-dark); border-radius: 8px; font-size: 15px; }
 input[type="range"] { width: 100%; accent-color: var(--accent); }
-.score-line { display: flex; align-items: end; justify-content: space-between; padding: 16px 14px; border: 1px solid var(--line); border-radius: 10px; background: rgba(251,250,247,.65); }
-.score-line span { color: var(--muted); font-size: 14px; }
-.score-line strong { font-size: 34px; font-weight: 620; line-height: 1; font-variant-numeric: tabular-nums; }
-.status-message { min-height: 90px; margin: 0; padding: 14px 15px; color: var(--muted); font-size: 14px; line-height: 1.7; border-left: 3px solid var(--line); }
-.status-message strong, .status-message span { display: block; }.status-message strong { margin-bottom: 4px; color: inherit; font-size: 15px; }.status-message span { color: inherit; }
+.score-line { min-height: 68px; display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; border: 1px solid var(--line); border-radius: 10px; background: rgba(251,250,247,.65); }
+.score-line span { color: var(--muted); font-size: 16px; }
+.score-line strong { font-size: 36px; font-weight: 620; line-height: 1; font-variant-numeric: tabular-nums; }
+.status-message { margin: 0; padding: 12px 14px; color: var(--muted); font-size: 15px; line-height: 1.65; border-left: 3px solid var(--line); }
+.status-message strong, .status-message span { display: block; }.status-message strong { margin-bottom: 4px; color: inherit; font-size: 16px; }.status-message span { color: inherit; }
 .status-message.success { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); }
 .status-message.mistake { color: var(--warm); background: var(--warm-soft); border-color: var(--warm); }
-.action-stack { margin-top: auto; display: grid; gap: 9px; }
+.action-stack { margin-top: 0 !important; display: grid; gap: 9px; }
 .action-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
-.hint-box { padding: 13px 14px; color: var(--accent); background: var(--accent-soft); border-radius: 9px; font-size: 14px; line-height: 1.65; }
+.sampler-button { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.sampler-button:hover { color: var(--white); border-color: var(--accent); background: var(--accent); }
+.hint-slot:empty { display: none; }
+.hint-box { padding: 14px 15px; color: var(--accent); background: var(--accent-soft); border-radius: 9px; font-size: 15px; line-height: 1.65; }
 .hint-box strong, .hint-box span { display: block; }
-.hint-box strong { margin-bottom: 4px; font-size: 13px; letter-spacing: .06em; }
+.hint-box strong { margin-bottom: 4px; font-size: 14px; letter-spacing: .05em; }
 .builder-tools { display: grid; gap: 13px; }
+.atom-count-control { display: grid; grid-template-columns: minmax(0,1fr) 146px; gap: 13px; align-items: center; padding: 12px 13px; border: 1px solid var(--line); border-radius: 10px; background: rgba(251,250,247,.52); }
+.atom-count-control strong, .atom-count-control span { display: block; }
+.atom-count-control strong { font-size: 15px; }
+.atom-count-control span { margin-top: 2px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.atom-count-stepper { display: grid; grid-template-columns: 42px 1fr 42px; gap: 5px; }
+.atom-count-stepper button { min-height: 44px; display: grid; place-items: center; color: var(--accent); border: 1px solid var(--line-dark); border-radius: 8px; background: var(--surface); cursor: pointer; font-size: 20px; font-weight: 800; }
+.atom-count-stepper button:hover:not(:disabled) { color: var(--white); border-color: var(--accent); background: var(--accent); }
+.atom-count-stepper input { min-width: 0; min-height: 44px; padding: 0 4px; text-align: center; font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 .metrics div { padding: 10px 11px; border: 1px solid var(--line); border-radius: 8px; background: rgba(251,250,247,.45); }
-.metrics span { display: block; color: var(--muted); font-size: 12px; }
+.metrics span { display: block; color: var(--muted); font-size: 13px; }
 .metrics strong { display: block; margin-top: 3px; font-size: 20px; }
 .switch-line { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
 .switch-line input { width: 19px; height: 19px; accent-color: var(--accent); }
@@ -309,9 +324,11 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
 @keyframes board-mistake { 25% { transform: translateX(-4px); } 50% { transform: translateX(4px); } 75% { transform: translateX(-2px); } }
 
 .quantum-layout { display: grid; grid-template-columns: minmax(0, 1fr) 365px; gap: 22px; }
+.quantum-back-actions { display: flex; gap: 9px; flex: 0 0 auto; }
 .quantum-board-wrap { min-height: 550px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(251,250,247,.5); overflow: hidden; }
-.source-line { padding: 17px 19px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+.source-line { min-height: 61px; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 15px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 14px; }
 .source-line strong { color: var(--ink); }
+.preview-label { max-width: 52%; color: var(--accent); text-align: right; font-size: 13px; font-weight: 700; overflow-wrap: anywhere; }
 .quantum-controls { min-height: 550px; padding: 24px; display: flex; flex-direction: column; gap: 20px; border-radius: var(--radius); background: var(--paper-2); }
 .source-box { display: grid; gap: 5px; }
 .source-box span, .source-box small { color: var(--muted); font-size: 13px; }
@@ -324,14 +341,19 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
 .phase-list > div.active { color: var(--accent); }
 .phase-list > div.active i { color: var(--white); border-color: var(--accent); background: var(--accent); }
 .quantum-controls .primary-button { margin-top: auto; }
-.fine-print { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.fine-print { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .quantum-results { margin-top: 22px; }
 .comparison { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); }
 .comparison div { padding: 16px; background: var(--surface); }
 .comparison span { display: block; color: var(--muted); font-size: 13px; }
 .comparison strong { display: block; margin-top: 4px; font-size: 25px; }
 .shots { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
-.shot-button { padding: 8px 10px; border: 1px solid var(--line-dark); border-radius: 7px; background: transparent; cursor: pointer; font-family: ui-monospace, monospace; }
+.shot-button { padding: 9px 11px; border: 1px solid var(--line-dark); border-radius: 7px; background: transparent; cursor: pointer; font-family: ui-monospace, monospace; font-size: 13px; }
+.shot-button.active { color: var(--white); border-color: var(--accent); background: var(--accent); box-shadow: 0 5px 14px rgba(50,103,93,.18); }
+.quantum-atom.excited .atom-visible { fill: var(--accent); stroke: var(--accent); }
+.quantum-atom.excited .atom-index { fill: var(--white); }
+.quantum-atom.blocked .atom-visible { fill: var(--blocked); stroke: #8c918b; }
+.quantum-atom.blocked .atom-index { fill: #4f544f; }
 
 .learn-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
 .learn-card { min-height: 275px; padding: 23px; display: grid; grid-template-columns: minmax(0,1fr) 205px; gap: 21px; align-items: center; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(251,250,247,.78); }
@@ -378,9 +400,9 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
   .brand { justify-self: center; font-size: 15px; }
   .brand-mark i { width: 7px; height: 7px; }
   .nav { width: 100%; height: 54px; justify-self: stretch; display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 0; overflow: visible; }
-  .nav-button { min-width: 0; padding: 0 4px; font-size: 13px; letter-spacing: .03em; }
+  .nav-button { min-width: 0; padding: 0 4px; font-size: 14px; letter-spacing: .02em; }
   .page { padding: 28px 16px 42px; }
-  .eyebrow { font-size: 12px; }
+  .eyebrow { font-size: 13px; }
   h1 { font-size: 34px; line-height: 1.18; }
   h2 { font-size: 21px; }
   .page-heading { margin-bottom: 21px; }
@@ -419,8 +441,8 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
 
   .play-heading { display: block; margin-bottom: 16px; }
   .play-heading h1 { font-size: 32px; }
-  .play-heading p:last-child { font-size: 15px; }
-  .progress-wrap { width: 100%; margin-top: 15px; text-align: left; font-size: 13px; }
+  .play-heading p:last-child { font-size: 16px; }
+  .progress-wrap { width: 100%; margin-top: 15px; text-align: left; font-size: 14px; }
   .play-layout { gap: 14px; }
   .board-panel { min-height: 0; }
   #atom-board, #quantum-board { min-height: 0; }
@@ -429,17 +451,23 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
   .board-verdict::before { top: 11px; left: 12px; }
   .board-verdict strong { font-size: 15px; }
   .board-verdict span { font-size: 13px; }
-  .board-legend { display: grid; grid-template-columns: repeat(2,max-content); justify-content: center; gap: 11px 24px; padding: 15px 12px; font-size: 13px; }
+  .board-legend { display: grid; grid-template-columns: repeat(2,max-content); justify-content: center; gap: 12px 24px; padding: 16px 12px; font-size: 14px; }
   .control-panel { padding: 20px; gap: 17px; }
   .level-picker-row { grid-template-columns: 46px minmax(0,1fr) 46px; gap: 6px; }
   .level-step { width: 46px; min-height: 48px; }
-  .level-purpose { font-size: 14px; }
+  .level-purpose { font-size: 15px; }
   .status-message { min-height: 0; }
   .action-row { gap: 6px; }
   .action-row .ghost-button { padding: 0 8px; }
+  .atom-count-control { grid-template-columns: 1fr; }
+  .atom-count-stepper { grid-template-columns: 50px minmax(0,1fr) 50px; }
 
   .quantum-board-wrap { min-height: 0; }
+  .source-line { display: grid; gap: 3px; }
+  .preview-label { max-width: none; text-align: left; }
   .quantum-controls { padding: 20px; }
+  .quantum-back-actions { width: 100%; display: grid; grid-template-columns: 1fr; margin-top: 18px; }
+  .quantum-back-actions button { width: 100%; }
   .comparison { grid-template-columns: repeat(2,1fr); }
   .comparison div { padding: 14px; }
 
@@ -579,9 +607,15 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
     </section>
 
     <section id="quantum-page" class="page quantum-page" aria-labelledby="quantum-title">
-      <div class="page-heading"><p class="eyebrow">同一个问题，不同的观察方式</p><h1 id="quantum-title">从图约束回到原子物理</h1><p>这里展示精确解与经典启发式参考结果，并未连接真实量子硬件。</p></div>
+      <div class="page-heading split-heading">
+        <div><p class="eyebrow">同一个问题，不同的观察方式</p><h1 id="quantum-title">从图约束回到原子物理</h1><p>这里展示精确解与经典启发式参考结果，并未连接真实量子硬件。</p></div>
+        <div class="quantum-back-actions">
+          <button id="quantum-back-problem" class="secondary-button" type="button">← 返回自定义挑战</button>
+          <button id="quantum-back-builder" class="ghost-button" type="button">返回编辑器</button>
+        </div>
+      </div>
       <div class="quantum-layout">
-        <section class="quantum-board-wrap"><div class="source-line">问题来源：<strong id="quantum-source">第 1 关 — 初见微光</strong></div><svg id="quantum-board" viewBox="0 0 960 600" role="img" aria-label="已加载的原子问题"></svg></section>
+        <section class="quantum-board-wrap"><div class="source-line"><span>问题来源：<strong id="quantum-source">第 1 关 — 初见微光</strong></span><span id="quantum-preview-label" class="preview-label">显示你的原始选择</span></div><svg id="quantum-board" viewBox="0 0 960 600" role="img" aria-label="已加载的原子问题"></svg></section>
         <aside class="quantum-controls">
           <div class="source-box"><span>求解来源</span><strong>教学采样器</strong><small>经典生成的绝热启发式分布</small></div>
           <div class="phase-list" aria-label="采样阶段"><div data-phase="0"><i>1</i><span>初始化<small>|ggg…g⟩</small></span></div><div data-phase="1"><i>2</i><span>驱动<small>Ω(t), Δ(t)</small></span></div><div data-phase="2"><i>3</i><span>竞争<small>合法构型</small></span></div><div data-phase="3"><i>4</i><span>测量<small>采样比特串</small></span></div></div>
@@ -2386,6 +2420,7 @@ window.STANDARD_LEVELS = [
     dragging: null,
     feedbackTimer: null,
     resizeTimer: null,
+    quantumPreview: null,
   };
 
   const copy = {
@@ -2393,7 +2428,6 @@ window.STANDARD_LEVELS = [
       rule: "在满足 blockade 约束的前提下，激发尽可能多的原子。",
       selected: "已激发原子",
       score: "总权重",
-      maximum: "选择完成后，点击“检查答案”。",
       check: "检查答案",
       undo: "撤销",
       reset: "重置",
@@ -2469,7 +2503,7 @@ window.STANDARD_LEVELS = [
     renderPlay();
   }
 
-  function fitTransform(points, width = BOARD_WIDTH, height = BOARD_HEIGHT, padding = 92, maxScale = 98) {
+  function fitTransform(points, width = BOARD_WIDTH, height = BOARD_HEIGHT, padding = 86, maxScale = 118) {
     const xs = points.map((p) => p.x);
     const ys = points.map((p) => p.y);
     const minX = Math.min(...xs, 0);
@@ -2508,8 +2542,7 @@ window.STANDARD_LEVELS = [
     if (renderedWidth <= 0) return;
     const transform = fitTransform(state.points);
     // The SVG viewBox scales on narrow screens. Counter-scale atoms and their
-    // touch targets so the visible radius stays near 9 px and the target near
-    // 29 px instead of becoming tiny on phones.
+    // touch targets so nodes stay readable and easy to tap on phones.
     const screenCompensation = Math.max(1, BOARD_WIDTH / renderedWidth);
     const blockedSources = MIS.blockedBy(state.selection.selected, state.graph);
     const excitedCount = state.selection.selected.size;
@@ -2544,14 +2577,14 @@ window.STANDARD_LEVELS = [
       if (state.mode === "builder" && state.builderSelected === i) group.classList.add("builder-selected");
       if (state.hintLevel >= 2 && currentLevel()?.analysis?.badFirstMoves?.includes(i) && state.mode === "standard") group.classList.add("hinted");
       if (state.solved && selected) group.classList.add("solved");
-      group.append(svgElement("circle", { cx: point.x, cy: point.y, r: 29 * screenCompensation, class: "atom-hit", "aria-hidden": "true" }));
+      group.append(svgElement("circle", { cx: point.x, cy: point.y, r: 35 * screenCompensation, class: "atom-hit", "aria-hidden": "true" }));
       // Selection changes color and incident edges, never the node diameter.
-      group.append(svgElement("circle", { cx: point.x, cy: point.y, r: 10 * screenCompensation, class: "atom-visible" }));
+      group.append(svgElement("circle", { cx: point.x, cy: point.y, r: 16 * screenCompensation, class: "atom-visible" }));
       const indexLabel = svgElement("text", {
         x: point.x,
         y: point.y,
         class: "atom-index",
-        style: `font-size:${11 * screenCompensation}px`,
+        style: `font-size:${13 * screenCompensation}px`,
         "aria-hidden": "true",
       });
       indexLabel.textContent = String(i + 1);
@@ -2668,9 +2701,12 @@ window.STANDARD_LEVELS = [
     const verdict = $("#board-verdict");
     const title = correct ? `正确！本关最大值是 ${optimum}` : `还不是最大值：${score} / ${optimum}`;
     let detail = correct
-      ? (state.levelIndex < levels.length - 1 ? `这一组选择两两兼容。下一关是“${levelCopy[levels[state.levelIndex + 1].id][0]}”。` : "十关完成！你可以继续进入几何编辑器，设计自己的 MIS / MWIS。")
+      ? (state.mode === "custom"
+        ? "自定义挑战完成！你可以查看结果对比，或返回编辑继续调整原子位置与约束。"
+        : state.levelIndex < levels.length - 1
+          ? `这一组选择两两兼容。下一关是“${levelCopy[levels[state.levelIndex + 1].id][0]}”。`
+          : "十个策略关卡全部完成！你可以继续进入几何编辑器，设计自己的 MIS / MWIS。")
       : adviceForSubmission(score, optimum);
-    if (!correct && state.failures >= REVEAL_AFTER_FAILURES) detail += " 已连续尝试两次，右侧已经解锁“查看一种正确答案”。";
     verdict.innerHTML = `<strong>${title}</strong><span>${detail}</span>`;
     verdict.classList.toggle("mistake", !correct);
     verdict.hidden = false;
@@ -2696,11 +2732,10 @@ window.STANDARD_LEVELS = [
     const panel = $("#control-panel");
     const level = currentLevel();
     const selectedScore = scoreSelection();
-    let message = `<span>${tr("maximum")}</span>`;
+    let message = "";
     const localized = currentLevelCopy();
     if (state.solved) message = `<strong>✓ ${tr("correct")(state.exact.score)}</strong><span>${state.mode === "standard" && state.levelIndex < levels.length - 1 ? `下一关：${levelCopy[levels[state.levelIndex + 1].id][0]}` : "已完成当前挑战。"}</span>`;
     else if (state.revealed) message = `<strong>参考答案已显示</strong><span>绿色节点组成一组大小为 ${state.exact.score} 的最优解。观察它避开了哪些高冲突节点，再点击“检查答案”继续。</span>`;
-    else if (state.failures) message = `<strong>再检查一下当前分支</strong><span>${adviceForSubmission(selectedScore, state.exact.score)}</span>`;
     const mainLabel = state.solved
       ? (state.mode === "custom" ? "查看结果对比 →" : state.levelIndex === levels.length - 1 ? "设计自己的问题 →" : "下一关 →")
       : tr("check");
@@ -2717,19 +2752,21 @@ window.STANDARD_LEVELS = [
       </div>` : ""}
       <p class="level-purpose">${state.mode === "standard" ? localized.purpose : "在你创建的几何结构中，找出总数量或总权重最大的兼容集合。"}</p>
       <div class="score-line"><span>${state.weighted ? tr("score") : tr("selected")}</span><strong>${selectedScore}</strong></div>
-      <p class="status-message ${state.solved || state.revealed ? "success" : state.failures ? "mistake" : ""}" aria-live="polite">${message}</p>
-      ${state.hintLevel ? `<div class="hint-box"><strong>提示 ${state.hintLevel} / 3</strong><span>${hintText()}</span></div>` : ""}
+      ${message ? `<p class="status-message ${state.solved || state.revealed ? "success" : "mistake"}" aria-live="polite">${message}</p>` : ""}
       <div class="action-stack">
         <button id="main-action" class="primary-button" type="button">${mainLabel}</button>
-        <div class="action-row">
-          <button id="undo-action" class="ghost-button" type="button" ${state.selection.history.length ? "" : "disabled"}>${tr("undo")}</button>
-          <button id="hint-action" class="ghost-button" type="button">${tr("hint")}</button>
-          <button id="reset-action" class="ghost-button" type="button">${tr("reset")}</button>
-        </div>
+        <div class="solution-slot">${solutionControlMarkup()}</div>
         ${state.mode === "standard" ? `<button id="remix-action" class="secondary-button" type="button">${tr("remix")}</button>` : ""}
         ${state.mode === "custom" ? `<button id="back-to-builder" class="secondary-button" type="button">${tr("backToEdit")}</button>` : ""}
         ${state.mode === "custom" ? `<button id="back-to-standard" class="ghost-button" type="button">${tr("backToChallenge")}</button>` : ""}
-        ${(state.failures >= REVEAL_AFTER_FAILURES || state.hintLevel >= 3) && !state.solved && !state.revealed ? `<button id="solution-action" class="solution-button" type="button">查看一种正确答案 <span>已尝试 ${state.failures} 次</span></button>` : ""}
+        <div class="action-row">
+          <button id="undo-action" class="ghost-button" type="button" ${state.selection.history.length ? "" : "disabled"}>${tr("undo")}</button>
+          <button id="reset-action" class="ghost-button" type="button">${tr("reset")}</button>
+          ${state.mode === "custom"
+            ? `<button id="sampler-action" class="ghost-button sampler-button" type="button">采样</button>`
+            : `<button id="hint-action" class="ghost-button" type="button">${tr("hint")}</button>`}
+        </div>
+        ${state.mode === "standard" ? `<div class="hint-slot" aria-live="polite">${hintPanelMarkup()}</div>` : ""}
       </div>`;
 
     $("#level-select")?.addEventListener("change", (event) => loadLevel(Number(event.target.value)));
@@ -2738,11 +2775,28 @@ window.STANDARD_LEVELS = [
     $("#main-action").onclick = mainAction;
     $("#undo-action").onclick = () => { state.selection = MIS.undoSelection(state.selection); state.solved = false; clearVerdict(); renderPlay(); };
     $("#reset-action").onclick = () => { state.selection = MIS.resetSelection(state.selection); state.solved = false; state.revealed = false; state.failures = 0; clearVerdict(); renderPlay(); };
-    $("#hint-action").onclick = () => { state.hintLevel = Math.min(3, state.hintLevel + 1); renderPlay(); };
+    $("#hint-action")?.addEventListener("click", () => {
+      state.hintLevel = Math.min(3, state.hintLevel + 1);
+      clearVerdict();
+      renderBoard();
+      $(".hint-slot").innerHTML = hintPanelMarkup();
+      $(".solution-slot").innerHTML = solutionControlMarkup();
+      $("#solution-action")?.addEventListener("click", revealSolution);
+    });
+    $("#sampler-action")?.addEventListener("click", () => showPage("quantum"));
     $("#remix-action")?.addEventListener("click", enterBuilder);
     $("#back-to-builder")?.addEventListener("click", returnToBuilder);
     $("#back-to-standard")?.addEventListener("click", returnToStandard);
     $("#solution-action")?.addEventListener("click", revealSolution);
+  }
+
+  function hintPanelMarkup() {
+    return state.hintLevel ? `<div class="hint-box"><strong>提示 ${state.hintLevel} / 3</strong><span>${hintText()}</span></div>` : "";
+  }
+
+  function solutionControlMarkup() {
+    if (state.solved || state.revealed) return "";
+    return `<button id="solution-action" class="solution-button" type="button">查看一种正确答案 <span>显示一组最优参考解</span></button>`;
   }
 
   function hintText() {
@@ -2819,6 +2873,11 @@ window.STANDARD_LEVELS = [
     renderPlay();
   }
 
+  function returnToCustomChallenge() {
+    if (state.mode !== "custom") returnToStandard();
+    showPage("play");
+  }
+
   function returnToStandard() {
     loadLevel(state.levelIndex);
   }
@@ -2838,6 +2897,14 @@ window.STANDARD_LEVELS = [
       <p class="level-subtitle">显示与求解上限 · 36 个原子</p>
       <div class="builder-tools">
         <label class="field-label">几何预设<select id="preset-select">${["current","chain","ring","ladder","square","triangular","honeycomb","kagome","irregular"].map((name) => `<option value="${name}" ${name === state.builderPreset ? "selected" : ""}>${({current:"当前关卡",chain:"链",ring:"环",ladder:"梯形",square:"方格",triangular:"三角晶格",honeycomb:"蜂窝",kagome:"Kagome",irregular:"不规则"})[name]}</option>`).join("")}</select></label>
+        <div class="atom-count-control">
+          <div><strong>原子数量</strong><span>直接增减，也可以在画布中添加或删除</span></div>
+          <div class="atom-count-stepper">
+            <button id="decrease-atoms" type="button" aria-label="减少一个原子" ${state.points.length === 0 ? "disabled" : ""}>−</button>
+            <input id="atom-count-input" type="number" min="0" max="36" step="1" value="${state.points.length}" aria-label="原子数量">
+            <button id="increase-atoms" type="button" aria-label="增加一个原子" ${state.points.length >= 36 ? "disabled" : ""}>＋</button>
+          </div>
+        </div>
         <label class="field-label">有效 blockade 半径 Rb · <span id="radius-value">${state.radius.toFixed(2)}</span><input id="radius-input" type="range" min="0.65" max="1.8" step="0.01" value="${state.radius}"></label>
         <label class="switch-line">吸附到半格<input id="snap-input" type="checkbox" ${state.snap ? "checked" : ""}></label>
         <label class="switch-line">启用 MWIS<input id="weighted-input" type="checkbox" ${state.weighted ? "checked" : ""}></label>
@@ -2862,6 +2929,9 @@ window.STANDARD_LEVELS = [
       </div>`;
 
     $("#preset-select").onchange = (event) => applyPreset(event.target.value);
+    $("#decrease-atoms").onclick = () => adjustBuilderAtomCount(state.points.length - 1);
+    $("#increase-atoms").onclick = () => adjustBuilderAtomCount(state.points.length + 1);
+    $("#atom-count-input").onchange = (event) => adjustBuilderAtomCount(Number(event.target.value));
     $("#radius-input").oninput = (event) => {
       state.radius = Number(event.target.value);
       state.graph = MIS.buildGraph(state.points, state.radius, state.edgeRule);
@@ -2921,6 +2991,42 @@ window.STANDARD_LEVELS = [
     rebuildCustom(true);
   }
 
+  function adjustBuilderAtomCount(requestedCount) {
+    const target = Math.max(0, Math.min(36, Math.round(Number(requestedCount) || 0)));
+    while (state.points.length > target) {
+      const index = state.builderSelected !== null && state.builderSelected < state.points.length
+        ? state.builderSelected
+        : state.points.length - 1;
+      state.points.splice(index, 1);
+      state.weights.splice(index, 1);
+      state.builderSelected = null;
+    }
+    while (state.points.length < target) {
+      state.points.push(nextAutomaticPoint());
+      state.weights.push(1);
+    }
+    state.builderPreset = "current";
+    rebuildCustom(true);
+  }
+
+  function nextAutomaticPoint() {
+    if (!state.points.length) return { x: 0, y: 0 };
+    const center = state.points.reduce((sum, point) => ({ x: sum.x + point.x, y: sum.y + point.y }), { x: 0, y: 0 });
+    center.x /= state.points.length;
+    center.y /= state.points.length;
+    const minimumGap = Math.max(.72, state.radius * .76);
+    for (let ring = 1; ring <= 10; ring += 1) {
+      const distance = minimumGap * ring;
+      const positions = Math.max(8, ring * 10);
+      for (let step = 0; step < positions; step += 1) {
+        const angle = step * Math.PI * 2 / positions + state.points.length * .37;
+        const candidate = { x: center.x + Math.cos(angle) * distance, y: center.y + Math.sin(angle) * distance };
+        if (state.points.every((point) => Math.hypot(point.x - candidate.x, point.y - candidate.y) >= minimumGap)) return candidate;
+      }
+    }
+    return { x: center.x + minimumGap * (state.points.length + 1), y: center.y };
+  }
+
   function perturbPoints() {
     state.points = state.points.map((point, i) => ({ x: point.x + Math.sin(i * 17.1) * .075, y: point.y + Math.cos(i * 11.7) * .075 }));
     rebuildCustom(true);
@@ -2928,10 +3034,11 @@ window.STANDARD_LEVELS = [
 
   function showPage(page) {
     state.page = page;
+    if (page !== "quantum") state.quantumPreview = null;
     document.querySelectorAll(".page").forEach((element) => element.classList.toggle("active", element.id === `${page}-page`));
     document.querySelectorAll(".nav-button").forEach((button) => button.classList.toggle("active", button.dataset.page === page));
     if (page === "play") requestAnimationFrame(renderPlay);
-    if (page === "quantum") renderQuantum();
+    if (page === "quantum") { state.quantumPreview = null; renderQuantum(); }
   }
 
   function mappingDiagram(kind) {
@@ -2986,9 +3093,11 @@ window.STANDARD_LEVELS = [
     selectMappingCase("antenna");
   }
 
-  function renderQuantum(highlight = null) {
+  function renderQuantum() {
     const source = state.mode === "standard" ? `第 ${state.levelIndex + 1} 关 — ${currentLevelCopy().title}` : "自定义问题";
     $("#quantum-source").textContent = source;
+    const preview = state.quantumPreview;
+    $("#quantum-preview-label").textContent = preview ? `预览样本 · 得分 ${preview.score} · ${preview.bits}` : "显示你的原始选择";
     const board = $("#quantum-board");
     board.replaceChildren();
     if (!state.points.length) return;
@@ -2998,15 +3107,25 @@ window.STANDARD_LEVELS = [
       const a = transform.toScreen(state.points[i]); const b = transform.toScreen(state.points[j]);
       board.append(svgElement("line", { x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:"graph-edge" }));
     });
+    const selectedIndices = preview ? preview.indices : [...state.selection.selected];
+    const selectedSet = new Set(selectedIndices);
+    const previewBlocked = MIS.blockedBy(selectedSet, state.graph);
     state.points.forEach((point, i) => {
       const p = transform.toScreen(point);
-      const selected = highlight ? highlight.includes(i) : state.selection.selected.has(i);
-      board.append(svgElement("circle", { cx:p.x,cy:p.y,r:(selected?11:9)*screenCompensation,class:selected?"atom-visible quantum-selected":"atom-visible", style:selected?"fill:var(--accent);stroke:var(--accent)":"" }));
+      const selected = selectedSet.has(i);
+      const blocked = !selected && previewBlocked[i].length > 0;
+      const group = svgElement("g", { class: `quantum-atom ${selected ? "excited" : blocked ? "blocked" : "available"}` });
+      group.append(svgElement("circle", { cx:p.x,cy:p.y,r:16*screenCompensation,class:"atom-visible" }));
+      const indexLabel = svgElement("text", { x:p.x,y:p.y,class:"atom-index",style:`font-size:${13*screenCompensation}px` });
+      indexLabel.textContent = String(i + 1);
+      group.append(indexLabel);
+      board.append(group);
     });
   }
 
   async function runSampler() {
     const button = $("#run-sampler");
+    state.quantumPreview = null;
     button.disabled = true;
     $("#quantum-results").hidden = true;
     const phases = [...document.querySelectorAll(".phase-list > div")];
@@ -3025,9 +3144,20 @@ window.STANDARD_LEVELS = [
       <div><span>最小度贪心</span><strong>${state.weighted ? greedy.reduce((s,i)=>s+state.weights[i],0) : greedy.length}</strong></div>
       <div><span>采样器最佳</span><strong>${best}</strong></div>
       <div><span>精确 ${state.weighted ? "MWIS" : "MIS"}</span><strong>${state.exact.score}</strong></div>
-    </div><div class="shots">${shots.slice(0, 6).map((shot, index) => `<button class="shot-button" type="button" data-shot="${index}">${shot.bits} · ${shot.score}</button>`).join("")}</div>`;
+    </div><div class="shots">${shots.slice(0, 6).map((shot, index) => `<button class="shot-button" type="button" data-shot="${index}" aria-pressed="false">${shot.bits} · ${shot.score}</button>`).join("")}</div>`;
     results.hidden = false;
-    results.querySelectorAll(".shot-button").forEach((shotButton) => shotButton.onclick = () => renderQuantum(shots[Number(shotButton.dataset.shot)].indices));
+    const previewShot = (index) => {
+      const shot = shots[index];
+      state.quantumPreview = state.quantumPreview?.bits === shot.bits ? null : shot;
+      renderQuantum();
+      results.querySelectorAll(".shot-button").forEach((button) => {
+        const active = state.quantumPreview?.bits === shots[Number(button.dataset.shot)].bits;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+    };
+    results.querySelectorAll(".shot-button").forEach((shotButton) => shotButton.onclick = () => previewShot(Number(shotButton.dataset.shot)));
+    if (shots.length) previewShot(0);
     button.disabled = false;
     button.textContent = "再次运行";
   }
@@ -3070,6 +3200,8 @@ window.STANDARD_LEVELS = [
     if (!levels.length) throw new Error("Standard levels were not loaded");
     document.querySelectorAll("[data-page]").forEach((button) => button.onclick = () => showPage(button.dataset.page));
     $("#run-sampler").onclick = runSampler;
+    $("#quantum-back-problem").onclick = returnToCustomChallenge;
+    $("#quantum-back-builder").onclick = returnToBuilder;
     $("#start-challenges").onclick = () => showPage("play");
     $("#open-mapping").onclick = () => showPage("mapping");
     $("#mapping-start").onclick = () => showPage("play");
