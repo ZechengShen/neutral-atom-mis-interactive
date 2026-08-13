@@ -221,6 +221,9 @@ button:disabled { opacity: .42; cursor: not-allowed; transform: none !important;
 
 .play-heading { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 18px; }
 .play-heading h1 { font-size: clamp(30px, 2.7vw, 41px); }
+.play-title-line { display: flex; align-items: baseline; gap: 17px; }
+.play-title-line span { color: var(--muted); font-size: clamp(17px,1.45vw,21px); font-weight: 520; letter-spacing: -.01em; }
+.play-title-line span:empty { display: none; }
 .play-heading p:last-child { max-width: 840px; margin: 9px 0 0; color: var(--muted); font-size: 17px; line-height: 1.65; }
 .progress-wrap { width: min(240px, 24vw); color: var(--muted); text-align: right; font-size: 15px; }
 .progress-track { height: 4px; margin-top: 9px; background: var(--line); overflow: hidden; }
@@ -240,7 +243,8 @@ button:disabled { opacity: .42; cursor: not-allowed; transform: none !important;
 .board-verdict.mistake { color: var(--warm); background: rgba(253,248,243,.98); border-color: var(--warm); }
 .board-verdict.mistake::before { content: "!"; background: var(--warm); }
 @keyframes verdict-in { from { opacity: 0; transform: translateY(-8px) scale(.98); } }
-.board-legend { display: flex; justify-content: center; gap: 30px; padding: 18px 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 15px; }
+.board-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 30px; padding: 18px 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 15px; }
+.mobile-game-actions { display: none; }
 .board-legend span { display: inline-flex; align-items: center; gap: 9px; white-space: nowrap; }
 .board-legend b { min-width: 26px; height: 26px; display: inline-grid; place-items: center; margin-left: 1px; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
 #excited-count { color: var(--white); border-color: var(--accent); background: var(--accent); }
@@ -354,6 +358,7 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
 .candidate-summary { padding: 13px 14px; display: grid; gap: 4px; border-left: 3px solid var(--accent); background: var(--accent-soft); }
 .candidate-summary span { color: var(--muted); font-size: 12px; line-height: 1.45; }
 .candidate-summary strong { color: var(--accent); font-size: 19px; }
+.candidate-summary small { color: var(--muted); font-size: 11px; line-height: 1.45; }
 .candidate-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
 .candidate-heading b { font-size: 16px; }.candidate-heading span { color: var(--subtle); font-size: 11px; }
 .candidate-list { display: grid; gap: 6px; }
@@ -365,6 +370,14 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
 .candidate-button.best-score i { color: var(--white); border-color: rgba(255,255,255,.65); }.candidate-button.best-score code, .candidate-button.best-score small { color: rgba(255,255,255,.82); }
 .candidate-button.active { outline: 2px solid var(--accent); outline-offset: 2px; }
 .candidate-button.best-score.active { outline-color: var(--ink); }
+.score-distribution { display: grid; gap: 9px; }
+.score-distribution-note { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.optimal-rate { padding: 10px 12px; display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; border: 1px solid rgba(50,103,93,.25); border-radius: 8px; background: rgba(50,103,93,.07); }
+.optimal-rate span { color: var(--muted); font-size: 12px; }.optimal-rate strong { color: var(--accent); font-size: 18px; }.optimal-rate small { grid-column: 1 / -1; color: var(--muted); font-size: 10px; }
+.score-bars { display: grid; gap: 7px; }
+.score-bar { display: grid; grid-template-columns: 62px minmax(48px,1fr) 91px; align-items: center; gap: 7px; color: var(--muted); font-size: 10px; }
+.score-bar > i { height: 7px; overflow: hidden; border-radius: 99px; background: var(--line); }.score-bar > i > b { height: 100%; display: block; border-radius: inherit; background: var(--line-dark); }
+.score-bar > strong { text-align: right; font-size: 10px; font-variant-numeric: tabular-nums; }.score-bar.optimal { color: var(--accent); }.score-bar.optimal > i > b { background: var(--accent); }
 .quantum-controls .primary-button { margin-top: auto; }
 .fine-print { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .quantum-results { margin-top: 22px; }
@@ -417,6 +430,10 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
   .mapping-logic, .blockade-bridge { grid-template-columns: 1fr; }.mapping-logic ol { grid-template-columns: 1fr 1fr 1fr; }
   .mapping-card { grid-template-columns: 1fr; }.mapping-card > header, .mapping-card > .case-question, .mapping-card > .mapping-diagram, .mapping-card > .flow-strip, .mapping-card > .case-logic { grid-column: 1; grid-row: auto; }.mapping-card > .case-logic { margin-top: 17px; }
   .control-panel, .quantum-controls { min-height: 0; }
+  .mobile-game-actions:not(:empty) { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; padding: 12px; border-top: 1px solid var(--line); background: var(--paper-2); }
+  .mobile-game-actions .ghost-button { min-width: 0; padding: 0 8px; }
+  .mobile-hint-slot { grid-column: 1 / -1; }
+  .control-panel .panel-game-actions { display: none; }
   .learn-card { min-height: 230px; }
 }
 @media (max-width: 680px) {
@@ -465,6 +482,8 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
 
   .play-heading { display: block; margin-bottom: 16px; }
   .play-heading h1 { font-size: 32px; }
+  .play-title-line { align-items: baseline; gap: 11px; }
+  .play-title-line span { font-size: 17px; }
   .play-heading p:last-child { font-size: 16px; }
   .progress-wrap { width: 100%; margin-top: 15px; text-align: left; font-size: 14px; }
   .play-layout { gap: 14px; }
@@ -475,7 +494,8 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
   .board-verdict::before { top: 11px; left: 12px; }
   .board-verdict strong { font-size: 15px; }
   .board-verdict span { font-size: 13px; }
-  .board-legend { display: grid; grid-template-columns: repeat(2,max-content); justify-content: center; gap: 12px 24px; padding: 16px 12px; font-size: 14px; }
+  .board-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 24px; padding: 16px 12px; font-size: 14px; }
+  .mobile-game-actions .ghost-button { padding: 0 6px; }
   .control-panel { padding: 20px; gap: 17px; }
   .level-picker-row { grid-template-columns: 46px minmax(0,1fr) 46px; gap: 6px; }
   .level-step { width: 46px; min-height: 48px; }
@@ -608,7 +628,7 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
 
     <section id="play-page" class="page" aria-labelledby="play-title">
       <div class="play-heading">
-        <div><p class="eyebrow" id="level-kicker">挑战 1 / 10</p><h1 id="play-title">初见微光</h1><p id="rule-copy">在满足 blockade 约束的前提下，激发尽可能多的原子。</p></div>
+        <div><p class="eyebrow" id="level-kicker">挑战 1 / 10</p><div class="play-title-line"><h1 id="play-title">初见微光</h1><span id="play-subtitle">一条断裂的路径</span></div><p id="rule-copy">在满足 blockade 约束的前提下，激发尽可能多的原子。</p></div>
         <div class="progress-wrap"><span id="progress-label">已完成 0 / 10</span><div class="progress-track" aria-hidden="true"><i id="progress-fill"></i></div></div>
       </div>
       <div class="play-layout">
@@ -625,6 +645,7 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
             <span><i class="legend-dot excited"></i>已激发 <b id="excited-count">0</b></span>
             <span><i class="legend-dot blocked"></i>已阻塞 <b id="blocked-count">0</b></span>
           </div>
+          <div id="mobile-game-actions" class="mobile-game-actions" aria-label="移动端快捷操作"></div>
         </section>
         <aside id="control-panel" class="control-panel"></aside>
       </div>
@@ -632,7 +653,7 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
 
     <section id="quantum-page" class="page quantum-page" aria-labelledby="quantum-title">
       <div class="page-heading split-heading">
-        <div><p class="eyebrow">同一个问题，不同的观察方式</p><h1 id="quantum-title">从图约束回到原子物理</h1><p>这里展示精确解与经典启发式参考结果，并未连接真实量子硬件。</p></div>
+        <div><p class="eyebrow">同一个问题，不同的观察方式</p><h1 id="quantum-title">从图约束回到原子物理</h1><p>在浏览器中模拟 Rydberg Hamiltonian 的脉冲演化与测量；这是本地模型模拟，并未连接真实量子硬件。</p></div>
         <div class="quantum-back-actions">
           <button id="quantum-back-problem" class="secondary-button" type="button">← 返回自定义挑战</button>
           <button id="quantum-back-builder" class="ghost-button" type="button">返回编辑器</button>
@@ -641,11 +662,11 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
       <div class="quantum-layout">
         <section class="quantum-board-wrap"><div class="source-line"><span>问题来源：<strong id="quantum-source">第 1 关 — 初见微光</strong></span><span id="quantum-preview-label" class="preview-label">显示你的原始选择</span></div><svg id="quantum-board" viewBox="0 0 960 600" role="img" aria-label="已加载的原子问题"></svg></section>
         <aside class="quantum-controls">
-          <div class="source-box"><span>求解来源</span><strong>教学采样器</strong><small>每轮 500 次经典启发式采样</small></div>
-          <div id="sampler-phases" class="phase-list" aria-label="采样阶段"><div data-phase="0"><i>1</i><span>初始化<small>|ggg…g⟩</small></span></div><div data-phase="1"><i>2</i><span>驱动<small>Ω(t), Δ(t)</small></span></div><div data-phase="2"><i>3</i><span>竞争<small>合法构型</small></span></div><div data-phase="3"><i>4</i><span>测量<small>采样比特串</small></span></div></div>
+          <div class="source-box"><span>求解来源</span><strong>中性原子量子采样器</strong><small>每轮 1000 次 · 本地 Rydberg 模型模拟</small></div>
+          <div id="sampler-phases" class="phase-list" aria-label="中性原子脉冲与测量阶段"><div data-phase="0"><i>1</i><span>原子制备<small>|g…g⟩</small></span></div><div data-phase="1"><i>2</i><span>激光脉冲<small>Ω(t), Δ(t)</small></span></div><div data-phase="2"><i>3</i><span>blockade 演化<small>受限多体态</small></span></div><div data-phase="3"><i>4</i><span>投影测量<small>采样 bitstring</small></span></div></div>
           <div id="sampler-candidates" class="sampler-candidates" aria-live="polite" hidden></div>
           <button id="run-sampler" class="primary-button" type="button">运行采样</button>
-          <p class="fine-print"><b>精确解</b>会系统搜索并保证全局最优；<b>采样器</b>重复生成候选构型，展示出现频率，但不保证采到最优。这里只比较解的质量，不构成性能基准，也不声称存在量子加速。</p>
+          <p class="fine-print"><b>小态空间</b>执行硬 blockade 受限态矢的幺正脉冲演化；<b>大态空间</b>自动切换为同一终态能量模型的局域近似。两者都是本地模拟，不代表真实硬件噪声，也不声称量子加速。</p>
         </aside>
       </div>
       <div id="quantum-results" class="quantum-results" hidden></div>
@@ -972,6 +993,221 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
   }
 
   const api = { greedy, randomGreedy, randomWeightedGreedy, analyzeHeuristics, mulberry32 };
+  root.MIS = root.MIS || {};
+  Object.assign(root.MIS, api);
+  if (typeof module !== "undefined" && module.exports) module.exports = api;
+}(typeof globalThis !== "undefined" ? globalThis : this));
+
+
+(function (root) {
+  "use strict";
+
+  const DEFAULTS = {
+    basisLimit: 12000,
+    evolutionSteps: 40,
+    duration: 8,
+    delta0: 6,
+    omega0: 1,
+    inverseTemperature: 2.2,
+  };
+
+  function mulberry32(seed) {
+    return function random() {
+      let t = seed += 0x6D2B79F5;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function adjacencyMasks(graph) {
+    return graph.points.map((_, i) => graph.adjacency[i].reduce(
+      (mask, j) => mask | (1n << BigInt(j)),
+      0n,
+    ));
+  }
+
+  function normalizedWeights(graph, weights) {
+    const raw = graph.points.map((_, i) => Math.max(.01, Number(weights?.[i]) || 1));
+    const mean = raw.reduce((sum, value) => sum + value, 0) / Math.max(1, raw.length);
+    return raw.map((value) => value / mean);
+  }
+
+  function configurationScore(mask, weights) {
+    let score = 0;
+    for (let i = 0; i < weights.length; i += 1) {
+      if (mask & (1n << BigInt(i))) score += weights[i];
+    }
+    return score;
+  }
+
+  function enumerateIndependentBasis(graph, limit = DEFAULTS.basisLimit) {
+    const neighborMasks = adjacencyMasks(graph);
+    const masks = [0n];
+    for (let i = 0; i < graph.points.length; i += 1) {
+      const bit = 1n << BigInt(i);
+      const length = masks.length;
+      for (let j = 0; j < length; j += 1) {
+        if ((masks[j] & neighborMasks[i]) !== 0n) continue;
+        masks.push(masks[j] | bit);
+        if (masks.length > limit) return null;
+      }
+    }
+    return { masks, neighborMasks };
+  }
+
+  function applyPhase(real, imag, scores, phaseScale) {
+    for (let i = 0; i < real.length; i += 1) {
+      const angle = phaseScale * scores[i];
+      const cosine = Math.cos(angle);
+      const sine = Math.sin(angle);
+      const r = real[i];
+      const im = imag[i];
+      real[i] = cosine * r - sine * im;
+      imag[i] = sine * r + cosine * im;
+    }
+  }
+
+  function applyDriver(real, imag, pairs, angle) {
+    const cosine = Math.cos(angle);
+    const sine = Math.sin(angle);
+    pairs.forEach(([zero, one]) => {
+      const zr = real[zero];
+      const zi = imag[zero];
+      const or = real[one];
+      const oi = imag[one];
+      real[zero] = cosine * zr + sine * oi;
+      imag[zero] = cosine * zi - sine * or;
+      real[one] = cosine * or + sine * zi;
+      imag[one] = cosine * oi - sine * zr;
+    });
+  }
+
+  function statevectorDistribution(graph, weights, basis, options) {
+    const masks = basis.masks;
+    const physicalWeights = normalizedWeights(graph, weights);
+    const scores = Float64Array.from(masks, (mask) => configurationScore(mask, physicalWeights));
+    const maskIndex = new Map(masks.map((mask, i) => [mask.toString(), i]));
+    const pairs = graph.points.map((_, atom) => {
+      const bit = 1n << BigInt(atom);
+      const atomPairs = [];
+      masks.forEach((mask, i) => {
+        if (mask & bit) return;
+        const paired = maskIndex.get((mask | bit).toString());
+        if (paired !== undefined) atomPairs.push([i, paired]);
+      });
+      return atomPairs;
+    });
+
+    const real = new Float64Array(masks.length);
+    const imag = new Float64Array(masks.length);
+    real[0] = 1;
+    const dt = options.duration / options.evolutionSteps;
+    for (let step = 0; step < options.evolutionSteps; step += 1) {
+      const progress = (step + .5) / options.evolutionSteps;
+      const omega = options.omega0 * Math.sin(Math.PI * progress) ** 2;
+      const delta = options.delta0 * (2 * progress - 1);
+      applyPhase(real, imag, scores, delta * dt / 2);
+      const halfDriverAngle = omega * dt / 4;
+      for (let atom = 0; atom < pairs.length; atom += 1) applyDriver(real, imag, pairs[atom], halfDriverAngle);
+      for (let atom = pairs.length - 1; atom >= 0; atom -= 1) applyDriver(real, imag, pairs[atom], halfDriverAngle);
+      applyPhase(real, imag, scores, delta * dt / 2);
+    }
+
+    const probabilities = Float64Array.from(real, (value, i) => value * value + imag[i] * imag[i]);
+    const norm = probabilities.reduce((sum, value) => sum + value, 0) || 1;
+    for (let i = 0; i < probabilities.length; i += 1) probabilities[i] /= norm;
+    return { masks, probabilities };
+  }
+
+  function prepareRydbergSampler(graph, weights = null, customOptions = {}) {
+    const options = { ...DEFAULTS, ...customOptions };
+    const basis = enumerateIndependentBasis(graph, options.basisLimit);
+    if (basis) {
+      return {
+        mode: "statevector",
+        method: `受限态空间幺正演化 · ${basis.masks.length.toLocaleString("zh-CN")} 个独立集基态`,
+        detail: "硬 blockade 近似；使用 Ω(t)=Ω₀sin²(πt/T)、Δ(t)=Δ₀(2t/T−1) 的本地态矢模拟。",
+        graph,
+        weights: graph.points.map((_, i) => Number(weights?.[i]) || 1),
+        distribution: statevectorDistribution(graph, weights, basis, options),
+        options,
+      };
+    }
+    return {
+      mode: "energy-model",
+      method: "大规模 Rydberg 终态近似",
+      detail: `独立集态空间超过 ${options.basisLimit.toLocaleString("zh-CN")} 维；改用同一硬 blockade 终态能量的局域 Monte Carlo 近似，不模拟相干干涉。`,
+      graph,
+      weights: graph.points.map((_, i) => Number(weights?.[i]) || 1),
+      neighborMasks: adjacencyMasks(graph),
+      options,
+    };
+  }
+
+  function maskToIndices(mask, count) {
+    const indices = [];
+    for (let i = 0; i < count; i += 1) if (mask & (1n << BigInt(i))) indices.push(i);
+    return indices;
+  }
+
+  function sampleStatevector(model, shots, seed) {
+    const random = mulberry32(seed);
+    const { masks, probabilities } = model.distribution;
+    const cumulative = new Float64Array(probabilities.length);
+    let total = 0;
+    for (let i = 0; i < probabilities.length; i += 1) cumulative[i] = total += probabilities[i];
+    const samples = [];
+    for (let shot = 0; shot < shots; shot += 1) {
+      const target = random() * total;
+      let low = 0;
+      let high = cumulative.length - 1;
+      while (low < high) {
+        const middle = (low + high) >> 1;
+        if (cumulative[middle] < target) low = middle + 1;
+        else high = middle;
+      }
+      samples.push(maskToIndices(masks[low], model.graph.points.length));
+    }
+    return samples;
+  }
+
+  function sampleEnergyModel(model, shots, seed) {
+    const random = mulberry32(seed);
+    const count = model.graph.points.length;
+    const scaledWeights = normalizedWeights(model.graph, model.weights);
+    const beta = model.options.inverseTemperature;
+    const burnIn = Math.max(80, count * 24);
+    const thinning = Math.max(8, Math.ceil(count / 2));
+    const samples = [];
+    let mask = 0n;
+    const totalSteps = burnIn + shots * thinning;
+    for (let step = 0; step < totalSteps; step += 1) {
+      const atom = Math.floor(random() * count);
+      const bit = 1n << BigInt(atom);
+      if (mask & bit) {
+        if (random() < Math.exp(-beta * scaledWeights[atom])) mask &= ~bit;
+      } else if ((mask & model.neighborMasks[atom]) === 0n) {
+        mask |= bit;
+      }
+      if (step >= burnIn && (step - burnIn) % thinning === thinning - 1) {
+        samples.push(maskToIndices(mask, count));
+      }
+    }
+    return samples;
+  }
+
+  function sampleRydberg(model, shots, seed = 1) {
+    return model.mode === "statevector"
+      ? sampleStatevector(model, shots, seed)
+      : sampleEnergyModel(model, shots, seed);
+  }
+
+  const api = {
+    enumerateIndependentBasis,
+    prepareRydbergSampler,
+    sampleRydberg,
+  };
   root.MIS = root.MIS || {};
   Object.assign(root.MIS, api);
   if (typeof module !== "undefined" && module.exports) module.exports = api;
@@ -2444,7 +2680,7 @@ window.STANDARD_LEVELS = [
   const BOARD_HEIGHT = 640;
   const REVEAL_AFTER_FAILURES = 2;
   const MESSAGE_DURATION_MS = 5000;
-  const SAMPLER_SHOT_COUNT = 500;
+  const SAMPLER_SHOT_COUNT = 1000;
   const levels = window.STANDARD_LEVELS || [];
   const state = {
     page: "intro",
@@ -2478,6 +2714,7 @@ window.STANDARD_LEVELS = [
     samplerResults: new Map(),
     samplerTotal: 0,
     samplerSeed: 1,
+    samplerModel: null,
   };
 
   const copy = {
@@ -2551,6 +2788,7 @@ window.STANDARD_LEVELS = [
     state.samplerResults = new Map();
     state.samplerTotal = 0;
     state.samplerSeed = 1;
+    state.samplerModel = null;
     state.quantumPreview = null;
     const results = $("#quantum-results");
     if (results) results.hidden = true;
@@ -2834,6 +3072,7 @@ window.STANDARD_LEVELS = [
     const localized = currentLevelCopy();
     $("#level-kicker").textContent = state.mode === "standard" ? `挑战 ${state.levelIndex + 1} / ${levels.length}` : state.mode === "builder" ? "重构 / 编辑" : "自定义挑战";
     $("#play-title").textContent = state.mode === "standard" ? localized.title : state.mode === "builder" ? "移动原子，改变冲突图" : "你的自定义谜题";
+    $("#play-subtitle").textContent = state.mode === "standard" ? localized.subtitle : "";
     $("#rule-copy").textContent = state.mode === "builder" ? "拖动、添加或删除原子，冲突边会随几何结构实时更新。" : tr("rule");
     $("#progress-label").textContent = `已完成 ${state.completed.size} / ${levels.length}`;
     $("#progress-fill").style.width = `${state.completed.size / levels.length * 100}%`;
@@ -2851,8 +3090,7 @@ window.STANDARD_LEVELS = [
       ? (state.mode === "custom" ? "查看结果对比 →" : state.levelIndex === levels.length - 1 ? "设计自己的问题 →" : "下一关 →")
       : tr("check");
     panel.innerHTML = `
-      <h2>${state.mode === "standard" ? localized.title : "自定义问题"}</h2>
-      <p class="level-subtitle">${state.mode === "standard" ? localized.subtitle : state.weighted ? "最大权重独立集 · MWIS" : "几何最大独立集 · MIS"}</p>
+      ${state.mode === "standard" ? "" : `<h2>自定义问题</h2><p class="level-subtitle">${state.weighted ? "最大权重独立集 · MWIS" : "几何最大独立集 · MIS"}</p>`}
       ${state.mode === "standard" ? `<div class="level-picker">
         <div class="level-picker-heading"><span>关卡导航</span><b>${String(state.levelIndex + 1).padStart(2, "0")} / ${levels.length}</b></div>
         <div class="level-picker-row">
@@ -2869,7 +3107,7 @@ window.STANDARD_LEVELS = [
         ${state.mode === "standard" ? `<button id="remix-action" class="secondary-button" type="button">${tr("remix")}</button>` : ""}
         ${state.mode === "custom" ? `<button id="back-to-builder" class="secondary-button" type="button">${tr("backToEdit")}</button>` : ""}
         ${state.mode === "custom" ? `<button id="back-to-standard" class="ghost-button" type="button">${tr("backToChallenge")}</button>` : ""}
-        <div class="action-row">
+        <div class="action-row panel-game-actions">
           <button id="undo-action" class="ghost-button" type="button" ${state.selection.history.length ? "" : "disabled"}>${tr("undo")}</button>
           <button id="reset-action" class="ghost-button" type="button">${tr("reset")}</button>
           ${state.mode === "custom"
@@ -2879,21 +3117,32 @@ window.STANDARD_LEVELS = [
         ${state.mode === "standard" ? `<div class="hint-slot" aria-live="polite">${hintPanelMarkup()}</div>` : ""}
       </div>`;
 
+    const mobileActions = $("#mobile-game-actions");
+    mobileActions.innerHTML = `<button id="mobile-undo-action" class="ghost-button" type="button" ${state.selection.history.length ? "" : "disabled"}>${tr("undo")}</button>
+      <button id="mobile-reset-action" class="ghost-button" type="button">${tr("reset")}</button>
+      ${state.mode === "custom"
+        ? `<button id="mobile-sampler-action" class="ghost-button sampler-button" type="button">采样</button>`
+        : `<button id="mobile-hint-action" class="ghost-button" type="button">${tr("hint")}</button><div class="hint-slot mobile-hint-slot" aria-live="polite">${hintPanelMarkup()}</div>`}`;
+
     $("#level-select")?.addEventListener("change", (event) => loadLevel(Number(event.target.value)));
     $("#previous-level")?.addEventListener("click", () => loadLevel(state.levelIndex - 1));
     $("#next-level")?.addEventListener("click", () => loadLevel(state.levelIndex + 1));
     $("#main-action").onclick = mainAction;
-    $("#undo-action").onclick = () => { state.selection = MIS.undoSelection(state.selection); state.solved = false; clearVerdict(); renderPlay(); };
-    $("#reset-action").onclick = () => { state.selection = MIS.resetSelection(state.selection); state.solved = false; state.revealed = false; state.failures = 0; clearVerdict(); renderPlay(); };
-    $("#hint-action")?.addEventListener("click", () => {
+    const undoAction = () => { state.selection = MIS.undoSelection(state.selection); state.solved = false; clearVerdict(); renderPlay(); };
+    const resetAction = () => { state.selection = MIS.resetSelection(state.selection); state.solved = false; state.revealed = false; state.failures = 0; clearVerdict(); renderPlay(); };
+    const hintAction = () => {
       state.hintLevel = Math.min(3, state.hintLevel + 1);
       clearVerdict();
       renderBoard();
-      $(".hint-slot").innerHTML = hintPanelMarkup();
+      document.querySelectorAll(".hint-slot").forEach((slot) => { slot.innerHTML = hintPanelMarkup(); });
       $(".solution-slot").innerHTML = solutionControlMarkup();
       $("#solution-action")?.addEventListener("click", revealSolution);
-    });
+    };
+    [$("#undo-action"), $("#mobile-undo-action")].forEach((button) => { if (button) button.onclick = undoAction; });
+    [$("#reset-action"), $("#mobile-reset-action")].forEach((button) => { if (button) button.onclick = resetAction; });
+    [$("#hint-action"), $("#mobile-hint-action")].forEach((button) => { if (button) button.onclick = hintAction; });
     $("#sampler-action")?.addEventListener("click", () => showPage("quantum"));
+    $("#mobile-sampler-action")?.addEventListener("click", () => showPage("quantum"));
     $("#remix-action")?.addEventListener("click", enterBuilder);
     $("#back-to-builder")?.addEventListener("click", returnToBuilder);
     $("#back-to-standard")?.addEventListener("click", returnToStandard);
@@ -3003,6 +3252,7 @@ window.STANDARD_LEVELS = [
   }
 
   function renderBuilderControls() {
+    $("#mobile-game-actions").replaceChildren();
     const panel = $("#control-panel");
     const average = MIS.degreeStats(state.graph).average;
     panel.innerHTML = `
@@ -3285,13 +3535,21 @@ window.STANDARD_LEVELS = [
     button.disabled = true;
     const phasePanel = $("#sampler-phases");
     const candidatePanel = $("#sampler-candidates");
-    phasePanel.hidden = false;
-    candidatePanel.hidden = true;
-    const phases = [...phasePanel.children];
-    for (let i = 0; i < phases.length; i += 1) {
-      phases.forEach((phase, index) => phase.classList.toggle("active", index === i));
-      button.textContent = ["正在初始化…", "正在驱动…", "正在比较构型…", "正在测量…"][i];
-      await new Promise((resolve) => setTimeout(resolve, matchMedia("(prefers-reduced-motion: reduce)").matches ? 10 : 520));
+    const firstRun = state.samplerTotal === 0;
+    if (firstRun) {
+      phasePanel.hidden = false;
+      candidatePanel.hidden = true;
+      const phases = [...phasePanel.children];
+      for (let i = 0; i < phases.length; i += 1) {
+        phases.forEach((phase, index) => phase.classList.toggle("active", index === i));
+        button.textContent = ["正在制备原子…", "正在施加脉冲…", "正在模拟 blockade 演化…", "正在投影测量…"][i];
+        await new Promise((resolve) => setTimeout(resolve, matchMedia("(prefers-reduced-motion: reduce)").matches ? 10 : 620));
+      }
+    } else {
+      phasePanel.hidden = true;
+      candidatePanel.hidden = false;
+      button.textContent = `正在追加 ${SAMPLER_SHOT_COUNT} 次…`;
+      await new Promise((resolve) => setTimeout(resolve, matchMedia("(prefers-reduced-motion: reduce)").matches ? 10 : 90));
     }
     const greedy = MIS.greedy(state.graph, "min-degree");
     const shots = appendSamplerBatch();
@@ -3304,8 +3562,14 @@ window.STANDARD_LEVELS = [
       <div><span>采样器最佳</span><strong>${formatWeight(best)}</strong></div>
       <div><span>精确 ${state.weighted ? "MWIS" : "MIS"}</span><strong>${state.exact.score === null ? "不可用" : formatWeight(state.exact.score)}</strong></div>
     </div>`;
-    candidatePanel.innerHTML = `<div class="candidate-summary"><span>本轮完成 · 每次继续追加 ${SAMPLER_SHOT_COUNT} 次</span><strong>累计采样 ${state.samplerTotal} 次</strong></div>
-      <div class="candidate-heading"><b>候选结果</b><span>按出现次数排序 · 最高得分标绿</span></div>
+    const scoreGroups = aggregateScores(shots);
+    const largestScoreGroup = Math.max(...scoreGroups.map((group) => group.count));
+    const optimalCount = state.exact.score === null ? null : (scoreGroups.find((group) => group.score === state.exact.score)?.count || 0);
+    candidatePanel.innerHTML = `<div class="candidate-summary"><span>${state.samplerModel.method}</span><strong>累计测量 ${state.samplerTotal} 次</strong><small>${state.samplerModel.detail}</small></div>
+      <div class="score-distribution"><div class="candidate-heading"><b>得分分布</b><span>同分构型合并</span></div><p class="score-distribution-note">同一个分数可能来自多个不同 bitstring；这里合并为得分概率，下方仍逐个统计具体构型。</p>
+        ${optimalCount === null ? "" : `<div class="optimal-rate"><span>最优成功率 P<sub>opt</sub></span><strong>${(optimalCount / state.samplerTotal * 100).toFixed(1)}%</strong><small>${optimalCount} / ${state.samplerTotal} 次测量得到精确最优分 ${formatWeight(state.exact.score)}</small></div>`}
+        <div class="score-bars">${scoreGroups.slice(0, 4).map((group) => `<div class="score-bar ${group.score === state.exact.score ? "optimal" : ""}"><span>得分 ${formatWeight(group.score)}</span><i><b style="width:${Math.max(2, group.count / largestScoreGroup * 100)}%"></b></i><strong>${group.count} 次 · ${(group.count / state.samplerTotal * 100).toFixed(1)}%</strong></div>`).join("")}</div>
+      </div><div class="candidate-heading"><b>具体测量构型</b><span>每条 bitstring 分开统计</span></div>
       <div class="candidate-list">${shots.slice(0, 5).map((shot, index) => `<button class="candidate-button ${shot.score === best ? "best-score" : ""}" type="button" data-shot="${index}" aria-pressed="false"><i>${index + 1}</i><span><b>${shot.score === best ? "最高得分" : "得分"} ${formatWeight(shot.score)}</b><code>${shot.bits}</code></span><small>${shot.count} 次<br>${(shot.count / state.samplerTotal * 100).toFixed(1)}%</small></button>`).join("")}</div>`;
     phasePanel.hidden = true;
     candidatePanel.hidden = false;
@@ -3327,20 +3591,24 @@ window.STANDARD_LEVELS = [
   }
 
   function appendSamplerBatch() {
-    for (let sample = 0; sample < SAMPLER_SHOT_COUNT; sample += 1) {
-      const seed = state.samplerSeed++ * 97;
-      const indices = state.weighted
-        ? MIS.randomWeightedGreedy(state.graph, state.weights, seed)
-        : MIS.randomGreedy(state.graph, seed);
+    if (!state.samplerModel) state.samplerModel = MIS.prepareRydbergSampler(state.graph, state.weighted ? state.weights : null);
+    const samples = MIS.sampleRydberg(state.samplerModel, SAMPLER_SHOT_COUNT, state.samplerSeed++ * 104729);
+    samples.forEach((indices) => {
       const sorted = [...indices].sort((a,b)=>a-b);
       const bits = state.points.map((_, i) => sorted.includes(i) ? "1" : "0").join("");
       const score = state.weighted ? sorted.reduce((sum,i)=>sum+state.weights[i],0) : sorted.length;
       const existing = state.samplerResults.get(bits);
       if (existing) existing.count += 1;
       else state.samplerResults.set(bits, { bits, score, indices: sorted, count: 1 });
-    }
+    });
     state.samplerTotal += SAMPLER_SHOT_COUNT;
     return [...state.samplerResults.values()].sort((a,b) => b.count - a.count || b.score - a.score || a.bits.localeCompare(b.bits));
+  }
+
+  function aggregateScores(shots) {
+    const groups = new Map();
+    shots.forEach((shot) => groups.set(shot.score, (groups.get(shot.score) || 0) + shot.count));
+    return [...groups].map(([score, count]) => ({ score, count })).sort((a, b) => b.score - a.score);
   }
 
   function learnLine(svg, a, b, radius = 14) {
