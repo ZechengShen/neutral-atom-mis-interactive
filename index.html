@@ -2419,6 +2419,7 @@ window.STANDARD_LEVELS = [
     snap: false,
     dragging: null,
     feedbackTimer: null,
+    verdictTimer: null,
     resizeTimer: null,
     quantumPreview: null,
   };
@@ -2679,6 +2680,8 @@ window.STANDARD_LEVELS = [
   }
 
   function clearVerdict() {
+    clearTimeout(state.verdictTimer);
+    state.verdictTimer = null;
     const verdict = $("#board-verdict");
     verdict.hidden = true;
     verdict.className = "board-verdict";
@@ -2846,6 +2849,12 @@ window.STANDARD_LEVELS = [
     verdict.classList.remove("mistake");
     verdict.hidden = false;
     document.body.classList.add("board-success");
+    clearTimeout(state.verdictTimer);
+    state.verdictTimer = setTimeout(() => {
+      verdict.hidden = true;
+      verdict.replaceChildren();
+      state.verdictTimer = null;
+    }, 2400);
   }
 
   function enterBuilder() {
@@ -2870,7 +2879,7 @@ window.STANDARD_LEVELS = [
     state.builderSelected = null;
     state.addMode = false;
     computeExact();
-    renderPlay();
+    showPage("play");
   }
 
   function returnToCustomChallenge() {
