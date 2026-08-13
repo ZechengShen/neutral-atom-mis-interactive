@@ -1,0 +1,2978 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f4f3ef">
+  <title>原子与图 — MIS / MWIS 互动演示</title>
+  <meta name="description" content="从现实冲突问题到最大独立集、最大权重独立集与中性原子 blockade 的中文互动演示。">
+  <style>
+:root {
+  color-scheme: light;
+  --paper: #f4f3ef;
+  --paper-2: #ebe9e2;
+  --surface: #fbfaf7;
+  --stage: #f7f6f2;
+  --ink: #20231f;
+  --muted: #636861;
+  --subtle: #898d86;
+  --line: #d3d1c9;
+  --line-dark: #747a73;
+  --edge: #626a63;
+  --accent: #32675d;
+  --accent-hover: #28574f;
+  --accent-pressed: #214a43;
+  --accent-soft: #dde9e4;
+  --accent-wash: rgba(50, 103, 93, .10);
+  --blocked: #b6bab3;
+  --warm: #83502b;
+  --warm-soft: #f0e3d7;
+  --white: #fdfdf9;
+  --shadow: 0 18px 50px rgba(31, 37, 32, .06);
+  --radius: 16px;
+  --font: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font);
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+svg { shape-rendering: geometricPrecision; text-rendering: optimizeLegibility; }
+html { min-width: 320px; min-height: 100%; background: var(--paper); color: var(--ink); }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 10% 8%, rgba(255,255,255,.92), transparent 25rem),
+    linear-gradient(155deg, rgba(255,255,255,.15), transparent 45%),
+    var(--paper);
+}
+button, input, select { font: inherit; }
+button { color: inherit; }
+button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 48%, transparent);
+  outline-offset: 3px;
+}
+
+.topbar {
+  position: relative;
+  z-index: 10;
+  height: 70px;
+  padding: 0 clamp(24px, 3.2vw, 50px);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  background: rgba(244,243,239,.88);
+  backdrop-filter: blur(14px);
+}
+.brand { display: inline-flex; justify-self: start; align-items: center; gap: 11px; padding: 10px 0; border: 0; background: none; cursor: pointer; font-weight: 700; letter-spacing: .03em; }
+.brand-mark { display: flex; align-items: center; gap: 3px; }
+.brand-mark i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.brand-mark i:nth-child(2) { transform: translateY(-5px); }
+.nav { align-self: stretch; display: flex; gap: clamp(18px, 2.5vw, 38px); }
+.nav-button { position: relative; padding: 0 2px; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 13px; font-weight: 700; letter-spacing: .08em; }
+.nav-button::after { content: ""; position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; background: transparent; }
+.nav-button:hover, .nav-button.active { color: var(--ink); }
+.nav-button.active::after { background: var(--accent); }
+.header-note { justify-self: end; color: var(--subtle); font-size: 10px; font-weight: 700; letter-spacing: .13em; }
+
+main { width: min(1500px, 100%); margin: 0 auto; }
+.page { display: none; padding: clamp(28px, 3.5vw, 48px) clamp(24px, 3.5vw, 54px) 46px; }
+.page.active { display: block; animation: page-in 220ms ease-out; }
+@keyframes page-in { from { opacity: .3; transform: translateY(5px); } }
+.eyebrow { margin: 0 0 10px; color: var(--accent); font-size: 12px; font-weight: 800; letter-spacing: .11em; }
+h1 { max-width: 850px; margin: 0; font-size: clamp(29px, 3vw, 43px); font-weight: 670; line-height: 1.12; letter-spacing: -.035em; }
+h2 { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: -.02em; }
+.page-heading { margin-bottom: 24px; }
+.page-heading > p:last-child, .page-heading > div > p:last-child { max-width: 930px; margin: 10px 0 0; color: var(--muted); font-size: 15px; line-height: 1.7; }
+.split-heading { display: flex; align-items: end; justify-content: space-between; gap: 28px; }
+
+.primary-button, .secondary-button, .ghost-button {
+  min-height: 47px;
+  padding: 0 19px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: transform 120ms ease, background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+.primary-button { color: var(--white); background: var(--accent); box-shadow: 0 7px 18px rgba(50,103,93,.13); }
+.primary-button:hover { transform: translateY(-1px); background: var(--accent-hover); box-shadow: 0 10px 22px rgba(50,103,93,.18); }
+.primary-button:active { transform: translateY(0); background: var(--accent-pressed); }
+.primary-button span { display: inline-block; margin-left: 9px; transition: transform 150ms ease; }
+.primary-button:hover span { transform: translateX(3px); }
+.secondary-button { background: rgba(255,255,255,.3); border-color: var(--line-dark); }
+.secondary-button:hover { transform: translateY(-1px); background: var(--surface); border-color: var(--ink); }
+.secondary-button:active { transform: translateY(0); background: var(--paper-2); }
+.ghost-button { min-height: 39px; padding: 0 12px; color: var(--muted); background: transparent; border-color: var(--line); }
+.ghost-button:hover { color: var(--ink); background: rgba(255,255,255,.38); border-color: var(--line-dark); }
+.solution-button { min-height: 49px; padding: 8px 14px; color: var(--warm); background: var(--warm-soft); border: 1px solid color-mix(in srgb,var(--warm) 55%,var(--line)); border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 800; }
+.solution-button span { display: block; margin-top: 2px; color: var(--muted); font-size: 9px; font-weight: 500; }
+.solution-button:hover { background: color-mix(in srgb,var(--warm-soft) 78%,white); border-color: var(--warm); }
+button:disabled { opacity: .42; cursor: not-allowed; transform: none !important; }
+
+.intro-page.active {
+  min-height: calc(100vh - 70px);
+  display: grid;
+  grid-template-columns: minmax(480px, 1.03fr) minmax(430px, .97fr);
+  align-items: center;
+  gap: clamp(40px, 6vw, 88px);
+  padding-top: 34px;
+  padding-bottom: 34px;
+}
+.intro-copy h1 { font-size: clamp(38px, 4.2vw, 61px); line-height: 1.13; }
+.intro-lead { max-width: 650px; margin: 20px 0 0; color: var(--muted); font-size: 16px; line-height: 1.85; }
+.definition-list { max-width: 650px; margin: 24px 0 18px; border: 1px solid var(--line); border-radius: 13px; background: rgba(251,250,247,.76); overflow: hidden; }
+.definition-list div { display: grid; grid-template-columns: 195px 1fr; gap: 18px; padding: 13px 17px; border-bottom: 1px solid var(--line); align-items: center; }
+.definition-list div:last-child { border-bottom: 0; }
+.definition-list strong { font-size: 13px; }
+.definition-list div:nth-child(2) strong { color: var(--accent); }
+.definition-list div:nth-child(3) strong { color: var(--warm); }
+.definition-list span { color: var(--muted); font-size: 13px; }
+.intro-tip { max-width: 630px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.intro-actions { display: flex; gap: 11px; margin-top: 22px; }
+.intro-actions button { min-width: 165px; }
+.intro-figure { padding: 17px 20px 20px; border: 1px solid var(--line); border-radius: 20px; background: rgba(251,250,247,.77); box-shadow: var(--shadow); overflow: hidden; }
+.figure-label { display: flex; align-items: center; justify-content: space-between; padding: 3px 4px 6px; }
+.figure-label span { color: var(--subtle); font-size: 11px; letter-spacing: .08em; }
+.figure-label strong { color: var(--accent); font-size: 12px; }
+.intro-figure svg { width: min(100%, 550px); overflow: visible; animation: graph-float 8s ease-in-out infinite; transform-origin: center; }
+.intro-edges line { stroke: var(--edge); stroke-width: 2.4; opacity: .82; }
+.intro-halos circle { fill: var(--accent-soft); stroke: none; }
+.intro-nodes circle { fill: var(--surface); stroke: var(--line-dark); stroke-width: 3; }
+.intro-picked circle { fill: var(--accent); stroke: var(--accent); stroke-width: 3; }
+.figure-caption { display: flex; justify-content: center; align-items: baseline; gap: 10px; margin-top: -20px; }
+.figure-caption strong { color: var(--accent); font-size: 24px; }
+.figure-caption span { color: var(--muted); font-size: 12px; }
+@keyframes graph-float { 0%,100% { transform: translate(0,0) rotate(-.25deg); } 45% { transform: translate(2px,-3px) rotate(.4deg); } }
+
+.mapping-logic { margin: 0 0 18px; padding: 18px 20px; display: grid; grid-template-columns: minmax(250px,.75fr) minmax(0,1.55fr); gap: 18px 28px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper-2); }
+.logic-intro > span { color: var(--accent); font-size: 11px; font-weight: 800; letter-spacing: .08em; }
+.logic-intro h2 { margin-top: 7px; font-size: 20px; line-height: 1.48; }
+.mapping-logic ol { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 0; padding: 0; list-style: none; counter-reset: logic; }
+.mapping-logic li { position: relative; padding: 28px 12px 10px; border-left: 1px solid var(--line); counter-increment: logic; }
+.mapping-logic li::before { content: counter(logic, decimal-leading-zero); position: absolute; top: 0; left: 12px; color: var(--subtle); font-size: 10px; font-weight: 800; }
+.mapping-logic li b, .mapping-logic li span { display: block; }
+.mapping-logic li b { margin-bottom: 6px; font-size: 13px; }
+.mapping-logic li span { color: var(--muted); font-size: 13px; line-height: 1.7; }
+.objective-key { grid-column: 1 / -1; display: flex; gap: 22px; padding-top: 11px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.55; }
+.objective-key i { display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; }
+.objective-key .direct { background: var(--accent); }.objective-key .complement { background: var(--warm); }.objective-key .outer { border: 1px solid var(--line-dark); background: var(--surface); }
+.objective-key b { color: var(--ink); }
+.case-tabs { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin: 0 0 14px; }
+.case-tab { position: relative; min-height: 78px; padding: 13px 16px; display: grid; grid-template-columns: 34px 1fr; grid-template-rows: auto auto; align-items: center; column-gap: 10px; color: var(--muted); text-align: left; border: 1px solid var(--line); border-radius: 12px; background: rgba(251,250,247,.54); cursor: pointer; transition: 160ms ease; }
+.case-tab:hover { color: var(--ink); border-color: var(--line-dark); background: var(--surface); transform: translateY(-1px); }
+.case-tab.active { color: var(--ink); border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 -3px 0 var(--accent); }
+.case-tab > span { grid-row: 1 / 3; color: var(--subtle); font-size: 11px; font-weight: 800; letter-spacing: .08em; }
+.case-tab strong { align-self: end; font-size: 15px; font-weight: 750; }
+.case-tab small { align-self: start; margin-top: 2px; color: var(--muted); font-size: 11px; }
+.mapping-grid { display: block; }
+.mapping-card { min-width: 0; padding: 24px 25px; display: grid; grid-template-columns: minmax(300px,.85fr) minmax(480px,1.35fr); column-gap: 28px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(251,250,247,.82); box-shadow: 0 10px 32px rgba(31,37,32,.035); }
+.mapping-card[hidden] { display: none; }
+.mapping-card.active { animation: case-in 190ms ease-out; }
+@keyframes case-in { from { opacity: .25; transform: translateY(4px); } }
+.mapping-card > header, .mapping-card > .case-question, .mapping-card > .mapping-diagram, .mapping-card > .flow-strip { grid-column: 1; }
+.mapping-card > .case-logic { grid-column: 2; grid-row: 1 / span 4; align-self: center; }
+.mapping-card header { display: flex; align-items: center; gap: 12px; }
+.case-tag { margin-left: auto; padding: 4px 7px; color: var(--accent); background: var(--accent-soft); border-radius: 999px; font-size: 9px; font-style: normal; font-weight: 800; }
+.case-tag.outer-tag { color: var(--warm); background: var(--warm-soft); }
+.mapping-card header > span, .learn-copy > span { color: var(--accent); font-size: 12px; font-weight: 800; letter-spacing: .08em; }
+.warm-card header > span, .warm-card .learn-copy > span { color: var(--warm); }
+.case-question { margin: 13px 0; color: var(--muted); font-size: 15px; line-height: 1.75; }
+.case-question b { color: var(--ink); }
+.mapping-diagram { height: 210px; border-radius: 10px; background: var(--stage); overflow: hidden; }
+.mapping-diagram svg { width: 100%; height: 100%; }
+.mini-edge { stroke: var(--edge); stroke-width: 2; }
+.mini-node { fill: var(--surface); stroke: var(--line-dark); stroke-width: 2; }
+.mini-node.selected { fill: var(--case-color, var(--accent)); stroke: var(--case-color, var(--accent)); }
+.mini-halo { fill: var(--accent-soft); stroke: var(--case-color, var(--accent)); stroke-width: 1; stroke-dasharray: 4 5; }
+.mini-label { fill: var(--subtle); font: 10px var(--font); text-anchor: middle; }
+.mini-arrow { fill: var(--line-dark); font: 17px var(--font); text-anchor: middle; }
+.mini-real { fill: none; stroke: var(--case-color, var(--accent)); stroke-width: 2; }
+.warm-card .mapping-diagram { --case-color: var(--warm); }
+.warm-card .mini-halo { fill: var(--warm-soft); }
+.flow-strip { display: flex; justify-content: space-between; align-items: center; gap: 5px; margin: 15px 0 0; white-space: nowrap; font-size: 12px; }
+.flow-strip span { color: var(--muted); }
+.flow-strip i { color: var(--subtle); font-style: normal; }
+.flow-strip strong { color: var(--accent); font-size: 12px; }
+.warm-card .flow-strip strong { color: var(--warm); }
+.case-logic { display: grid; gap: 10px; }
+.case-logic p { margin: 0; padding: 12px 14px; display: grid; grid-template-columns: 112px 1fr; gap: 13px; color: var(--muted); border-left: 3px solid var(--line); background: rgba(255,255,255,.25); border-radius: 0 9px 9px 0; font-size: 14px; line-height: 1.75; }
+.case-logic p b { color: var(--ink); font-size: 13px; }
+.case-logic p span { min-width: 0; }
+.case-logic p:nth-child(3) { color: var(--accent); border-color: var(--accent); }
+.warm-card .case-logic p:nth-child(3) { color: var(--warm); border-color: var(--warm); }
+.case-logic .not-mis { color: var(--muted); background: rgba(0,0,0,.018); border-color: var(--line-dark); }
+.case-logic code { padding: 1px 4px; color: var(--ink); background: var(--paper-2); border-radius: 4px; font-family: ui-monospace, monospace; }
+.blockade-bridge { margin: 15px 0 0; padding: 17px 19px; display: grid; grid-template-columns: .8fr 1.5fr; gap: 25px; align-items: center; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--accent-soft); }
+.blockade-bridge > div span { color: var(--accent); font-size: 10px; font-weight: 800; letter-spacing: .1em; }
+.blockade-bridge h2 { margin-top: 6px; font-size: 17px; line-height: 1.45; }
+.blockade-bridge ol { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px 14px; margin: 0; padding: 0; list-style: none; }
+.blockade-bridge li { display: grid; grid-template-columns: auto 1fr; gap: 7px; font-size: 11px; }
+.blockade-bridge li b { color: var(--ink); }.blockade-bridge li span { color: var(--accent); }
+.model-note { margin: 14px 0 0; padding: 11px 14px; color: var(--accent); background: var(--accent-soft); border-radius: 9px; font-size: 11px; line-height: 1.6; }
+
+.play-heading { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 18px; }
+.play-heading h1 { font-size: clamp(27px, 2.5vw, 37px); }
+.play-heading p:last-child { max-width: 780px; margin: 8px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.progress-wrap { width: min(220px, 24vw); color: var(--muted); text-align: right; font-size: 12px; }
+.progress-track { height: 4px; margin-top: 9px; background: var(--line); overflow: hidden; }
+.progress-track i { display: block; width: 0; height: 100%; background: var(--accent); transition: width 250ms ease; }
+.play-layout { display: grid; grid-template-columns: minmax(0, 980px) 344px; gap: 20px; align-items: stretch; justify-content: center; }
+.board-panel { position: relative; min-height: 600px; display: grid; grid-template-rows: minmax(0, 1fr) auto; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(251,250,247,.58); overflow: hidden; }
+#atom-board { width: 100%; height: auto; min-height: 0; aspect-ratio: 3 / 2; touch-action: none; }
+#quantum-board { width: 100%; height: auto; min-height: 0; aspect-ratio: 8 / 5; }
+.board-feedback { position: absolute; top: 16px; left: 50%; z-index: 3; min-width: 250px; padding: 10px 15px; transform: translate(-50%,-10px); opacity: 0; color: var(--accent); text-align: center; font-size: 13px; font-weight: 700; background: rgba(251,250,247,.96); border: 1px solid var(--accent); border-radius: 999px; pointer-events: none; transition: 170ms ease; box-shadow: 0 8px 24px rgba(31,37,32,.08); }
+.board-feedback.show { opacity: 1; transform: translate(-50%,0); }
+.board-feedback.mistake { color: var(--warm); border-color: var(--warm); background: rgba(252,247,242,.97); }
+.board-verdict { position: absolute; top: 18px; left: 18px; z-index: 4; max-width: min(410px,calc(100% - 36px)); padding: 14px 17px 14px 48px; color: var(--accent); background: rgba(247,252,249,.97); border: 1px solid var(--accent); border-radius: 13px; box-shadow: 0 14px 35px rgba(31,37,32,.13); animation: verdict-in 260ms cubic-bezier(.2,.8,.2,1); }
+.board-verdict[hidden] { display: none; }
+.board-verdict::before { position: absolute; top: 13px; left: 16px; width: 23px; height: 23px; display: grid; place-items: center; color: var(--white); background: var(--accent); border-radius: 50%; content: "✓"; font-size: 13px; font-weight: 900; }
+.board-verdict strong, .board-verdict span { display: block; }
+.board-verdict strong { font-size: 14px; }.board-verdict span { margin-top: 3px; color: var(--muted); font-size: 11px; line-height: 1.55; }
+.board-verdict.mistake { color: var(--warm); background: rgba(253,248,243,.98); border-color: var(--warm); }
+.board-verdict.mistake::before { content: "!"; background: var(--warm); }
+@keyframes verdict-in { from { opacity: 0; transform: translateY(-8px) scale(.98); } }
+.board-legend { display: flex; justify-content: center; gap: 22px; padding: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+.board-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.legend-line { width: 21px; border-top: 2px solid var(--edge); }
+.legend-dot { width: 9px; height: 9px; border: 1px solid var(--line-dark); border-radius: 50%; background: var(--surface); }
+.legend-dot.excited { background: var(--accent); border-color: var(--accent); }
+.legend-dot.blocked { background: var(--blocked); border-color: var(--blocked); }
+.control-panel { min-height: 600px; padding: 25px; display: flex; flex-direction: column; gap: 18px; border-radius: var(--radius); background: var(--paper-2); }
+.control-panel h2 { margin: 0; font-size: 19px; }
+.level-subtitle { margin: -11px 0 0; color: var(--muted); font-size: 12px; }
+.level-purpose { margin: 0; font-size: 13px; line-height: 1.65; }
+.level-select-label, .field-label { display: grid; gap: 8px; color: var(--muted); font-size: 12px; font-weight: 700; }
+select, input[type="number"] { width: 100%; min-height: 43px; padding: 0 11px; color: var(--ink); background: rgba(255,255,255,.44); border: 1px solid var(--line-dark); border-radius: 8px; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+.score-line { display: flex; align-items: end; justify-content: space-between; padding: 16px 14px; border: 1px solid var(--line); border-radius: 10px; background: rgba(251,250,247,.65); }
+.score-line span { color: var(--muted); font-size: 12px; }
+.score-line strong { font-size: 31px; font-weight: 620; line-height: 1; font-variant-numeric: tabular-nums; }
+.status-message { min-height: 76px; margin: 0; padding: 12px 13px; color: var(--muted); font-size: 12px; line-height: 1.65; border-left: 3px solid var(--line); }
+.status-message strong, .status-message span { display: block; }.status-message strong { margin-bottom: 3px; color: inherit; font-size: 13px; }.status-message span { color: inherit; }
+.status-message.success { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); }
+.status-message.mistake { color: var(--warm); background: var(--warm-soft); border-color: var(--warm); }
+.action-stack { margin-top: auto; display: grid; gap: 9px; }
+.action-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.hint-box { padding: 11px 12px; color: var(--accent); background: var(--accent-soft); border-radius: 8px; font-size: 12px; line-height: 1.55; }
+.builder-tools { display: grid; gap: 13px; }
+.metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.metrics div { padding: 10px 11px; border: 1px solid var(--line); border-radius: 8px; background: rgba(251,250,247,.45); }
+.metrics span { display: block; color: var(--muted); font-size: 10px; }
+.metrics strong { display: block; margin-top: 3px; font-size: 17px; }
+.switch-line { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+.switch-line input { width: 19px; height: 19px; accent-color: var(--accent); }
+.edit-help { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.weight-editor { padding-top: 11px; border-top: 1px solid var(--line); }
+
+/* Conflict edges are primary puzzle information: always visible, high enough
+   contrast to survive the soft background and blockade overlays. */
+.graph-edge { stroke: var(--edge); stroke-width: 2.35; opacity: .82; vector-effect: non-scaling-stroke; stroke-linecap: round; transition: stroke 160ms ease, opacity 160ms ease, stroke-width 160ms ease; }
+.graph-edge.incident-edge { stroke: var(--accent); stroke-width: 3.2; opacity: 1; }
+.graph-edge.builder-edge { stroke-dasharray: 5 5; opacity: .72; }
+.blockade-ring { fill: var(--accent-wash); stroke: var(--accent); stroke-width: 1.25; stroke-dasharray: 5 6; opacity: .62; vector-effect: non-scaling-stroke; }
+.atom-hit { fill: transparent; cursor: pointer; }
+.atom-visible { fill: var(--surface); stroke: #5f655f; stroke-width: 2.6; pointer-events: none; vector-effect: non-scaling-stroke; transition: 160ms ease; }
+.atom-label { fill: var(--muted); font-size: 11px; text-anchor: middle; pointer-events: none; }
+.atom-group.excited .atom-visible { fill: var(--accent); stroke: var(--accent); }
+.atom-group.blocked .atom-visible { fill: var(--blocked); stroke: #8c918b; }
+.atom-group.hinted .atom-visible, .atom-group.builder-selected .atom-visible { stroke: var(--warm); stroke-width: 4; }
+.atom-group.conflict-source .atom-visible { animation: conflict-pulse 600ms ease; }
+.atom-group.solved .atom-visible { animation: solved-pulse 650ms ease; }
+body.board-success #atom-board { animation: board-success 640ms ease; }
+body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
+@keyframes conflict-pulse { 50% { transform: scale(1.35); transform-origin: center; } }
+@keyframes solved-pulse { 40% { transform: scale(1.22); transform-origin: center; } }
+@keyframes board-success { 35% { filter: drop-shadow(0 0 9px rgba(50,103,93,.24)); } }
+@keyframes board-mistake { 25% { transform: translateX(-4px); } 50% { transform: translateX(4px); } 75% { transform: translateX(-2px); } }
+
+.quantum-layout { display: grid; grid-template-columns: minmax(0, 1fr) 344px; gap: 20px; }
+.quantum-board-wrap { min-height: 550px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(251,250,247,.5); overflow: hidden; }
+.source-line { padding: 15px 18px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+.source-line strong { color: var(--ink); }
+.quantum-controls { min-height: 550px; padding: 24px; display: flex; flex-direction: column; gap: 20px; border-radius: var(--radius); background: var(--paper-2); }
+.source-box { display: grid; gap: 5px; }
+.source-box span, .source-box small { color: var(--muted); font-size: 11px; }
+.source-box strong { font-size: 17px; }
+.phase-list { display: grid; }
+.phase-list > div { display: grid; grid-template-columns: 33px 1fr; align-items: center; gap: 10px; padding: 10px 0; color: var(--muted); border-bottom: 1px solid var(--line); }
+.phase-list i { width: 27px; height: 27px; display: grid; place-items: center; border: 1px solid var(--line-dark); border-radius: 50%; font-size: 10px; font-style: normal; }
+.phase-list span { font-size: 12px; }
+.phase-list small { display: block; margin-top: 2px; font-size: 10px; }
+.phase-list > div.active { color: var(--accent); }
+.phase-list > div.active i { color: var(--white); border-color: var(--accent); background: var(--accent); }
+.quantum-controls .primary-button { margin-top: auto; }
+.fine-print { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.55; }
+.quantum-results { margin-top: 22px; }
+.comparison { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); }
+.comparison div { padding: 16px; background: var(--surface); }
+.comparison span { display: block; color: var(--muted); font-size: 11px; }
+.comparison strong { display: block; margin-top: 4px; font-size: 23px; }
+.shots { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+.shot-button { padding: 8px 10px; border: 1px solid var(--line-dark); border-radius: 7px; background: transparent; cursor: pointer; font-family: ui-monospace, monospace; }
+
+.learn-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+.learn-card { min-height: 255px; padding: 20px; display: grid; grid-template-columns: minmax(0,1fr) 190px; gap: 18px; align-items: center; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(251,250,247,.78); }
+.learn-copy h2 { margin: 6px 0 10px; }
+.learn-copy p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.learn-visual { position: relative; min-height: 160px; border-radius: 10px; background: var(--stage); overflow: hidden; }
+.learn-visual svg { width: 100%; height: 160px; }
+.learn-footer { margin: 14px 0 0; padding: 12px; color: var(--accent); text-align: center; font-size: 12px; font-weight: 700; background: var(--paper-2); border-radius: 9px; }
+.weight-demo i { position: absolute; z-index: 2; top: 48px; width: 30px; height: 30px; display: grid; place-items: center; border: 2px solid var(--warm); border-radius: 50%; color: var(--warm); font-style: normal; font-size: 11px; background: var(--surface); }
+.weight-demo i:nth-child(1) { left: 15px; }.weight-demo i:nth-child(2) { left: 80px; top: 84px; }.weight-demo i:nth-child(3) { right: 15px; }
+.weight-demo i.chosen { color: var(--white); background: var(--warm); }
+.weight-demo span { position: absolute; top: 63px; left: 43px; right: 43px; height: 55px; border-top: 2px solid var(--edge); border-bottom: 2px solid var(--edge); transform: skewY(27deg); }
+.weight-demo b, .geometry-demo > b, .blockade-demo b { position: absolute; right: 0; bottom: 12px; left: 0; color: var(--warm); text-align: center; font-size: 10px; }
+.geometry-demo { display: flex; align-items: center; justify-content: space-around; }
+.geometry-demo > strong { color: var(--accent); }
+.geo-left, .geo-right { position: relative; width: 58px; height: 90px; }
+.geo-left i, .geo-right i { position: absolute; width: 14px; height: 14px; border: 2px solid var(--accent); border-radius: 50%; background: var(--surface); }
+.geo-left i:nth-child(1), .geo-right i:nth-child(1) { top: 8px; left: 4px; }.geo-left i:nth-child(2), .geo-right i:nth-child(2) { top: 56px; left: 8px; }.geo-left i:nth-child(3), .geo-right i:nth-child(3) { top: 30px; right: 2px; }
+.geo-right span { position: absolute; left: 15px; width: 39px; border-top: 2px solid var(--edge); transform-origin: left; }
+.geo-right span:nth-of-type(1) { top: 20px; transform: rotate(30deg); }.geo-right span:nth-of-type(2) { top: 65px; transform: rotate(-31deg); }
+.geometry-demo > b { color: var(--accent); }
+.blockade-demo div { position: absolute; top: 17px; left: 30px; width: 122px; height: 122px; border: 1px dashed var(--accent); border-radius: 50%; background: var(--accent-soft); }
+.blockade-demo i { position: absolute; z-index: 2; top: 72px; width: 23px; height: 23px; border: 2px solid var(--accent); border-radius: 50%; background: var(--surface); }
+.blockade-demo i:nth-of-type(1) { left: 75px; background: var(--accent); }.blockade-demo i:nth-of-type(2) { right: 13px; }
+.blockade-demo span { position: absolute; z-index: 2; top: 28px; left: 65px; color: var(--accent); font-size: 10px; font-weight: 700; }
+.blockade-demo b { color: var(--muted); }
+
+@media (max-width: 1120px) {
+  .intro-page.active { grid-template-columns: 1fr 440px; gap: 34px; }
+  .mapping-card { grid-template-columns: 340px 1fr; column-gap: 22px; }
+  .learn-card { grid-template-columns: 1fr 160px; }
+}
+@media (max-width: 900px) {
+  .header-note { display: none; }.topbar { grid-template-columns: auto 1fr; }.nav { justify-self: end; }
+  .intro-page.active { grid-template-columns: 1fr; }.intro-figure { order: -1; max-width: 570px; margin: 0 auto; }.intro-figure svg { max-height: 330px; }
+  .play-layout, .quantum-layout, .learn-grid { grid-template-columns: 1fr; }
+  .mapping-logic, .blockade-bridge { grid-template-columns: 1fr; }.mapping-logic ol { grid-template-columns: 1fr 1fr 1fr; }
+  .mapping-card { grid-template-columns: 1fr; }.mapping-card > header, .mapping-card > .case-question, .mapping-card > .mapping-diagram, .mapping-card > .flow-strip, .mapping-card > .case-logic { grid-column: 1; grid-row: auto; }.mapping-card > .case-logic { margin-top: 17px; }
+  .control-panel, .quantum-controls { min-height: 0; }
+  .learn-card { min-height: 230px; }
+}
+@media (max-width: 680px) {
+  .topbar { height: auto; min-height: 66px; padding: 0 15px; }.brand > span:last-child { display: none; }.nav { gap: 12px; overflow-x: auto; }.nav-button { min-width: max-content; font-size: 11px; }
+  .page { padding: 24px 14px 36px; }.split-heading { display: block; }.split-heading > button { width: 100%; margin-top: 18px; }
+  .intro-page.active { min-height: 0; padding-top: 18px; }.intro-copy h1 { font-size: 39px; }.intro-lead { font-size: 14px; }.definition-list div { grid-template-columns: 1fr; gap: 4px; }.intro-actions { display: grid; grid-template-columns: 1fr; }.intro-actions .secondary-button { order: 0; }.intro-actions .primary-button { order: 1; }
+  .mapping-logic { padding: 16px; }.mapping-logic ol, .blockade-bridge ol { grid-template-columns: 1fr; }.objective-key { display: grid; gap: 7px; }.case-tabs { grid-template-columns: 1fr; }.case-tab { min-height: 62px; }.mapping-card { display: block; padding: 18px; }.mapping-card .mapping-diagram { margin-top: 12px; }.flow-strip { overflow-x: auto; }.case-logic p { grid-template-columns: 1fr; gap: 5px; font-size: 13px; }
+  .play-heading { display: block; }.progress-wrap { width: 100%; margin-top: 15px; text-align: left; }.play-layout { gap: 12px; }.board-panel { min-height: 410px; }.board-legend { gap: 11px; flex-wrap: wrap; }#atom-board,#quantum-board { min-height: 350px; }.control-panel { padding: 20px; }
+  .learn-card { grid-template-columns: 1fr; }.learn-visual { min-height: 150px; }.comparison { grid-template-columns: repeat(2,1fr); }
+}
+@media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <button class="brand" type="button" data-page="intro" aria-label="返回首页">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span>原子 / 图</span>
+    </button>
+    <nav class="nav" aria-label="主要页面">
+      <button class="nav-button active" data-page="intro">首页</button>
+      <button class="nav-button" data-page="mapping">问题映射</button>
+      <button class="nav-button" data-page="play">挑战</button>
+      <button class="nav-button" data-page="learn">学习</button>
+    </nav>
+    <span class="header-note">MIS · MWIS · BLOCKADE</span>
+  </header>
+
+  <main>
+    <section id="intro-page" class="page intro-page active" aria-labelledby="intro-title">
+      <div class="intro-copy">
+        <p class="eyebrow">最大独立集 · MIS</p>
+        <h1 id="intro-title">避开冲突，<br>选出最多节点。</h1>
+        <p class="intro-lead">先把现实问题画成一张冲突图：圆点是候选项，连线表示两个候选不能同时选择。独立集要求任意两个已选节点之间都没有连线；MIS 则继续追问——合法前提下，最多能选多少个？</p>
+        <div class="definition-list" aria-label="MIS 与 MWIS 定义">
+          <div><strong>独立集</strong><span>已选节点两两不相邻</span></div>
+          <div><strong>MIS</strong><span>让已选节点数量达到全局最大</span></div>
+          <div><strong>MWIS</strong><span>让已选节点总价值达到全局最大</span></div>
+        </div>
+        <p class="intro-tip">关键不是找到一个“看起来已经很多”的方案，而是判断它是否真的是全局最大。</p>
+        <div class="intro-actions">
+          <button id="open-mapping" class="secondary-button" type="button">查看问题映射</button>
+          <button id="start-challenges" class="primary-button" type="button">开始第一关 <span>→</span></button>
+        </div>
+      </div>
+
+      <div class="intro-figure" aria-label="大小为三的最大独立集示例">
+        <div class="figure-label"><span>互动示例</span><strong>一组最大独立集</strong></div>
+        <svg viewBox="0 0 520 450" role="img" aria-label="绿色节点彼此不相邻">
+          <g class="intro-edges">
+            <line x1="92" y1="106" x2="235" y2="68"></line><line x1="92" y1="106" x2="155" y2="232"></line>
+            <line x1="235" y1="68" x2="323" y2="184"></line><line x1="155" y1="232" x2="323" y2="184"></line>
+            <line x1="155" y1="232" x2="254" y2="345"></line><line x1="323" y1="184" x2="412" y2="292"></line>
+            <line x1="254" y1="345" x2="412" y2="292"></line>
+          </g>
+          <g class="intro-halos"><circle cx="92" cy="106" r="31"></circle><circle cx="323" cy="184" r="31"></circle><circle cx="254" cy="345" r="31"></circle></g>
+          <g class="intro-nodes"><circle cx="92" cy="106" r="13"></circle><circle cx="235" cy="68" r="13"></circle><circle cx="155" cy="232" r="13"></circle><circle cx="323" cy="184" r="13"></circle><circle cx="254" cy="345" r="13"></circle><circle cx="412" cy="292" r="13"></circle></g>
+          <g class="intro-picked"><circle cx="92" cy="106" r="13"></circle><circle cx="323" cy="184" r="13"></circle><circle cx="254" cy="345" r="13"></circle></g>
+        </svg>
+        <div class="figure-caption"><strong>3 个</strong><span>绿色节点两两之间没有冲突边</span></div>
+      </div>
+    </section>
+
+    <section id="mapping-page" class="page mapping-page" aria-labelledby="mapping-title">
+      <div class="page-heading split-heading">
+        <div>
+          <p class="eyebrow">从现实问题到原子 blockade</p>
+          <h1 id="mapping-title">同一套冲突语言，三种现实问题</h1>
+          <p>先把“不能同时发生”画成边，再决定最大化数量（MIS）还是总价值（MWIS），最后把冲突图编译成原子位置与有效 blockade 约束。</p>
+        </div>
+        <button id="mapping-start" class="primary-button" type="button">进入挑战 <span>→</span></button>
+      </div>
+
+      <section class="mapping-logic" aria-labelledby="mapping-logic-title">
+        <div class="logic-intro"><span>关键逻辑</span><h2 id="mapping-logic-title">不是把“最小”机械地改成“最大”，而是先决定节点和“被选中”分别代表什么</h2></div>
+        <ol>
+          <li><b>定义候选节点</b><span>一个节点可以代表一条信号、一个用户—时隙请求，或“任务在某时刻开始”这一候选安排。</span></li>
+          <li><b>定义冲突边</b><span>只有两个候选不能同时成立时，才在它们之间连边。合法解因此成为独立集。</span></li>
+          <li><b>对齐目标方向</b><span>最大化保留量可直接用 MIS/MWIS；最小化目标只能在存在补集、分层或可行性判定关系时转换。</span></li>
+        </ol>
+        <div class="objective-key"><span><i class="direct"></i><b>直接最大化</b>　一次 MIS/MWIS 就是原目标</span><span><i class="complement"></i><b>补集转换</b>　固定总量 − 最大保留量</span><span><i class="outer"></i><b>外层转换</b>　MIS 只是分时或可行性子问题</span></div>
+      </section>
+
+      <div class="case-tabs" role="tablist" aria-label="选择现实问题">
+        <button id="case-tab-antenna" class="case-tab active" type="button" role="tab" aria-selected="true" aria-controls="case-panel-antenna" data-case-target="antenna"><span>01</span><strong>天线信号</strong><small>直接最大化 / 补集</small></button>
+        <button id="case-tab-station" class="case-tab" type="button" role="tab" aria-selected="false" aria-controls="case-panel-station" data-case-target="station"><span>02</span><strong>基站调度</strong><small>按时隙分层</small></button>
+        <button id="case-tab-tasks" class="case-tab" type="button" role="tab" aria-selected="false" aria-controls="case-panel-tasks" data-case-target="tasks"><span>03</span><strong>任务排程</strong><small>时间展开</small></button>
+      </div>
+
+      <div class="mapping-grid">
+        <article id="case-panel-antenna" class="mapping-card active" data-case="antenna" role="tabpanel" aria-labelledby="case-tab-antenna">
+          <header><span>01</span><h2>天线信号</h2><em class="case-tag direct-tag">直接 / 补集</em></header>
+          <p class="case-question"><b>问题：</b>在同一频段内保留尽可能多的可用信号；或等价地，关闭尽可能少的冲突信号。</p>
+          <div class="mapping-diagram" aria-label="天线信号到冲突图与原子阵列的映射"></div>
+          <div class="flow-strip"><span>现实约束</span><i>→</i><span>冲突图</span><i>→</i><strong>MIS / MWIS</strong><i>→</i><strong>blockade</strong></div>
+          <div class="case-logic"><p><b>节点语义</b><span>一个节点＝一条候选信号；选中＝保持开启。</span></p><p><b>为什么是独立集</b><span>存在干扰的两条信号不能同时开启，因此两端不能同时入选。</span></p><p><b>目标怎样转换</b><span>“最多开启”直接是 MIS；按吞吐量或收益就是 MWIS。若总候选固定，“最少关闭”满足 <code>关闭数 = N − 开启数</code>，因此是同一解的补集。</span></p><p class="not-mis"><b>不要混淆</b><span>“用最少天线覆盖所有区域”通常是集合覆盖或支配集，不会因为也含有“最少”就自动变成 MIS。</span></p></div>
+        </article>
+        <article id="case-panel-station" class="mapping-card warm-card" data-case="station" role="tabpanel" aria-labelledby="case-tab-station" hidden>
+          <header><span>02</span><h2>基站调度</h2><em class="case-tag outer-tag">按时隙分层</em></header>
+          <p class="case-question"><b>问题：</b>单个时隙内提高吞吐量，或让全部请求使用尽可能少的时隙完成。</p>
+          <div class="mapping-diagram" aria-label="基站调度到冲突图与原子阵列的映射"></div>
+          <div class="flow-strip"><span>现实约束</span><i>→</i><span>冲突图</span><i>→</i><strong>MIS / MWIS</strong><i>→</i><strong>blockade</strong></div>
+          <div class="case-logic"><p><b>节点语义</b><span>一个节点＝某个用户在当前时隙的传输请求；选中＝本时隙获得调度。</span></p><p><b>为什么是独立集</b><span>共享信道、功率或相互干扰的请求之间连边；一个时隙只能取一组互不冲突节点。</span></p><p><b>目标怎样转换</b><span>单时隙“最大服务量”是 MIS，按队列、速率、时延权重则是 MWIS；但“服务全部请求所需的最少时隙”是图着色：每个颜色是一组独立集，不能由一次 MIS 直接代替。</span></p><p class="not-mis"><b>MIS 的角色</b><span>它可以生成一轮兼容调度或成为多时隙算法的子问题；反复贪心取 MIS 不保证得到最少时隙。</span></p></div>
+        </article>
+        <article id="case-panel-tasks" class="mapping-card" data-case="tasks" role="tabpanel" aria-labelledby="case-tab-tasks" hidden>
+          <header><span>03</span><h2>任务排程</h2><em class="case-tag outer-tag">时间展开</em></header>
+          <p class="case-question"><b>问题：</b>当前批次选出最大兼容任务集，或让全部任务的完工时间最短。</p>
+          <div class="mapping-diagram" aria-label="任务排程到冲突图与原子阵列的映射"></div>
+          <div class="flow-strip"><span>现实约束</span><i>→</i><span>冲突图</span><i>→</i><strong>MIS / MWIS</strong><i>→</i><strong>blockade</strong></div>
+          <div class="case-logic"><p><b>节点语义 A</b><span>节点＝任务，选中＝放入当前并行批次；此时最大批次数量/价值可直接用 MIS/MWIS。</span></p><p><b>节点语义 B</b><span>若要求最小完工时间，节点要改成 <code>(任务 i，开始时刻 t)</code>；同一任务的不同时间、资源重叠或违反先后关系的安排之间连边。</span></p><p><b>“最小”怎样转换</b><span>先猜一个工期上限 T，只保留 T 内的候选安排；若 MIS 能选到恰好每个任务一次（大小＝任务数），T 就可行。搜索最小可行 T，才得到最短工期。</span></p><p class="not-mis"><b>MIS 的角色</b><span>这里 MIS 是“给定 T 能不能排下”的判定器，而不是把工期本身直接最大化。</span></p></div>
+        </article>
+      </div>
+      <section class="blockade-bridge"><div><span>完成图建模以后</span><h2>进入 blockade 的那一步，对三个案例才是相同的</h2></div><ol><li><b>候选节点</b><span>→ 原子位置</span></li><li><b>冲突边</b><span>→ 有效 Rb 内的原子对</span></li><li><b>选择 xᵢ=1</b><span>→ Rydberg 激发 nᵢ=1</span></li><li><b>MWIS 权重</b><span>→ 节点相关目标偏置（具体硬件仍需编译）</span></li></ol></section>
+      <p class="model-note"><strong>建模边界</strong>　blockade 原生表达的是“相邻节点不能同时取 1”的独立集约束。几何图最容易直接映射；任意冲突图通常还需要几何嵌入、辅助原子或其他编译步骤。</p>
+    </section>
+
+    <section id="play-page" class="page" aria-labelledby="play-title">
+      <div class="play-heading">
+        <div><p class="eyebrow" id="level-kicker">挑战 1 / 10</p><h1 id="play-title">初见微光</h1><p id="rule-copy">在满足 blockade 约束的前提下，激发尽可能多的原子。</p></div>
+        <div class="progress-wrap"><span id="progress-label">已完成 0 / 10</span><div class="progress-track" aria-hidden="true"><i id="progress-fill"></i></div></div>
+      </div>
+      <div class="play-layout">
+        <section class="board-panel" aria-label="原子挑战棋盘">
+          <svg id="atom-board" viewBox="0 0 960 640" role="img" aria-labelledby="board-title board-desc">
+            <title id="board-title">互动原子阵列</title><desc id="board-desc">选择原子。已选择的原子会阻止其冲突邻居被同时选择。</desc>
+            <g id="board-rings"></g><g id="board-edges"></g><g id="board-atoms"></g>
+          </svg>
+          <div id="board-feedback" class="board-feedback" aria-live="polite"></div>
+          <div id="board-verdict" class="board-verdict" aria-live="assertive" hidden></div>
+          <div class="board-legend" aria-label="图例"><span><i class="legend-line"></i>冲突边</span><span><i class="legend-dot available"></i>可选</span><span><i class="legend-dot excited"></i>已激发</span><span><i class="legend-dot blocked"></i>已阻塞</span></div>
+        </section>
+        <aside id="control-panel" class="control-panel"></aside>
+      </div>
+    </section>
+
+    <section id="quantum-page" class="page quantum-page" aria-labelledby="quantum-title">
+      <div class="page-heading"><p class="eyebrow">同一个问题，不同的观察方式</p><h1 id="quantum-title">从图约束回到原子物理</h1><p>这里展示精确解与经典启发式参考结果，并未连接真实量子硬件。</p></div>
+      <div class="quantum-layout">
+        <section class="quantum-board-wrap"><div class="source-line">问题来源：<strong id="quantum-source">第 1 关 — 初见微光</strong></div><svg id="quantum-board" viewBox="0 0 960 600" role="img" aria-label="已加载的原子问题"></svg></section>
+        <aside class="quantum-controls">
+          <div class="source-box"><span>求解来源</span><strong>教学采样器</strong><small>经典生成的绝热启发式分布</small></div>
+          <div class="phase-list" aria-label="采样阶段"><div data-phase="0"><i>1</i><span>初始化<small>|ggg…g⟩</small></span></div><div data-phase="1"><i>2</i><span>驱动<small>Ω(t), Δ(t)</small></span></div><div data-phase="2"><i>3</i><span>竞争<small>合法构型</small></span></div><div data-phase="3"><i>4</i><span>测量<small>采样比特串</small></span></div></div>
+          <button id="run-sampler" class="primary-button" type="button">运行教学采样器</button>
+          <p class="fine-print">这里只比较解的质量，不构成性能基准，也不声称存在量子加速。</p>
+        </aside>
+      </div>
+      <div id="quantum-results" class="quantum-results" hidden></div>
+    </section>
+
+    <section id="learn-page" class="page learn-page" aria-labelledby="learn-title">
+      <div class="page-heading split-heading">
+        <div><p class="eyebrow">学习 · 图、权重与原子</p><h1 id="learn-title">先看懂约束，再开始选择</h1><p>四张图把玩法背后的概念连起来。绿色表示被选中或激发，深色连线表示不能同时选择。</p></div>
+        <button id="learn-mapping" class="secondary-button" type="button">查看三个映射案例</button>
+      </div>
+      <div class="learn-grid">
+        <article class="learn-card"><div class="learn-copy"><span>01</span><h2>独立集，不等于随便选</h2><p>同一条边两端不能同时入选。最大独立集寻找全局数量最多的合法选择；“再也加不进节点”的极大独立集，未必是最大独立集。</p></div><div id="learn-independent" class="learn-visual" role="img" aria-label="可点击的独立集示例"></div></article>
+        <article class="learn-card warm-card"><div class="learn-copy"><span>02</span><h2>MWIS 把数量换成价值</h2><p>每个节点带有权重后，目标不再是选得最多，而是让总权重最大。较少的高价值节点，可能胜过更多低价值节点。</p></div><div class="learn-visual weight-demo" aria-hidden="true"><i>2</i><i class="chosen">7</i><i>4</i><span></span><b>总价值优先</b></div></article>
+        <article class="learn-card"><div class="learn-copy"><span>03</span><h2>几何关系生成冲突图</h2><p>把候选项放在平面上：位置对应顶点，有效距离小于 Rb 的原子对形成冲突边，激发的原子对应被选节点。</p></div><div class="learn-visual geometry-demo" aria-hidden="true"><div class="geo-left"><i></i><i></i><i></i></div><strong>→</strong><div class="geo-right"><i></i><i></i><i></i><span></span><span></span></div><b>距离关系 → 冲突边</b></div></article>
+        <article class="learn-card"><div class="learn-copy"><span>04</span><h2>blockade 是有效模型</h2><p>真实 Rydberg 相互作用会随距离平滑变化，近似满足 V(r)∝C₆/r⁶。界面中的圆是帮助理解的有效边界，不是突然截断的物理墙。</p></div><div class="learn-visual blockade-demo" aria-hidden="true"><div></div><i></i><i></i><span>有效 Rb</span><b>V(r) ∝ C₆ / r⁶</b></div></article>
+      </div>
+      <p class="learn-footer">原子的位置决定冲突，冲突决定图；目标函数决定我们是在求 MIS，还是 MWIS。</p>
+    </section>
+  </main>
+<script>
+(function (root) {
+  "use strict";
+
+  const DEFAULT_EPSILON = 1e-9;
+
+  function distance(a, b) {
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+
+  function buildGraph(points, radius, edgeRule = "lt", epsilon = DEFAULT_EPSILON) {
+    if (!Array.isArray(points) || !Number.isFinite(radius) || radius <= 0) {
+      throw new TypeError("buildGraph needs points and a positive radius");
+    }
+    const adjacency = points.map(() => []);
+    const edges = [];
+    const threshold = edgeRule === "lte" ? radius + epsilon : radius - epsilon;
+    for (let i = 0; i < points.length; i += 1) {
+      for (let j = i + 1; j < points.length; j += 1) {
+        const d = distance(points[i], points[j]);
+        const conflicts = edgeRule === "lte" ? d <= threshold : d < threshold;
+        if (conflicts) {
+          adjacency[i].push(j);
+          adjacency[j].push(i);
+          edges.push({ i, j, distance: d });
+        }
+      }
+    }
+    return { points, radius, edgeRule, epsilon, adjacency, edges };
+  }
+
+  function isIndependent(indices, graph) {
+    const chosen = new Set(indices);
+    return indices.every((i) => graph.adjacency[i].every((j) => !chosen.has(j)));
+  }
+
+  function blockedBy(selected, graph) {
+    const sources = graph.points.map(() => []);
+    selected.forEach((i) => graph.adjacency[i].forEach((j) => {
+      if (!selected.has(j)) sources[j].push(i);
+    }));
+    return sources;
+  }
+
+  function degreeStats(graph) {
+    const degrees = graph.adjacency.map((neighbors) => neighbors.length);
+    const total = degrees.reduce((sum, value) => sum + value, 0);
+    return {
+      degrees,
+      average: degrees.length ? total / degrees.length : 0,
+      min: degrees.length ? Math.min(...degrees) : 0,
+      max: degrees.length ? Math.max(...degrees) : 0,
+    };
+  }
+
+  function connectedComponents(graph) {
+    const seen = new Set();
+    const components = [];
+    graph.points.forEach((_, start) => {
+      if (seen.has(start)) return;
+      const component = [];
+      const stack = [start];
+      seen.add(start);
+      while (stack.length) {
+        const node = stack.pop();
+        component.push(node);
+        graph.adjacency[node].forEach((next) => {
+          if (!seen.has(next)) {
+            seen.add(next);
+            stack.push(next);
+          }
+        });
+      }
+      components.push(component);
+    });
+    return components;
+  }
+
+  const api = { DEFAULT_EPSILON, distance, buildGraph, isIndependent, blockedBy, degreeStats, connectedComponents };
+  root.MIS = root.MIS || {};
+  Object.assign(root.MIS, api);
+  if (typeof module !== "undefined" && module.exports) module.exports = api;
+}(typeof globalThis !== "undefined" ? globalThis : this));
+
+
+(function (root) {
+  "use strict";
+
+  function bit(index) { return 1n << BigInt(index); }
+  function has(mask, index) { return (mask & bit(index)) !== 0n; }
+  function popcount(mask) {
+    let count = 0;
+    let value = mask;
+    while (value) { value &= value - 1n; count += 1; }
+    return count;
+  }
+  function indicesFromMask(mask, n) {
+    const out = [];
+    for (let i = 0; i < n; i += 1) if (has(mask, i)) out.push(i);
+    return out;
+  }
+
+  function adjacencyMasks(graph) {
+    return graph.adjacency.map((neighbors) => neighbors.reduce((mask, j) => mask | bit(j), 0n));
+  }
+
+  function solveExact(graph, weights = null, options = {}) {
+    const n = graph.points.length;
+    if (n > 52) throw new RangeError("Exact browser solver is limited to 52 atoms");
+    const values = weights || Array(n).fill(1);
+    const masks = adjacencyMasks(graph);
+    const full = (1n << BigInt(n)) - 1n;
+    const memo = new Map();
+    const deadline = options.timeLimitMs ? Date.now() + options.timeLimitMs : Infinity;
+    const witnessLimit = options.witnessLimit || 32;
+    let visited = 0;
+
+    function choose(mask) {
+      let best = -1;
+      let bestDegree = -1;
+      for (let i = 0; i < n; i += 1) {
+        if (!has(mask, i)) continue;
+        const degree = popcount(masks[i] & mask);
+        if (degree > bestDegree) { best = i; bestDegree = degree; }
+      }
+      return best;
+    }
+
+    function recurse(mask) {
+      if (!mask) return { score: 0, count: 1, witnesses: [0n] };
+      const key = mask.toString();
+      const cached = memo.get(key);
+      if (cached) return cached;
+      visited += 1;
+      if ((visited & 2047) === 0 && Date.now() > deadline) throw new Error("EXACT_SOLVER_TIMEOUT");
+      const v = choose(mask);
+      const withoutV = mask & ~bit(v);
+      const excluded = recurse(withoutV);
+      const includeMask = withoutV & ~masks[v];
+      const includedBase = recurse(includeMask);
+      const included = {
+        score: includedBase.score + values[v],
+        count: includedBase.count,
+        witnesses: includedBase.witnesses.map((w) => w | bit(v)),
+      };
+      let result;
+      if (included.score > excluded.score) result = included;
+      else if (excluded.score > included.score) result = excluded;
+      else result = {
+        score: included.score,
+        count: included.count + excluded.count,
+        witnesses: included.witnesses.concat(excluded.witnesses).slice(0, witnessLimit),
+      };
+      memo.set(key, result);
+      return result;
+    }
+
+    const solved = recurse(full);
+    return {
+      score: solved.score,
+      size: weights ? indicesFromMask(solved.witnesses[0] || 0n, n).length : solved.score,
+      count: solved.count,
+      witnesses: solved.witnesses.map((mask) => indicesFromMask(mask, n)),
+      visited,
+    };
+  }
+
+  // Independent implementation used to validate standard levels. It enumerates
+  // subsets incrementally and never calls the branch-and-bound routine above.
+  function solveBruteForce(graph, weights = null) {
+    const n = graph.points.length;
+    if (n > 24) throw new RangeError("Brute force validation is limited to 24 atoms");
+    const values = weights || Array(n).fill(1);
+    const masks = adjacencyMasks(graph);
+    const limit = 1n << BigInt(n);
+    let best = -Infinity;
+    let count = 0;
+    const witnesses = [];
+    for (let mask = 0n; mask < limit; mask += 1n) {
+      let valid = true;
+      let score = 0;
+      for (let i = 0; i < n && valid; i += 1) {
+        if (!has(mask, i)) continue;
+        if ((masks[i] & mask & ~((1n << BigInt(i + 1)) - 1n)) !== 0n) valid = false;
+        score += values[i];
+      }
+      if (!valid) continue;
+      if (score > best) {
+        best = score;
+        count = 1;
+        witnesses.length = 0;
+        witnesses.push(indicesFromMask(mask, n));
+      } else if (score === best) {
+        count += 1;
+        if (witnesses.length < 32) witnesses.push(indicesFromMask(mask, n));
+      }
+    }
+    return { score: best, size: weights ? witnesses[0].length : best, count, witnesses };
+  }
+
+  const api = { solveExact, solveBruteForce, adjacencyMasks, indicesFromMask };
+  root.MIS = root.MIS || {};
+  Object.assign(root.MIS, api);
+  if (typeof module !== "undefined" && module.exports) module.exports = api;
+}(typeof globalThis !== "undefined" ? globalThis : this));
+
+
+(function (root) {
+  "use strict";
+
+  function greedy(graph, strategy = "min-degree", forcedFirst = null) {
+    const remaining = new Set(graph.points.map((_, i) => i));
+    const chosen = [];
+    function take(i) {
+      chosen.push(i);
+      remaining.delete(i);
+      graph.adjacency[i].forEach((j) => remaining.delete(j));
+    }
+    if (forcedFirst !== null && remaining.has(forcedFirst)) take(forcedFirst);
+    while (remaining.size) {
+      const candidates = [...remaining];
+      let selected = candidates[0];
+      if (strategy === "center-first") {
+        const cx = graph.points.reduce((s, p) => s + p.x, 0) / graph.points.length;
+        const cy = graph.points.reduce((s, p) => s + p.y, 0) / graph.points.length;
+        selected = candidates.sort((a, b) => (
+          Math.hypot(graph.points[a].x - cx, graph.points[a].y - cy)
+          - Math.hypot(graph.points[b].x - cx, graph.points[b].y - cy)
+        ) || a - b)[0];
+      } else {
+        const direction = strategy === "max-degree" ? -1 : 1;
+        selected = candidates.sort((a, b) => direction * (
+          graph.adjacency[a].filter((j) => remaining.has(j)).length
+          - graph.adjacency[b].filter((j) => remaining.has(j)).length
+        ) || a - b)[0];
+      }
+      take(selected);
+    }
+    return chosen;
+  }
+
+  function mulberry32(seed) {
+    return function random() {
+      let t = seed += 0x6D2B79F5;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function randomGreedy(graph, seed = 1) {
+    const random = mulberry32(seed);
+    const remaining = new Set(graph.points.map((_, i) => i));
+    const chosen = [];
+    while (remaining.size) {
+      const values = [...remaining];
+      const selected = values[Math.floor(random() * values.length)];
+      chosen.push(selected);
+      remaining.delete(selected);
+      graph.adjacency[selected].forEach((j) => remaining.delete(j));
+    }
+    return chosen;
+  }
+
+  function analyzeHeuristics(graph, exactSize, samples = 32) {
+    const min = greedy(graph, "min-degree");
+    const max = greedy(graph, "max-degree");
+    const center = greedy(graph, "center-first");
+    const randomSizes = Array.from({ length: samples }, (_, i) => randomGreedy(graph, i + 31).length);
+    const firstMoveSizes = graph.points.map((_, i) => greedy(graph, "min-degree", i).length);
+    return {
+      greedyMinDegree: min.length,
+      greedyMaxDegree: max.length,
+      greedyCenterFirst: center.length,
+      randomGreedyMean: randomSizes.reduce((a, b) => a + b, 0) / randomSizes.length,
+      randomGreedyBest: Math.max(...randomSizes),
+      badFirstMoves: firstMoveSizes.map((size, i) => ({ i, size })).filter((x) => x.size < exactSize).map((x) => x.i),
+      goodFirstMoves: firstMoveSizes.map((size, i) => ({ i, size })).filter((x) => x.size === exactSize).map((x) => x.i),
+      firstMoveSensitivity: exactSize - Math.min(...firstMoveSizes),
+    };
+  }
+
+  const api = { greedy, randomGreedy, analyzeHeuristics, mulberry32 };
+  root.MIS = root.MIS || {};
+  Object.assign(root.MIS, api);
+  if (typeof module !== "undefined" && module.exports) module.exports = api;
+}(typeof globalThis !== "undefined" ? globalThis : this));
+
+
+(function (root) {
+  "use strict";
+
+  function createSelectionState() {
+    return { selected: new Set(), history: [] };
+  }
+
+  function cloneSelection(state) {
+    return { selected: new Set(state.selected), history: state.history.map((entry) => new Set(entry)) };
+  }
+
+  function toggleAtom(state, index, graph) {
+    const next = cloneSelection(state);
+    if (next.selected.has(index)) {
+      next.history.push(new Set(next.selected));
+      next.selected.delete(index);
+      return { state: next, changed: true, reason: "released" };
+    }
+    const blocker = [...next.selected].find((chosen) => graph.adjacency[chosen].includes(index));
+    if (blocker !== undefined) return { state: next, changed: false, reason: "blocked", blocker };
+    next.history.push(new Set(next.selected));
+    next.selected.add(index);
+    return { state: next, changed: true, reason: "excited" };
+  }
+
+  function undoSelection(state) {
+    const next = cloneSelection(state);
+    if (!next.history.length) return next;
+    next.selected = next.history.pop();
+    return next;
+  }
+
+  function resetSelection(state) {
+    const next = cloneSelection(state);
+    if (next.selected.size) next.history.push(new Set(next.selected));
+    next.selected.clear();
+    return next;
+  }
+
+  const api = { createSelectionState, cloneSelection, toggleAtom, undoSelection, resetSelection };
+  root.MIS = root.MIS || {};
+  Object.assign(root.MIS, api);
+  if (typeof module !== "undefined" && module.exports) module.exports = api;
+}(typeof globalThis !== "undefined" ? globalThis : this));
+
+
+(function (root) {
+  "use strict";
+
+  function evaluateSubmission(score, optimum, context = {}) {
+    const correct = score === optimum;
+    if (!correct) {
+      return {
+        correct: false,
+        revealSolution: false,
+        cta: "check",
+        nextFailures: (context.failures || 0) + 1,
+      };
+    }
+    return {
+      correct: true,
+      revealSolution: false,
+      cta: context.custom ? "quantum" : context.lastStandard ? "builder" : "next",
+      nextFailures: context.failures || 0,
+    };
+  }
+
+  const api = { evaluateSubmission };
+  root.MIS = root.MIS || {};
+  Object.assign(root.MIS, api);
+  if (typeof module !== "undefined" && module.exports) module.exports = api;
+}(typeof globalThis !== "undefined" ? globalThis : this));
+
+
+window.STANDARD_LEVELS = [
+  {
+    "id": "level-01",
+    "title": "First Light",
+    "subtitle": "A small broken path",
+    "purpose": "Find room by looking past the nearest atom.",
+    "hint": "Start at an outside branch; the busy-looking middle costs options.",
+    "sourceCandidate": "candidate-0129",
+    "coordinates": [
+      {
+        "x": 0.514,
+        "y": 0.538
+      },
+      {
+        "x": 2.465,
+        "y": 0.5
+      },
+      {
+        "x": 3.398,
+        "y": 0.592
+      },
+      {
+        "x": 0.567,
+        "y": 1.597
+      },
+      {
+        "x": 2.464,
+        "y": 1.546
+      },
+      {
+        "x": 0.5,
+        "y": 2.506
+      },
+      {
+        "x": 1.543,
+        "y": 2.531
+      },
+      {
+        "x": 2.553,
+        "y": 2.622
+      },
+      {
+        "x": 3.548,
+        "y": 2.545
+      }
+    ],
+    "blockadeRadius": 1.18,
+    "edgeRule": "lt",
+    "exactMISSize": 5,
+    "exactMISWitnesses": [
+      [
+        2,
+        3,
+        4,
+        6,
+        8
+      ],
+      [
+        0,
+        2,
+        4,
+        5,
+        8
+      ],
+      [
+        0,
+        2,
+        4,
+        6,
+        8
+      ]
+    ],
+    "edgeCount": 8,
+    "analysis": {
+      "alpha": 5,
+      "numOptima": 3,
+      "greedyMinDegree": 5,
+      "greedyMaxDegree": 3,
+      "greedyCenterFirst": 5,
+      "randomGreedyMean": 4.375,
+      "randomGreedyBest": 5,
+      "badFirstMoves": [
+        1,
+        7
+      ],
+      "goodFirstMoves": [
+        2,
+        3,
+        4,
+        6,
+        8,
+        0,
+        5
+      ],
+      "firstMoveSensitivity": 1,
+      "components": 1,
+      "averageDegree": 1.7777777777777777,
+      "qualityScore": 6.868,
+      "criticalNodes": [
+        2,
+        4,
+        8
+      ]
+    }
+  },
+  {
+    "id": "level-02",
+    "title": "Fork in the Road",
+    "subtitle": "Twin-region geometry",
+    "purpose": "Two branches look equal until their neighborhoods overlap.",
+    "hint": "Compare how many future sites each first choice removes.",
+    "sourceCandidate": "candidate-0662",
+    "coordinates": [
+      {
+        "x": 1.893,
+        "y": 1.495
+      },
+      {
+        "x": 1.193,
+        "y": 2.085
+      },
+      {
+        "x": 0.541,
+        "y": 1.729
+      },
+      {
+        "x": 0.5,
+        "y": 0.793
+      },
+      {
+        "x": 1.501,
+        "y": 0.623
+      },
+      {
+        "x": 3.957,
+        "y": 1.524
+      },
+      {
+        "x": 3.474,
+        "y": 2.226
+      },
+      {
+        "x": 2.482,
+        "y": 2.198
+      },
+      {
+        "x": 2.199,
+        "y": 1.339
+      },
+      {
+        "x": 2.762,
+        "y": 0.5
+      },
+      {
+        "x": 3.758,
+        "y": 0.722
+      }
+    ],
+    "blockadeRadius": 1.18,
+    "edgeRule": "lt",
+    "exactMISSize": 5,
+    "exactMISWitnesses": [
+      [
+        1,
+        3,
+        6,
+        8,
+        10
+      ],
+      [
+        2,
+        4,
+        5,
+        7,
+        9
+      ],
+      [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      [
+        1,
+        4,
+        5,
+        7,
+        9
+      ]
+    ],
+    "edgeCount": 14,
+    "analysis": {
+      "alpha": 5,
+      "numOptima": 4,
+      "greedyMinDegree": 5,
+      "greedyMaxDegree": 4,
+      "greedyCenterFirst": 5,
+      "randomGreedyMean": 4.3125,
+      "randomGreedyBest": 5,
+      "badFirstMoves": [
+        0
+      ],
+      "goodFirstMoves": [
+        1,
+        3,
+        6,
+        8,
+        10,
+        2,
+        4,
+        5,
+        7,
+        9
+      ],
+      "firstMoveSensitivity": 1,
+      "components": 1,
+      "averageDegree": 2.5454545454545454,
+      "qualityScore": 7.615,
+      "criticalNodes": []
+    }
+  },
+  {
+    "id": "level-03",
+    "title": "Many Roads",
+    "subtitle": "Coupled islands",
+    "purpose": "Several different routes reach the same maximum.",
+    "hint": "There is more than one best answer—protect choices on both sides.",
+    "sourceCandidate": "candidate-0194",
+    "coordinates": [
+      {
+        "x": 2.302,
+        "y": 1.685
+      },
+      {
+        "x": 1.966,
+        "y": 2.493
+      },
+      {
+        "x": 1.07,
+        "y": 2.318
+      },
+      {
+        "x": 0.5,
+        "y": 1.496
+      },
+      {
+        "x": 1.235,
+        "y": 0.5
+      },
+      {
+        "x": 2.078,
+        "y": 0.978
+      },
+      {
+        "x": 4.523,
+        "y": 1.732
+      },
+      {
+        "x": 4.204,
+        "y": 2.521
+      },
+      {
+        "x": 3.331,
+        "y": 2.499
+      },
+      {
+        "x": 2.597,
+        "y": 1.849
+      },
+      {
+        "x": 3.103,
+        "y": 1.135
+      },
+      {
+        "x": 3.632,
+        "y": 0.593
+      },
+      {
+        "x": 4.338,
+        "y": 1.038
+      }
+    ],
+    "blockadeRadius": 1.18,
+    "edgeRule": "lt",
+    "exactMISSize": 6,
+    "exactMISWitnesses": [
+      [
+        0,
+        2,
+        4,
+        6,
+        8,
+        11
+      ],
+      [
+        0,
+        3,
+        4,
+        6,
+        8,
+        11
+      ],
+      [
+        1,
+        3,
+        5,
+        6,
+        8,
+        11
+      ],
+      [
+        1,
+        3,
+        4,
+        6,
+        8,
+        10
+      ],
+      [
+        1,
+        3,
+        4,
+        6,
+        8,
+        11
+      ],
+      [
+        1,
+        3,
+        4,
+        7,
+        10,
+        12
+      ],
+      [
+        1,
+        3,
+        4,
+        8,
+        10,
+        12
+      ]
+    ],
+    "edgeCount": 17,
+    "analysis": {
+      "alpha": 6,
+      "numOptima": 7,
+      "greedyMinDegree": 6,
+      "greedyMaxDegree": 5,
+      "greedyCenterFirst": 5,
+      "randomGreedyMean": 5.34375,
+      "randomGreedyBest": 6,
+      "badFirstMoves": [
+        9
+      ],
+      "goodFirstMoves": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        11,
+        3,
+        1,
+        5,
+        10,
+        7,
+        12
+      ],
+      "firstMoveSensitivity": 1,
+      "components": 1,
+      "averageDegree": 2.6153846153846154,
+      "qualityScore": 8.669,
+      "criticalNodes": []
+    }
+  },
+  {
+    "id": "level-04",
+    "title": "Center Trap",
+    "subtitle": "Twin-region geometry",
+    "purpose": "The most prominent local move is not the global best.",
+    "hint": "The central atom blocks alternatives in both regions.",
+    "sourceCandidate": "candidate-0370",
+    "coordinates": [
+      {
+        "x": 2.618,
+        "y": 1.743
+      },
+      {
+        "x": 1.941,
+        "y": 2.532
+      },
+      {
+        "x": 1.162,
+        "y": 2.019
+      },
+      {
+        "x": 0.5,
+        "y": 1.31
+      },
+      {
+        "x": 1.215,
+        "y": 0.692
+      },
+      {
+        "x": 1.873,
+        "y": 0.973
+      },
+      {
+        "x": 4.554,
+        "y": 1.709
+      },
+      {
+        "x": 4.151,
+        "y": 2.573
+      },
+      {
+        "x": 3.379,
+        "y": 2.33
+      },
+      {
+        "x": 2.606,
+        "y": 2.017
+      },
+      {
+        "x": 2.983,
+        "y": 1.105
+      },
+      {
+        "x": 3.562,
+        "y": 0.5
+      },
+      {
+        "x": 4.092,
+        "y": 1.024
+      }
+    ],
+    "blockadeRadius": 1.18,
+    "edgeRule": "lt",
+    "exactMISSize": 6,
+    "exactMISWitnesses": [
+      [
+        1,
+        3,
+        5,
+        6,
+        8,
+        11
+      ]
+    ],
+    "edgeCount": 19,
+    "analysis": {
+      "alpha": 6,
+      "numOptima": 1,
+      "greedyMinDegree": 5,
+      "greedyMaxDegree": 4,
+      "greedyCenterFirst": 5,
+      "randomGreedyMean": 4.9375,
+      "randomGreedyBest": 6,
+      "badFirstMoves": [
+        0,
+        2,
+        4,
+        7,
+        9,
+        10,
+        12
+      ],
+      "goodFirstMoves": [
+        1,
+        3,
+        5,
+        6,
+        8,
+        11
+      ],
+      "firstMoveSensitivity": 1,
+      "components": 1,
+      "averageDegree": 2.923076923076923,
+      "qualityScore": 14.797,
+      "criticalNodes": [
+        1,
+        3,
+        5,
+        6,
+        8,
+        11
+      ]
+    }
+  },
+  {
+    "id": "level-05",
+    "title": "Broken Grid",
+    "subtitle": "Defected square geometry",
+    "purpose": "A displaced site breaks the checkerboard shortcut.",
+    "hint": "Treat the defect as a branch, not decoration.",
+    "sourceCandidate": "candidate-1189",
+    "coordinates": [
+      {
+        "x": 1.641,
+        "y": 0.5
+      },
+      {
+        "x": 2.657,
+        "y": 0.549
+      },
+      {
+        "x": 3.666,
+        "y": 0.575
+      },
+      {
+        "x": 4.562,
+        "y": 0.551
+      },
+      {
+        "x": 0.573,
+        "y": 1.588
+      },
+      {
+        "x": 1.554,
+        "y": 1.46
+      },
+      {
+        "x": 2.642,
+        "y": 1.439
+      },
+      {
+        "x": 3.568,
+        "y": 1.467
+      },
+      {
+        "x": 4.522,
+        "y": 1.559
+      },
+      {
+        "x": 0.5,
+        "y": 2.564
+      },
+      {
+        "x": 2.571,
+        "y": 2.47
+      },
+      {
+        "x": 3.552,
+        "y": 2.55
+      },
+      {
+        "x": 4.56,
+        "y": 2.5
+      },
+      {
+        "x": 0.616,
+        "y": 3.583
+      },
+      {
+        "x": 1.507,
+        "y": 3.571
+      }
+    ],
+    "blockadeRadius": 1.18,
+    "edgeRule": "lt",
+    "exactMISSize": 8,
+    "exactMISWitnesses": [
+      [
+        1,
+        3,
+        5,
+        7,
+        9,
+        10,
+        12,
+        14
+      ]
+    ],
+    "edgeCount": 19,
+    "analysis": {
+      "alpha": 8,
+      "numOptima": 1,
+      "greedyMinDegree": 7,
+      "greedyMaxDegree": 6,
+      "greedyCenterFirst": 7,
+      "randomGreedyMean": 6.65625,
+      "randomGreedyBest": 8,
+      "badFirstMoves": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        11,
+        13
+      ],
+      "goodFirstMoves": [
+        1,
+        3,
+        5,
+        7,
+        9,
+        10,
+        12,
+        14
+      ],
+      "firstMoveSensitivity": 1,
+      "components": 1,
+      "averageDegree": 2.533333333333333,
+      "qualityScore": 14.38,
+      "criticalNodes": [
+        1,
+        3,
+        5,
+        7,
+        9,
+        10,
+        12,
+        14
+      ]
+    }
+  },
+  {
+    "id": "level-06",
+    "title": "Twin Islands",
+    "subtitle": "Coupled cluster geometry",
+    "purpose": "One bridge couples two otherwise generous regions.",
+    "hint": "A move beside the bridge can preserve choices in both islands.",
+    "sourceCandidate": "candidate-0810",
+    "coordinates": [
+      {
+        "x": 2.532,
+        "y": 1.812
+      },
+      {
+        "x": 2.008,
+        "y": 2.619
+      },
+      {
+        "x": 0.979,
+        "y": 2.229
+      },
+      {
+        "x": 0.5,
+        "y": 1.474
+      },
+      {
+        "x": 1.203,
+        "y": 0.841
+      },
+      {
+        "x": 2.09,
+        "y": 0.642
+      },
+      {
+        "x": 4.664,
+        "y": 1.673
+      },
+      {
+        "x": 4.071,
+        "y": 2.352
+      },
+      {
+        "x": 3.41,
+        "y": 2.144
+      },
+      {
+        "x": 2.723,
+        "y": 1.953
+      },
+      {
+        "x": 2.882,
+        "y": 1.156
+      },
+      {
+        "x": 3.399,
+        "y": 0.5
+      },
+      {
+        "x": 4.38,
+        "y": 0.896
+      }
+    ],
+    "blockadeRadius": 1.18,
+    "edgeRule": "lt",
+    "exactMISSize": 6,
+    "exactMISWitnesses": [
+      [
+        1,
+        3,
+        5,
+        6,
+        8,
+        11
+      ]
+    ],
+    "edgeCount": 18,
+    "analysis": {
+      "alpha": 6,
+      "numOptima": 1,
+      "greedyMinDegree": 5,
+      "greedyMaxDegree": 4,
+      "greedyCenterFirst": 5,
+      "randomGreedyMean": 5.0625,
+      "randomGreedyBest": 6,
+      "badFirstMoves": [
+        0,
+        2,
+        4,
+        7,
+        9,
+        10,
+        12
+      ],
+      "goodFirstMoves": [
+        1,
+        3,
+        5,
+        6,
+        8,
+        11
+      ],
+      "firstMoveSensitivity": 1,
+      "components": 1,
+      "averageDegree": 2.769230769230769,
+      "qualityScore": 14.698,
+      "criticalNodes": [
+        1,
+        3,
+        5,
+        6,
+        8,
+        11
+      ]
+    }
+  },
+  {
+    "id": "level-07",
+    "title": "False Symmetry",
+    "subtitle": "Irregular grid geometry",
+    "purpose": "Two nearly symmetric openings have different futures.",
+    "hint": "Look for the single neighborhood that breaks the visual symmetry.",
+    "sourceCandidate": "candidate-1689",
+    "coordinates": [
+      {
+        "x": 1.46,
+        "y": 0.616
+      },
+      {
+        "x": 3.56,
+        "y": 0.628
+      },
+      {
+        "x": 4.583,
+        "y": 0.5
+      },
+      {
+        "x": 0.555,
+        "y": 1.577
+      },
+      {
+        "x": 1.524,
+        "y": 1.619
+      },
+      {
+        "x": 2.528,
+        "y": 1.59
+      },
+      {
+        "x": 3.59,
+        "y": 1.549
+      },
+      {
+        "x": 4.485,
+        "y": 1.518
+      },
+      {
+        "x": 1.468,
+        "y": 2.575
+      },
+      {
+        "x": 2.583,
+        "y": 2.605
+      },
+      {
+        "x": 4.474,
+        "y": 2.629
+      },
+      {
+        "x": 0.5,
+        "y": 3.501
+      },
+      {
+        "x": 1.6,
+        "y": 3.634
+      },
+      {
+        "x": 3.474,
+        "y": 3.576
+      },
+      {
+        "x": 4.532,
+        "y": 3.549
+      },
+      {
+        "x": 0.514,
+        "y": 4.556
+      },
+      {
+        "x": 1.493,
+        "y": 4.553
+      }
+    ],
+    "blockadeRadius": 1.18,
+    "edgeRule": "lt",
+    "exactMISSize": 9,
+    "exactMISWitnesses": [
+      [
+        0,
+        2,
+        3,
+        6,
+        9,
+        10,
+        12,
+        13,
+        15
+      ],
+      [
+        0,
+        2,
+        3,
+        6,
+        8,
+        10,
+        11,
+        13,
+        16
+      ],
+      [
+        0,
+        2,
+        3,
+        6,
+        9,
+        10,
+        11,
+        13,
+        16
+      ],
+      [
+        0,
+        2,
+        3,
+        5,
+        8,
+        10,
+        11,
+        13,
+        16
+      ],
+      [
+        0,
+        1,
+        3,
+        5,
+        8,
+        10,
+        11,
+        13,
+        16
+      ],
+      [
+        0,
+        1,
+        3,
+        5,
+        7,
+        8,
+        11,
+        13,
+        16
+      ],
+      [
+        0,
+        1,
+        3,
+        5,
+        7,
+        8,
+        11,
+        14,
+        16
+      ]
+    ],
+    "edgeCount": 19,
+    "analysis": {
+      "alpha": 9,
+      "numOptima": 7,
+      "greedyMinDegree": 9,
+      "greedyMaxDegree": 7,
+      "greedyCenterFirst": 8,
+      "randomGreedyMean": 8.34375,
+      "randomGreedyBest": 9,
+      "badFirstMoves": [
+        4
+      ],
+      "goodFirstMoves": [
+        0,
+        2,
+        3,
+        6,
+        9,
+        10,
+        12,
+        13,
+        15,
+        8,
+        11,
+        16,
+        5,
+        1,
+        7,
+        14
+      ],
+      "firstMoveSensitivity": 1,
+      "components": 1,
+      "averageDegree": 2.235294117647059,
+      "qualityScore": 8.166,
+      "criticalNodes": [
+        0,
+        3
+      ]
+    }
+  },
+  {
+    "id": "level-08",
+    "title": "Frustrated Web",
+    "subtitle": "Defected lattice geometry",
+    "purpose": "Short cycles make locally dense choices compete.",
+    "hint": "Avoid filling the visually obvious row too early.",
+    "sourceCandidate": "candidate-0809",
+    "coordinates": [
+      {
+        "x": 0.5,
+        "y": 0.5
+      },
+      {
+        "x": 1.598,
+        "y": 0.667
+      },
+      {
+        "x": 2.611,
+        "y": 0.551
+      },
+      {
+        "x": 3.618,
+        "y": 0.551
+      },
+      {
+        "x": 0.598,
+        "y": 1.574
+      },
+      {
+        "x": 1.477,
+        "y": 1.593
+      },
+      {
+        "x": 3.527,
+        "y": 1.548
+      },
+      {
+        "x": 4.574,
+        "y": 1.649
+      },
+      {
+        "x": 1.59,
+        "y": 2.626
+      },
+      {
+        "x": 2.583,
+        "y": 2.506
+      },
+      {
+        "x": 3.469,
+        "y": 2.533
+      },
+      {
+        "x": 4.467,
+        "y": 2.498
+      },
+      {
+        "x": 0.606,
+        "y": 3.628
+      },
+      {
+        "x": 1.575,
+        "y": 3.5
+      },
+      {
+        "x": 2.48,
+        "y": 3.579
+      },
+      {
+        "x": 3.528,
+        "y": 3.508
+      },
+      {
+        "x": 4.507,
+        "y": 3.551
+      }
+    ],
+    "blockadeRadius": 1.18,
+    "edgeRule": "lt",
+    "exactMISSize": 9,
+    "exactMISWitnesses": [
+      [
+        1,
+        3,
+        4,
+        7,
+        8,
+        10,
+        12,
+        14,
+        16
+      ]
+    ],
+    "edgeCount": 22,
+    "analysis": {
+      "alpha": 9,
+      "numOptima": 1,
+      "greedyMinDegree": 8,
+      "greedyMaxDegree": 7,
+      "greedyCenterFirst": 8,
+      "randomGreedyMean": 7.40625,
+      "randomGreedyBest": 9,
+      "badFirstMoves": [
+        0,
+        2,
+        5,
+        6,
+        9,
+        11,
+        13,
+        15
+      ],
+      "goodFirstMoves": [
+        1,
+        3,
+        4,
+        7,
+        8,
+        10,
+        12,
+        14,
+        16
+      ],
+      "firstMoveSensitivity": 1,
+      "components": 1,
+      "averageDegree": 2.588235294117647,
+      "qualityScore": 14.331,
+      "criticalNodes": [
+        1,
+        3,
+        4,
+        7,
+        8,
+        10,
+        12,
+        14,
+        16
+      ]
+    }
+  },
+  {
+    "id": "level-09",
+    "title": "Bottleneck",
+    "subtitle": "Irregular unit-disk graph",
+    "purpose": "One early branch changes the capacity of the full board.",
+    "hint": "This puzzle loses two atoms after its worst first move.",
+    "sourceCandidate": "candidate-1821",
+    "coordinates": [
+      {
+        "x": 0.5,
+        "y": 0.616
+      },
+      {
+        "x": 1.557,
+        "y": 0.603
+      },
+      {
+        "x": 3.549,
+        "y": 0.5
+      },
+      {
+        "x": 4.479,
+        "y": 0.664
+      },
+      {
+        "x": 0.542,
+        "y": 1.555
+      },
+      {
+        "x": 1.548,
+        "y": 1.592
+      },
+      {
+        "x": 2.607,
+        "y": 1.616
+      },
+      {
+        "x": 4.45,
+        "y": 1.523
+      },
+      {
+        "x": 0.547,
+        "y": 2.576
+      },
+      {
+        "x": 1.554,
+        "y": 2.63
+      },
+      {
+        "x": 2.611,
+        "y": 2.571
+      },
+      {
+        "x": 3.515,
+        "y": 2.541
+      },
+      {
+        "x": 4.531,
+        "y": 2.586
+      },
+      {
+        "x": 0.61,
+        "y": 3.516
+      },
+      {
+        "x": 1.502,
+        "y": 3.508
+      },
+      {
+        "x": 2.559,
+        "y": 3.601
+      },
+      {
+        "x": 3.484,
+        "y": 3.558
+      }
+    ],
+    "blockadeRadius": 1.18,
+    "edgeRule": "lt",
+    "exactMISSize": 9,
+    "exactMISWitnesses": [
+      [
+        1,
+        2,
+        4,
+        6,
+        7,
+        9,
+        11,
+        13,
+        15
+      ]
+    ],
+    "edgeCount": 22,
+    "analysis": {
+      "alpha": 9,
+      "numOptima": 1,
+      "greedyMinDegree": 8,
+      "greedyMaxDegree": 6,
+      "greedyCenterFirst": 8,
+      "randomGreedyMean": 7.59375,
+      "randomGreedyBest": 9,
+      "badFirstMoves": [
+        0,
+        3,
+        5,
+        8,
+        10,
+        12,
+        14,
+        16
+      ],
+      "goodFirstMoves": [
+        1,
+        2,
+        4,
+        6,
+        7,
+        9,
+        11,
+        13,
+        15
+      ],
+      "firstMoveSensitivity": 2,
+      "components": 1,
+      "averageDegree": 2.588235294117647,
+      "qualityScore": 18.331,
+      "criticalNodes": [
+        1,
+        2,
+        4,
+        6,
+        7,
+        9,
+        11,
+        13,
+        15
+      ]
+    }
+  },
+  {
+    "id": "level-10",
+    "title": "Irregular Final",
+    "subtitle": "Irregular unit-disk graph",
+    "purpose": "No lattice pattern tells you where to begin.",
+    "hint": "Many optima exist; reason from conflicts instead of symmetry.",
+    "sourceCandidate": "candidate-0980",
+    "coordinates": [
+      {
+        "x": 0.656,
+        "y": 1.031
+      },
+      {
+        "x": 1.22,
+        "y": 3.092
+      },
+      {
+        "x": 0.61,
+        "y": 2.28
+      },
+      {
+        "x": 3.249,
+        "y": 2.508
+      },
+      {
+        "x": 2.296,
+        "y": 2.456
+      },
+      {
+        "x": 2.549,
+        "y": 3.238
+      },
+      {
+        "x": 3.008,
+        "y": 1.044
+      },
+      {
+        "x": 2.37,
+        "y": 1.529
+      },
+      {
+        "x": 0.911,
+        "y": 1.465
+      },
+      {
+        "x": 0.5,
+        "y": 3.037
+      },
+      {
+        "x": 3.384,
+        "y": 3.043
+      },
+      {
+        "x": 1.566,
+        "y": 2.191
+      },
+      {
+        "x": 3.4,
+        "y": 1.645
+      },
+      {
+        "x": 1.321,
+        "y": 0.5
+      },
+      {
+        "x": 1.738,
+        "y": 1.28
+      }
+    ],
+    "blockadeRadius": 1.18,
+    "edgeRule": "lt",
+    "exactMISSize": 5,
+    "exactMISWitnesses": [
+      [
+        0,
+        3,
+        6,
+        9,
+        11
+      ],
+      [
+        3,
+        6,
+        9,
+        11,
+        13
+      ],
+      [
+        0,
+        5,
+        6,
+        9,
+        11
+      ],
+      [
+        0,
+        5,
+        9,
+        11,
+        12
+      ],
+      [
+        0,
+        6,
+        9,
+        10,
+        11
+      ],
+      [
+        0,
+        9,
+        10,
+        11,
+        12
+      ],
+      [
+        5,
+        6,
+        9,
+        11,
+        13
+      ],
+      [
+        5,
+        9,
+        11,
+        12,
+        13
+      ]
+    ],
+    "edgeCount": 27,
+    "analysis": {
+      "alpha": 5,
+      "numOptima": 32,
+      "greedyMinDegree": 5,
+      "greedyMaxDegree": 5,
+      "greedyCenterFirst": 5,
+      "randomGreedyMean": 4.625,
+      "randomGreedyBest": 5,
+      "badFirstMoves": [
+        1,
+        2,
+        4,
+        7,
+        8,
+        14
+      ],
+      "goodFirstMoves": [
+        0,
+        3,
+        6,
+        9,
+        11,
+        13,
+        5,
+        12,
+        10
+      ],
+      "firstMoveSensitivity": 1,
+      "components": 1,
+      "averageDegree": 3.6,
+      "qualityScore": 9.531,
+      "criticalNodes": [
+        9,
+        11
+      ]
+    }
+  }
+];
+
+
+(function () {
+  "use strict";
+
+  const $ = (selector) => document.querySelector(selector);
+  const svgNS = "http://www.w3.org/2000/svg";
+  const BOARD_WIDTH = 960;
+  const BOARD_HEIGHT = 640;
+  const REVEAL_AFTER_FAILURES = 2;
+  const levels = window.STANDARD_LEVELS || [];
+  const state = {
+    page: "intro",
+    levelIndex: 0,
+    mode: "standard",
+    selection: MIS.createSelectionState(),
+    completed: new Set(),
+    failures: 0,
+    hintLevel: 0,
+    solved: false,
+    revealed: false,
+    language: "zh",
+    graph: null,
+    points: [],
+    radius: 1.18,
+    edgeRule: "lt",
+    weights: [],
+    weighted: false,
+    exact: null,
+    builderSelected: null,
+    builderPreset: "current",
+    addMode: false,
+    snap: false,
+    dragging: null,
+    feedbackTimer: null,
+    resizeTimer: null,
+  };
+
+  const copy = {
+    zh: {
+      rule: "在满足 blockade 约束的前提下，激发尽可能多的原子。",
+      selected: "已激发原子",
+      score: "总权重",
+      maximum: "选择完成后，点击“检查答案”。",
+      check: "检查答案",
+      undo: "撤销",
+      reset: "重置",
+      hint: "提示",
+      remix: "改编此关",
+      blocked: "这个原子被已激发原子阻塞。",
+      wrong: (a, b) => `你找到了 ${a}。本关最多可以达到 ${b}。试着释放一两个原子，换一条分支。`,
+      wrongBoard: (a, b) => `还不是最大解：目前 ${a}，最多 ${b}。`,
+      backToEdit: "← 返回编辑",
+      backToChallenge: "← 返回原策略关卡",
+      correct: (n) => `找到最大值：${n}。`,
+    },
+  };
+
+  const levelCopy = {
+    "level-01": ["初见微光", "一条断裂的路径", "从外围分支开始，为后续选择留出空间。", "先看外围：拥挤的中部会同时排除更多选项。"],
+    "level-02": ["岔路口", "双区域几何", "两条分支看似相同，但它们排除的邻域并不一样。", "比较每个首选会阻塞多少个后续位置。"],
+    "level-03": ["条条大路", "彼此耦合的小岛", "多条不同路径都能达到同一个最大值。", "最优解不止一个；左右两边都要保留选择。"],
+    "level-04": ["中心陷阱", "双区域几何", "最显眼的局部选择，并不一定带来全局最优。", "中心原子会同时阻塞两个区域的备选。"],
+    "level-05": ["破碎网格", "带缺陷的方格几何", "偏移的节点打破了棋盘格式的捷径。", "把缺陷看成策略分支，而不是装饰。"],
+    "level-06": ["双岛之桥", "耦合簇几何", "一座桥把两个原本宽松的区域耦合起来。", "桥旁的选择，可能同时保住两座岛的空间。"],
+    "level-07": ["假对称", "不规则网格", "两个近乎对称的开局，会产生不同后果。", "找出那个破坏视觉对称的特殊邻域。"],
+    "level-08": ["受挫网络", "带缺陷的晶格几何", "短环让局部密集的选择相互竞争。", "不要太早填满视觉上最明显的一行。"],
+    "level-09": ["瓶颈", "不规则单位圆盘图", "一个早期分支，就会改变整张图的容量。", "最差的第一步会让最终答案少两个原子。"],
+    "level-10": ["无规则终局", "不规则单位圆盘图", "没有整齐的晶格图案告诉你从哪里开始。", "根据冲突关系推理，不要依赖表面对称。"],
+  };
+
+  function tr(key) { return copy[state.language][key]; }
+  function currentLevel() { return levels[state.levelIndex]; }
+  function currentLevelCopy() {
+    const [title, subtitle, purpose, hint] = levelCopy[currentLevel().id];
+    return { title, subtitle, purpose, hint };
+  }
+  function clonePoints(points) { return points.map((point) => ({ x: point.x, y: point.y })); }
+  function scoreSelection() {
+    if (!state.weighted) return state.selection.selected.size;
+    return [...state.selection.selected].reduce((sum, i) => sum + (state.weights[i] || 1), 0);
+  }
+
+  function setProblem(points, radius, edgeRule = "lt", weights = null) {
+    state.points = clonePoints(points);
+    state.radius = radius;
+    state.edgeRule = edgeRule;
+    state.graph = MIS.buildGraph(state.points, state.radius, state.edgeRule);
+    state.weights = weights ? [...weights] : state.points.map(() => 1);
+    computeExact();
+  }
+
+  function computeExact() {
+    try {
+      state.exact = MIS.solveExact(state.graph, state.weighted ? state.weights : null, { timeLimitMs: 800, witnessLimit: 32 });
+    } catch (error) {
+      state.exact = { score: null, size: null, count: null, witnesses: [], error: error.message };
+    }
+  }
+
+  function loadLevel(index) {
+    clearVerdict();
+    state.levelIndex = Math.max(0, Math.min(levels.length - 1, index));
+    const level = currentLevel();
+    state.mode = "standard";
+    state.selection = MIS.createSelectionState();
+    state.failures = 0;
+    state.hintLevel = 0;
+    state.solved = false;
+    state.revealed = false;
+    state.weighted = false;
+    state.builderSelected = null;
+    setProblem(level.coordinates, level.blockadeRadius, level.edgeRule);
+    if (state.exact.size !== level.exactMISSize) {
+      throw new Error(`Level validation failed for ${level.id}: metadata ${level.exactMISSize}, solver ${state.exact.size}`);
+    }
+    renderPlay();
+  }
+
+  function fitTransform(points, width = BOARD_WIDTH, height = BOARD_HEIGHT, padding = 92, maxScale = 98) {
+    const xs = points.map((p) => p.x);
+    const ys = points.map((p) => p.y);
+    const minX = Math.min(...xs, 0);
+    const maxX = Math.max(...xs, 1);
+    const minY = Math.min(...ys, 0);
+    const maxY = Math.max(...ys, 1);
+    const scale = Math.min((width - padding * 2) / Math.max(maxX - minX, 1), (height - padding * 2) / Math.max(maxY - minY, 1), maxScale);
+    const offsetX = (width - (maxX - minX) * scale) / 2 - minX * scale;
+    const offsetY = (height - (maxY - minY) * scale) / 2 - minY * scale;
+    return {
+      scale,
+      toScreen: (point) => ({ x: point.x * scale + offsetX, y: point.y * scale + offsetY }),
+      toWorld: (x, y) => ({ x: (x - offsetX) / scale, y: (y - offsetY) / scale }),
+    };
+  }
+
+  function svgElement(tag, attrs = {}) {
+    const element = document.createElementNS(svgNS, tag);
+    Object.entries(attrs).forEach(([name, value]) => element.setAttribute(name, value));
+    return element;
+  }
+
+  function renderBoard() {
+    const board = $("#atom-board");
+    const edgeLayer = $("#board-edges");
+    const ringLayer = $("#board-rings");
+    const atomLayer = $("#board-atoms");
+    edgeLayer.replaceChildren();
+    ringLayer.replaceChildren();
+    atomLayer.replaceChildren();
+    if (!state.points.length) return;
+    // The play page starts hidden. Its SVG has no measurable CSS width until
+    // the page is visible, so never derive node geometry from a zero-width
+    // hidden element. renderBoard is called again immediately on page entry.
+    const renderedWidth = board.getBoundingClientRect().width;
+    if (renderedWidth <= 0) return;
+    const transform = fitTransform(state.points);
+    // The SVG viewBox scales on narrow screens. Counter-scale atoms and their
+    // touch targets so the visible radius stays near 9 px and the target near
+    // 29 px instead of becoming tiny on phones.
+    const screenCompensation = Math.max(1, BOARD_WIDTH / renderedWidth);
+    const blockedSources = MIS.blockedBy(state.selection.selected, state.graph);
+    state.graph.edges.forEach(({ i, j }) => {
+      const a = transform.toScreen(state.points[i]);
+      const b = transform.toScreen(state.points[j]);
+      const incident = state.selection.selected.has(i) || state.selection.selected.has(j);
+      const classes = ["graph-edge", state.mode === "builder" ? "builder-edge" : "", incident ? "incident-edge" : ""].filter(Boolean).join(" ");
+      edgeLayer.append(svgElement("line", { x1: a.x, y1: a.y, x2: b.x, y2: b.y, class: classes }));
+    });
+
+    if (state.mode !== "builder") [...state.selection.selected].forEach((i) => {
+      const point = transform.toScreen(state.points[i]);
+      ringLayer.append(svgElement("circle", {
+        cx: point.x, cy: point.y, r: state.radius * transform.scale,
+        class: "blockade-ring",
+      }));
+    });
+
+    state.points.forEach((worldPoint, i) => {
+      const point = transform.toScreen(worldPoint);
+      const group = svgElement("g", { class: "atom-group", "data-index": i });
+      const selected = state.selection.selected.has(i);
+      const blocked = blockedSources[i].length > 0;
+      if (selected) group.classList.add("excited");
+      else if (blocked) group.classList.add("blocked");
+      if (state.mode === "builder" && state.builderSelected === i) group.classList.add("builder-selected");
+      if (state.hintLevel >= 2 && currentLevel()?.analysis?.badFirstMoves?.includes(i) && state.mode === "standard") group.classList.add("hinted");
+      if (state.solved && selected) group.classList.add("solved");
+      group.append(svgElement("circle", { cx: point.x, cy: point.y, r: 29 * screenCompensation, class: "atom-hit", "aria-hidden": "true" }));
+      // Selection changes color and incident edges, never the node diameter.
+      group.append(svgElement("circle", { cx: point.x, cy: point.y, r: 10 * screenCompensation, class: "atom-visible" }));
+      if (state.weighted) {
+        const label = svgElement("text", { x: point.x, y: point.y - 20 * screenCompensation, class: "atom-label", style: `font-size:${11 * screenCompensation}px` });
+        label.textContent = `权重 ${state.weights[i]}`;
+        group.append(label);
+      }
+      group.setAttribute("role", "button");
+      group.setAttribute("aria-label", `原子 ${i + 1}，${selected ? "已激发" : blocked ? "已阻塞" : "可选择"}`);
+      atomLayer.append(group);
+    });
+
+    installBoardInteractions(transform);
+  }
+
+  function installBoardInteractions(transform) {
+    const board = $("#atom-board");
+    board.querySelectorAll(".atom-group").forEach((group) => {
+      const index = Number(group.dataset.index);
+      group.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if (state.mode === "builder") {
+          if (state.dragging?.moved) return;
+          state.builderSelected = index;
+          renderPlay();
+          return;
+        }
+        if (state.solved) return;
+        const result = MIS.toggleAtom(state.selection, index, state.graph);
+        state.selection = result.state;
+        if (!result.changed) showFeedback(tr("blocked"), result.blocker);
+        else clearVerdict();
+        renderPlay();
+      });
+      if (state.mode === "builder") {
+        group.addEventListener("pointerdown", (event) => {
+          event.preventDefault();
+          board.setPointerCapture(event.pointerId);
+          state.dragging = { index, pointerId: event.pointerId, moved: false };
+        });
+      }
+    });
+
+    board.onpointermove = (event) => {
+      if (!state.dragging || state.dragging.pointerId !== event.pointerId) return;
+      const world = pointerWorld(event, board, transform);
+      const index = state.dragging.index;
+      state.points[index] = state.snap ? { x: Math.round(world.x * 2) / 2, y: Math.round(world.y * 2) / 2 } : world;
+      state.dragging.moved = true;
+      state.graph = MIS.buildGraph(state.points, state.radius, state.edgeRule);
+      renderBoard();
+    };
+    board.onpointerup = (event) => {
+      if (!state.dragging || state.dragging.pointerId !== event.pointerId) return;
+      const { index, moved } = state.dragging;
+      state.dragging = null;
+      state.builderSelected = index;
+      if (moved) { computeExact(); renderPlay(); } else renderPlay();
+    };
+
+    board.onclick = (event) => {
+      if (state.mode !== "builder" || !state.addMode || event.target.closest(".atom-group")) return;
+      if (state.points.length >= 36) { showFeedback("显示与求解上限为 36 个原子。"); return; }
+      let point = pointerWorld(event, board, transform);
+      if (state.snap) point = { x: Math.round(point.x * 2) / 2, y: Math.round(point.y * 2) / 2 };
+      state.points.push(point);
+      state.weights.push(1);
+      state.builderSelected = state.points.length - 1;
+      state.addMode = false;
+      rebuildCustom(true);
+    };
+  }
+
+  function pointerWorld(event, board, transform) {
+    const rect = board.getBoundingClientRect();
+    return transform.toWorld((event.clientX - rect.left) * BOARD_WIDTH / rect.width, (event.clientY - rect.top) * BOARD_HEIGHT / rect.height);
+  }
+
+  function showFeedback(message, blocker = null, tone = "neutral") {
+    const box = $("#board-feedback");
+    box.textContent = message;
+    box.classList.toggle("mistake", tone === "mistake");
+    box.classList.add("show");
+    if (blocker !== null) {
+      const group = document.querySelector(`.atom-group[data-index="${blocker}"]`);
+      if (group) group.classList.add("conflict-source");
+    }
+    clearTimeout(state.feedbackTimer);
+    state.feedbackTimer = setTimeout(() => box.classList.remove("show"), 1100);
+  }
+
+  function clearVerdict() {
+    const verdict = $("#board-verdict");
+    verdict.hidden = true;
+    verdict.className = "board-verdict";
+    verdict.replaceChildren();
+    document.body.classList.remove("board-success", "board-mistake");
+  }
+
+  function adviceForSubmission(score, optimum) {
+    const gap = optimum - score;
+    const selected = [...state.selection.selected];
+    if (!selected.length) return "你还没有选择原子。先从外围或度数较低的节点开始，通常能保留更多后续空间。";
+    const degrees = selected.map((index) => ({ index, degree: state.graph.adjacency[index].length })).sort((a, b) => b.degree - a.degree);
+    const crowded = degrees[0];
+    if (gap >= 2) return `当前方案距离最优还差 ${gap}。尝试撤掉原子 ${crowded.index + 1}：它连接 ${crowded.degree} 条冲突边，可能一次阻塞了多个分支。`;
+    if (crowded.degree >= 3) return `只差一步。原子 ${crowded.index + 1} 的冲突邻居较多；撤掉它，再寻找两个彼此兼容的替代节点。`;
+    return "只差一步。当前选择可能是“极大”但不是“最大”：撤销最后一两个选择，比较另一条分支能否多保留一个位置。";
+  }
+
+  function showVerdict(correct, score, optimum) {
+    const verdict = $("#board-verdict");
+    const title = correct ? `正确！本关最大值是 ${optimum}` : `还不是最大值：${score} / ${optimum}`;
+    let detail = correct
+      ? (state.levelIndex < levels.length - 1 ? `这一组选择两两兼容。下一关是“${levelCopy[levels[state.levelIndex + 1].id][0]}”。` : "十关完成！你可以继续进入几何编辑器，设计自己的 MIS / MWIS。")
+      : adviceForSubmission(score, optimum);
+    if (!correct && state.failures >= REVEAL_AFTER_FAILURES) detail += " 已连续尝试两次，右侧已经解锁“查看一种正确答案”。";
+    verdict.innerHTML = `<strong>${title}</strong><span>${detail}</span>`;
+    verdict.classList.toggle("mistake", !correct);
+    verdict.hidden = false;
+    document.body.classList.remove("board-success", "board-mistake");
+    void document.body.offsetWidth;
+    document.body.classList.add(correct ? "board-success" : "board-mistake");
+  }
+
+  function renderPlay() {
+    const level = currentLevel();
+    const localized = currentLevelCopy();
+    $("#level-kicker").textContent = state.mode === "standard" ? `挑战 ${state.levelIndex + 1} / ${levels.length}` : state.mode === "builder" ? "重构 / 编辑" : "自定义挑战";
+    $("#play-title").textContent = state.mode === "standard" ? localized.title : state.mode === "builder" ? "移动原子，改变冲突图" : "你的自定义谜题";
+    $("#rule-copy").textContent = state.mode === "builder" ? "拖动、添加或删除原子，冲突边会随几何结构实时更新。" : tr("rule");
+    $("#progress-label").textContent = `已完成 ${state.completed.size} / ${levels.length}`;
+    $("#progress-fill").style.width = `${state.completed.size / levels.length * 100}%`;
+    renderBoard();
+    if (state.mode === "builder") renderBuilderControls();
+    else renderGameControls();
+  }
+
+  function renderGameControls() {
+    const panel = $("#control-panel");
+    const level = currentLevel();
+    const selectedScore = scoreSelection();
+    let message = `<span>${tr("maximum")}</span>`;
+    const localized = currentLevelCopy();
+    if (state.solved) message = `<strong>✓ ${tr("correct")(state.exact.score)}</strong><span>${state.mode === "standard" && state.levelIndex < levels.length - 1 ? `下一关：${levelCopy[levels[state.levelIndex + 1].id][0]}` : "已完成当前挑战。"}</span>`;
+    else if (state.revealed) message = `<strong>参考答案已显示</strong><span>绿色节点组成一组大小为 ${state.exact.score} 的最优解。观察它避开了哪些高冲突节点，再点击“检查答案”继续。</span>`;
+    else if (state.failures) message = `<strong>再检查一下当前分支</strong><span>${adviceForSubmission(selectedScore, state.exact.score)}</span>`;
+    const mainLabel = state.solved
+      ? (state.mode === "custom" ? "查看结果对比 →" : state.levelIndex === levels.length - 1 ? "设计自己的问题 →" : "下一关 →")
+      : tr("check");
+    panel.innerHTML = `
+      <h2>${state.mode === "standard" ? localized.title : "自定义问题"}</h2>
+      <p class="level-subtitle">${state.mode === "standard" ? localized.subtitle : state.weighted ? "最大权重独立集 · MWIS" : "几何最大独立集 · MIS"}</p>
+      ${state.mode === "standard" ? `<label class="level-select-label">选择关卡<select id="level-select">${levels.map((item, i) => `<option value="${i}" ${i === state.levelIndex ? "selected" : ""}>${String(i + 1).padStart(2, "0")} · ${levelCopy[item.id][0]}</option>`).join("")}</select></label>` : ""}
+      <p class="level-purpose">${state.mode === "standard" ? localized.purpose : "在你创建的几何结构中，找出总数量或总权重最大的兼容集合。"}</p>
+      <div class="score-line"><span>${state.weighted ? tr("score") : tr("selected")}</span><strong>${selectedScore}</strong></div>
+      <p class="status-message ${state.solved || state.revealed ? "success" : state.failures ? "mistake" : ""}" aria-live="polite">${message}</p>
+      ${state.hintLevel ? `<div class="hint-box">${hintText()}</div>` : ""}
+      <div class="action-stack">
+        <button id="main-action" class="primary-button" type="button">${mainLabel}</button>
+        <div class="action-row">
+          <button id="undo-action" class="ghost-button" type="button" ${state.selection.history.length ? "" : "disabled"}>${tr("undo")}</button>
+          <button id="hint-action" class="ghost-button" type="button">${tr("hint")}</button>
+          <button id="reset-action" class="ghost-button" type="button">${tr("reset")}</button>
+        </div>
+        ${state.mode === "standard" ? `<button id="remix-action" class="secondary-button" type="button">${tr("remix")}</button>` : ""}
+        ${state.mode === "custom" ? `<button id="back-to-builder" class="secondary-button" type="button">${tr("backToEdit")}</button>` : ""}
+        ${state.mode === "custom" ? `<button id="back-to-standard" class="ghost-button" type="button">${tr("backToChallenge")}</button>` : ""}
+        ${(state.failures >= REVEAL_AFTER_FAILURES || state.hintLevel >= 3) && !state.solved && !state.revealed ? `<button id="solution-action" class="solution-button" type="button">查看一种正确答案 <span>已尝试 ${state.failures} 次</span></button>` : ""}
+      </div>`;
+
+    $("#level-select")?.addEventListener("change", (event) => loadLevel(Number(event.target.value)));
+    $("#main-action").onclick = mainAction;
+    $("#undo-action").onclick = () => { state.selection = MIS.undoSelection(state.selection); state.solved = false; clearVerdict(); renderPlay(); };
+    $("#reset-action").onclick = () => { state.selection = MIS.resetSelection(state.selection); state.solved = false; state.revealed = false; state.failures = 0; clearVerdict(); renderPlay(); };
+    $("#hint-action").onclick = () => { state.hintLevel = Math.min(3, state.hintLevel + 1); renderPlay(); };
+    $("#remix-action")?.addEventListener("click", enterBuilder);
+    $("#back-to-builder")?.addEventListener("click", returnToBuilder);
+    $("#back-to-standard")?.addEventListener("click", returnToStandard);
+    $("#solution-action")?.addEventListener("click", revealSolution);
+  }
+
+  function hintText() {
+    const level = currentLevel();
+    if (state.mode !== "standard") return "试试先选度数较低的原子；它通常会保留更多后续选择。";
+    if (state.hintLevel === 1) return currentLevelCopy().hint;
+    if (state.hintLevel === 2) return level.analysis.badFirstMoves.length ? "轮廓提示的原子可能让简单策略低于最大值。" : "比较两个连接最少的区域。";
+    const witness = level.exactMISWitnesses[0].map((i) => i + 1).join(", ");
+    return `一种最优路径会选择原子 ${witness}。`;
+  }
+
+  function mainAction() {
+    if (!state.solved) {
+      if (state.exact.score === null) { showFeedback("这个自定义画面的精确结果暂时不可用。"); return; }
+      const verdict = MIS.evaluateSubmission(scoreSelection(), state.exact.score, {
+        failures: state.failures,
+        custom: state.mode === "custom",
+        lastStandard: state.mode === "standard" && state.levelIndex === levels.length - 1,
+      });
+      if (verdict.correct) {
+        state.solved = true;
+        if (state.mode === "standard") state.completed.add(currentLevel().id);
+        renderPlay();
+        showVerdict(true, scoreSelection(), state.exact.score);
+      } else {
+        state.failures = verdict.nextFailures;
+        renderPlay();
+        showVerdict(false, scoreSelection(), state.exact.score);
+      }
+      return;
+    }
+    if (state.mode === "custom") { showPage("quantum"); return; }
+    if (state.levelIndex === levels.length - 1) { enterBuilder(); return; }
+    loadLevel(state.levelIndex + 1);
+  }
+
+  function revealSolution() {
+    if (!state.exact.witnesses.length) return;
+    state.selection.history.push(new Set(state.selection.selected));
+    state.selection.selected = new Set(state.exact.witnesses[0]);
+    state.revealed = true;
+    renderPlay();
+    const verdict = $("#board-verdict");
+    verdict.innerHTML = `<strong>已标出一种正确答案</strong><span>绿色节点两两之间没有冲突边，总值为 ${state.exact.score}。这只是多种最优解中的一种。</span>`;
+    verdict.classList.remove("mistake");
+    verdict.hidden = false;
+    document.body.classList.add("board-success");
+  }
+
+  function enterBuilder() {
+    state.mode = "builder";
+    state.selection = MIS.createSelectionState();
+    state.solved = false;
+    state.failures = 0;
+    state.hintLevel = 0;
+    state.builderSelected = null;
+    state.builderPreset = "current";
+    state.weighted = false;
+    state.weights = state.points.map(() => 1);
+    renderPlay();
+  }
+
+  function returnToBuilder() {
+    state.mode = "builder";
+    state.selection = MIS.createSelectionState();
+    state.solved = false;
+    state.failures = 0;
+    state.hintLevel = 0;
+    state.builderSelected = null;
+    state.addMode = false;
+    computeExact();
+    renderPlay();
+  }
+
+  function returnToStandard() {
+    loadLevel(state.levelIndex);
+  }
+
+  function rebuildCustom(recompute) {
+    state.graph = MIS.buildGraph(state.points, state.radius, state.edgeRule);
+    state.selection = MIS.createSelectionState();
+    if (recompute) computeExact();
+    renderPlay();
+  }
+
+  function renderBuilderControls() {
+    const panel = $("#control-panel");
+    const average = MIS.degreeStats(state.graph).average;
+    panel.innerHTML = `
+      <h2>几何编辑器</h2>
+      <p class="level-subtitle">显示与求解上限 · 36 个原子</p>
+      <div class="builder-tools">
+        <label class="field-label">几何预设<select id="preset-select">${["current","chain","ring","ladder","square","triangular","honeycomb","kagome","irregular"].map((name) => `<option value="${name}" ${name === state.builderPreset ? "selected" : ""}>${({current:"当前关卡",chain:"链",ring:"环",ladder:"梯形",square:"方格",triangular:"三角晶格",honeycomb:"蜂窝",kagome:"Kagome",irregular:"不规则"})[name]}</option>`).join("")}</select></label>
+        <label class="field-label">有效 blockade 半径 Rb · <span id="radius-value">${state.radius.toFixed(2)}</span><input id="radius-input" type="range" min="0.65" max="1.8" step="0.01" value="${state.radius}"></label>
+        <label class="switch-line">吸附到半格<input id="snap-input" type="checkbox" ${state.snap ? "checked" : ""}></label>
+        <label class="switch-line">启用 MWIS<input id="weighted-input" type="checkbox" ${state.weighted ? "checked" : ""}></label>
+        ${state.weighted && state.builderSelected !== null ? `<label class="field-label weight-editor">所选原子的权重<input id="weight-input" type="number" min="1" max="9" step="1" value="${state.weights[state.builderSelected] || 1}"></label>` : ""}
+      </div>
+      <div class="metrics">
+        <div><span>原子</span><strong>${state.points.length}</strong></div>
+        <div><span>冲突边</span><strong id="metric-constraints">${state.graph.edges.length}</strong></div>
+        <div><span>平均度</span><strong id="metric-degree">${average.toFixed(1)}</strong></div>
+        <div><span>${state.weighted ? "MWIS" : "MIS"}</span><strong id="metric-exact">${state.exact.score === null ? "…" : state.exact.score}</strong></div>
+      </div>
+      <p class="edit-help">拖动原子改变冲突图。先选中原子，再删除或编辑权重；点击“添加原子”后，在画面空白处落点。</p>
+      <div class="action-stack">
+        <button id="done-builder" class="primary-button" type="button">试玩自定义问题 →</button>
+        <div class="action-row">
+          <button id="add-atom" class="ghost-button" type="button">${state.addMode ? "点击画面…" : "添加原子"}</button>
+          <button id="remove-atom" class="ghost-button" type="button" ${state.builderSelected === null ? "disabled" : ""}>删除</button>
+          <button id="perturb" class="ghost-button" type="button">微扰</button>
+        </div>
+        <button id="clear-board" class="secondary-button" type="button">清空画面</button>
+        <button id="builder-back-to-standard" class="ghost-button" type="button">${tr("backToChallenge")}</button>
+      </div>`;
+
+    $("#preset-select").onchange = (event) => applyPreset(event.target.value);
+    $("#radius-input").oninput = (event) => {
+      state.radius = Number(event.target.value);
+      state.graph = MIS.buildGraph(state.points, state.radius, state.edgeRule);
+      state.selection = MIS.createSelectionState();
+      $("#radius-value").textContent = state.radius.toFixed(2);
+      $("#metric-constraints").textContent = state.graph.edges.length;
+      $("#metric-degree").textContent = MIS.degreeStats(state.graph).average.toFixed(1);
+      $("#metric-exact").textContent = "…";
+      renderBoard();
+    };
+    $("#radius-input").onchange = () => { computeExact(); renderPlay(); };
+    $("#snap-input").onchange = (event) => { state.snap = event.target.checked; renderPlay(); };
+    $("#weighted-input").onchange = (event) => { state.weighted = event.target.checked; computeExact(); renderPlay(); };
+    $("#weight-input")?.addEventListener("change", (event) => {
+      state.weights[state.builderSelected] = Math.max(1, Math.min(9, Number(event.target.value) || 1));
+      computeExact(); renderPlay();
+    });
+    $("#done-builder").onclick = () => {
+      if (!state.points.length) { showFeedback("请先添加至少一个原子。"); return; }
+      state.mode = "custom"; state.selection = MIS.createSelectionState(); state.solved = false; renderPlay();
+    };
+    $("#add-atom").onclick = () => { state.addMode = !state.addMode; renderPlay(); };
+    $("#remove-atom").onclick = removeSelectedAtom;
+    $("#perturb").onclick = perturbPoints;
+    $("#clear-board").onclick = () => { state.points = []; state.weights = []; state.builderSelected = null; rebuildCustom(true); };
+    $("#builder-back-to-standard").onclick = returnToStandard;
+  }
+
+  function applyPreset(name) {
+    state.builderPreset = name;
+    if (name === "current") { renderPlay(); return; }
+    const points = presetPoints(name);
+    state.points = points;
+    state.weights = points.map(() => 1);
+    state.builderSelected = null;
+    rebuildCustom(true);
+  }
+
+  function presetPoints(name) {
+    if (name === "chain") return Array.from({ length: 10 }, (_, i) => ({ x: i, y: 0 }));
+    if (name === "ring") return Array.from({ length: 11 }, (_, i) => ({ x: 2.1 * Math.cos(i * Math.PI * 2 / 11), y: 2.1 * Math.sin(i * Math.PI * 2 / 11) }));
+    if (name === "ladder") return Array.from({ length: 12 }, (_, i) => ({ x: Math.floor(i / 2), y: i % 2 }));
+    if (name === "square") return Array.from({ length: 16 }, (_, i) => ({ x: i % 4, y: Math.floor(i / 4) }));
+    if (name === "triangular") {
+      const out = []; for (let r = 0; r < 5; r += 1) for (let c = 0; c <= r; c += 1) out.push({ x: c - r / 2, y: r * .866 }); return out;
+    }
+    if (name === "honeycomb") return [{x:0,y:0},{x:0,y:1},{x:1.73,y:0},{x:1.73,y:1},{x:.866,y:1.5},{x:.866,y:2.5},{x:2.598,y:1.5},{x:2.598,y:2.5},{x:3.464,y:0},{x:3.464,y:1}];
+    if (name === "kagome") return [{x:0,y:0},{x:1,y:0},{x:.5,y:.866},{x:2,y:0},{x:3,y:0},{x:2.5,y:.866},{x:1,y:1.732},{x:2,y:1.732},{x:1.5,y:2.598},{x:3,y:1.732},{x:4,y:1.732},{x:3.5,y:2.598}];
+    return Array.from({ length: 14 }, (_, i) => ({ x: ((i * 1.73) % 4.8) + Math.sin(i) * .25, y: ((i * 2.31) % 3.8) + Math.cos(i * 1.7) * .22 }));
+  }
+
+  function removeSelectedAtom() {
+    if (state.builderSelected === null) return;
+    state.points.splice(state.builderSelected, 1);
+    state.weights.splice(state.builderSelected, 1);
+    state.builderSelected = null;
+    rebuildCustom(true);
+  }
+
+  function perturbPoints() {
+    state.points = state.points.map((point, i) => ({ x: point.x + Math.sin(i * 17.1) * .075, y: point.y + Math.cos(i * 11.7) * .075 }));
+    rebuildCustom(true);
+  }
+
+  function showPage(page) {
+    state.page = page;
+    document.querySelectorAll(".page").forEach((element) => element.classList.toggle("active", element.id === `${page}-page`));
+    document.querySelectorAll(".nav-button").forEach((button) => button.classList.toggle("active", button.dataset.page === page));
+    if (page === "play") requestAnimationFrame(renderPlay);
+    if (page === "quantum") renderQuantum();
+  }
+
+  function mappingDiagram(kind) {
+    const warm = kind === "station";
+    const real = kind === "antenna"
+      ? `<path class="mini-real" d="M43 111V54m-15 57h30m-23-57q8-16 16 0m-25 4q17-31 34 0"/><circle class="mini-node selected" cx="43" cy="47" r="6"/>`
+      : kind === "station"
+        ? `<rect class="mini-real" x="19" y="74" width="16" height="39"/><rect class="mini-real" x="43" y="55" width="16" height="58"/><rect class="mini-real" x="67" y="82" width="16" height="31"/><circle class="mini-node selected" cx="27" cy="66" r="5"/><circle class="mini-node" cx="51" cy="47" r="5"/><circle class="mini-node selected" cx="75" cy="74" r="5"/>`
+        : `<line class="mini-edge" x1="18" y1="57" x2="82" y2="57"/><line class="mini-edge" x1="18" y1="81" x2="82" y2="81"/><line class="mini-edge" x1="18" y1="105" x2="82" y2="105"/><rect x="25" y="51" width="33" height="12" rx="3" fill="var(--case-color,var(--accent))"/><rect x="46" y="75" width="28" height="12" rx="3" fill="var(--warm-soft)"/><rect x="31" y="99" width="45" height="12" rx="3" fill="var(--case-color,var(--accent))"/>`;
+    return `<svg viewBox="0 0 330 155" aria-hidden="true" style="--case-color:${warm ? 'var(--warm)' : 'var(--accent)'}">
+      <text class="mini-label" x="50" y="20">现实候选</text><text class="mini-label" x="165" y="20">冲突图</text><text class="mini-label" x="280" y="20">原子编码</text>
+      <text class="mini-arrow" x="108" y="83">→</text><text class="mini-arrow" x="223" y="83">→</text>${real}
+      <line class="mini-edge" x1="142" y1="55" x2="182" y2="50"/><line class="mini-edge" x1="142" y1="55" x2="160" y2="94"/><line class="mini-edge" x1="182" y1="50" x2="160" y2="94"/><line class="mini-edge" x1="160" y1="94" x2="194" y2="111"/>
+      <circle class="mini-node selected" cx="142" cy="55" r="7"/><circle class="mini-node" cx="182" cy="50" r="7"/><circle class="mini-node" cx="160" cy="94" r="7"/><circle class="mini-node selected" cx="194" cy="111" r="7"/>
+      <circle class="mini-halo" cx="262" cy="59" r="34"/><circle class="mini-node selected" cx="262" cy="59" r="8"/><circle class="mini-node" cx="302" cy="62" r="8"/><circle class="mini-node" cx="280" cy="108" r="8"/><text class="mini-label" x="280" y="139">距离编码冲突</text>
+    </svg>`;
+  }
+
+  function initMappingDiagrams() {
+    document.querySelectorAll(".mapping-card").forEach((card) => {
+      card.querySelector(".mapping-diagram").innerHTML = mappingDiagram(card.dataset.case);
+    });
+  }
+
+  function selectMappingCase(caseName, focus = false) {
+    document.querySelectorAll(".case-tab").forEach((tab) => {
+      const active = tab.dataset.caseTarget === caseName;
+      tab.classList.toggle("active", active);
+      tab.setAttribute("aria-selected", String(active));
+      tab.tabIndex = active ? 0 : -1;
+      if (active && focus) tab.focus();
+    });
+    document.querySelectorAll(".mapping-card").forEach((panel) => {
+      panel.hidden = panel.dataset.case !== caseName;
+      panel.classList.toggle("active", panel.dataset.case === caseName);
+    });
+  }
+
+  function initCaseTabs() {
+    const tabs = [...document.querySelectorAll(".case-tab")];
+    tabs.forEach((tab, index) => {
+      tab.onclick = () => selectMappingCase(tab.dataset.caseTarget);
+      tab.onkeydown = (event) => {
+        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+        event.preventDefault();
+        const nextIndex = event.key === "Home" ? 0
+          : event.key === "End" ? tabs.length - 1
+            : (index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+        selectMappingCase(tabs[nextIndex].dataset.caseTarget, true);
+      };
+    });
+    selectMappingCase("antenna");
+  }
+
+  function renderQuantum(highlight = null) {
+    const source = state.mode === "standard" ? `第 ${state.levelIndex + 1} 关 — ${currentLevelCopy().title}` : "自定义问题";
+    $("#quantum-source").textContent = source;
+    const board = $("#quantum-board");
+    board.replaceChildren();
+    if (!state.points.length) return;
+    const transform = fitTransform(state.points, 960, 600, 84, 98);
+    const screenCompensation = Math.max(1, 960 / Math.max(board.clientWidth, 360));
+    state.graph.edges.forEach(({ i, j }) => {
+      const a = transform.toScreen(state.points[i]); const b = transform.toScreen(state.points[j]);
+      board.append(svgElement("line", { x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:"graph-edge" }));
+    });
+    state.points.forEach((point, i) => {
+      const p = transform.toScreen(point);
+      const selected = highlight ? highlight.includes(i) : state.selection.selected.has(i);
+      board.append(svgElement("circle", { cx:p.x,cy:p.y,r:(selected?11:9)*screenCompensation,class:selected?"atom-visible quantum-selected":"atom-visible", style:selected?"fill:var(--accent);stroke:var(--accent)":"" }));
+    });
+  }
+
+  async function runSampler() {
+    const button = $("#run-sampler");
+    button.disabled = true;
+    $("#quantum-results").hidden = true;
+    const phases = [...document.querySelectorAll(".phase-list > div")];
+    for (let i = 0; i < phases.length; i += 1) {
+      phases.forEach((phase, index) => phase.classList.toggle("active", index === i));
+      button.textContent = ["正在初始化…", "正在驱动…", "正在比较构型…", "正在测量…"][i];
+      await new Promise((resolve) => setTimeout(resolve, matchMedia("(prefers-reduced-motion: reduce)").matches ? 10 : 520));
+    }
+    const greedy = MIS.greedy(state.graph, "min-degree");
+    const shots = samplerShots();
+    const best = Math.max(...shots.map((shot) => shot.score));
+    const human = scoreSelection();
+    const results = $("#quantum-results");
+    results.innerHTML = `<div class="comparison">
+      <div><span>你的结果</span><strong>${human}</strong></div>
+      <div><span>最小度贪心</span><strong>${state.weighted ? greedy.reduce((s,i)=>s+state.weights[i],0) : greedy.length}</strong></div>
+      <div><span>采样器最佳</span><strong>${best}</strong></div>
+      <div><span>精确 ${state.weighted ? "MWIS" : "MIS"}</span><strong>${state.exact.score}</strong></div>
+    </div><div class="shots">${shots.slice(0, 6).map((shot, index) => `<button class="shot-button" type="button" data-shot="${index}">${shot.bits} · ${shot.score}</button>`).join("")}</div>`;
+    results.hidden = false;
+    results.querySelectorAll(".shot-button").forEach((shotButton) => shotButton.onclick = () => renderQuantum(shots[Number(shotButton.dataset.shot)].indices));
+    button.disabled = false;
+    button.textContent = "再次运行";
+  }
+
+  function samplerShots() {
+    const found = new Map();
+    const add = (indices) => {
+      const sorted = [...indices].sort((a,b)=>a-b);
+      const bits = state.points.map((_, i) => sorted.includes(i) ? "1" : "0").join("");
+      const score = state.weighted ? sorted.reduce((sum,i)=>sum+state.weights[i],0) : sorted.length;
+      found.set(bits, { bits, score, indices: sorted });
+    };
+    state.exact.witnesses.forEach(add);
+    for (let seed = 1; seed <= 48; seed += 1) add(MIS.randomGreedy(state.graph, seed * 97));
+    return [...found.values()].sort((a,b) => b.score - a.score || a.bits.localeCompare(b.bits));
+  }
+
+  function initLearnDemo() {
+    const host = $("#learn-independent");
+    const svg = svgElement("svg", { viewBox:"0 0 190 160", role:"img", "aria-label":"点击节点组成独立集" });
+    const points = [{x:20,y:80},{x:65,y:42},{x:65,y:118},{x:125,y:42},{x:125,y:118},{x:170,y:80}];
+    const edges = [[0,1],[0,2],[1,2],[1,3],[2,4],[3,4],[3,5],[4,5]];
+    edges.forEach(([a,b]) => svg.append(svgElement("line", {x1:points[a].x,y1:points[a].y,x2:points[b].x,y2:points[b].y,class:"graph-edge"})));
+    const chosen = new Set();
+    points.forEach((point, i) => {
+      const node = svgElement("circle", {cx:point.x,cy:point.y,r:13,class:"atom-visible",style:"cursor:pointer"});
+      node.onclick = () => {
+        const conflicts = edges.some(([a,b]) => (a===i&&chosen.has(b)) || (b===i&&chosen.has(a)));
+        if (!chosen.has(i) && conflicts) return;
+        chosen.has(i) ? chosen.delete(i) : chosen.add(i);
+        node.style.fill = chosen.has(i) ? "var(--accent)" : "var(--paper)";
+        node.style.stroke = chosen.has(i) ? "var(--accent)" : "#777b75";
+      };
+      svg.append(node);
+    });
+    host.append(svg);
+  }
+
+  function init() {
+    if (!levels.length) throw new Error("Standard levels were not loaded");
+    document.querySelectorAll("[data-page]").forEach((button) => button.onclick = () => showPage(button.dataset.page));
+    $("#run-sampler").onclick = runSampler;
+    $("#start-challenges").onclick = () => showPage("play");
+    $("#open-mapping").onclick = () => showPage("mapping");
+    $("#mapping-start").onclick = () => showPage("play");
+    $("#learn-mapping").onclick = () => showPage("mapping");
+    initMappingDiagrams();
+    initCaseTabs();
+    initLearnDemo();
+    loadLevel(0);
+    window.addEventListener("resize", () => {
+      clearTimeout(state.resizeTimer);
+      state.resizeTimer = setTimeout(() => {
+        if (state.page === "play") renderBoard();
+        if (state.page === "quantum") renderQuantum();
+      }, 80);
+    });
+  }
+
+  init();
+}());
+
+</script>
+</body>
+</html>
