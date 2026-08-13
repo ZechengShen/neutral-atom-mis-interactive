@@ -356,13 +356,19 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
 .comparison div { padding: 16px; background: var(--surface); }
 .comparison span { display: block; color: var(--muted); font-size: 13px; }
 .comparison strong { display: block; margin-top: 4px; font-size: 25px; }
-.shots { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
-.shot-button { padding: 9px 11px; border: 1px solid var(--line-dark); border-radius: 7px; background: transparent; cursor: pointer; font-family: ui-monospace, monospace; font-size: 13px; }
+.sample-summary { margin-top: 14px; padding: 13px 15px; display: flex; align-items: baseline; justify-content: space-between; gap: 18px; border-left: 3px solid var(--accent); background: var(--accent-soft); }
+.sample-summary strong { color: var(--accent); font-size: 16px; }.sample-summary span { color: var(--muted); font-size: 13px; }
+.shots { margin-top: 10px; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+.shot-button { min-width: 0; padding: 10px 11px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 4px 10px; text-align: left; border: 1px solid var(--line-dark); border-radius: 7px; background: transparent; cursor: pointer; font-size: 13px; }
+.shot-bits { min-width: 0; overflow: hidden; color: var(--muted); font-family: ui-monospace, monospace; text-overflow: ellipsis; white-space: nowrap; }.shot-button b { color: var(--ink); }.shot-button small { grid-column: 1 / -1; color: var(--subtle); font-size: 12px; }
 .shot-button.active { color: var(--white); border-color: var(--accent); background: var(--accent); box-shadow: 0 5px 14px rgba(50,103,93,.18); }
+.shot-button.active .shot-bits, .shot-button.active b, .shot-button.active small { color: var(--white); }
 .quantum-atom.excited .atom-visible { fill: var(--accent); stroke: var(--accent); }
 .quantum-atom.excited .atom-index { fill: var(--white); }
 .quantum-atom.blocked .atom-visible { fill: var(--blocked); stroke: #8c918b; }
 .quantum-atom.blocked .atom-index { fill: #4f544f; }
+.quantum-weight-bg { fill: rgba(251,250,247,.94); stroke: var(--line-dark); stroke-width: 1; vector-effect: non-scaling-stroke; pointer-events: none; }
+.quantum-weight { fill: var(--muted); text-anchor: middle; dominant-baseline: central; font-weight: 800; pointer-events: none; }
 
 .learn-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
 .learn-card { min-height: 292px; padding: 23px; display: grid; grid-template-columns: minmax(0,1fr) minmax(220px,.88fr); gap: 19px; align-items: center; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(251,250,247,.78); }
@@ -478,6 +484,8 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
   .quantum-back-actions { width: 100%; display: grid; grid-template-columns: 1fr; margin-top: 18px; }
   .quantum-back-actions button { width: 100%; }
   .comparison { grid-template-columns: repeat(2,1fr); }
+  .sample-summary { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .shots { grid-template-columns: 1fr; }
   .comparison div { padding: 14px; }
 
   .learn-card { min-height: 0; padding: 20px; grid-template-columns: 1fr; gap: 17px; }
@@ -626,10 +634,10 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
       <div class="quantum-layout">
         <section class="quantum-board-wrap"><div class="source-line"><span>问题来源：<strong id="quantum-source">第 1 关 — 初见微光</strong></span><span id="quantum-preview-label" class="preview-label">显示你的原始选择</span></div><svg id="quantum-board" viewBox="0 0 960 600" role="img" aria-label="已加载的原子问题"></svg></section>
         <aside class="quantum-controls">
-          <div class="source-box"><span>求解来源</span><strong>教学采样器</strong><small>经典生成的绝热启发式分布</small></div>
+          <div class="source-box"><span>求解来源</span><strong>教学采样器</strong><small>每轮 128 次经典启发式采样</small></div>
           <div class="phase-list" aria-label="采样阶段"><div data-phase="0"><i>1</i><span>初始化<small>|ggg…g⟩</small></span></div><div data-phase="1"><i>2</i><span>驱动<small>Ω(t), Δ(t)</small></span></div><div data-phase="2"><i>3</i><span>竞争<small>合法构型</small></span></div><div data-phase="3"><i>4</i><span>测量<small>采样比特串</small></span></div></div>
-          <button id="run-sampler" class="primary-button" type="button">运行教学采样器</button>
-          <p class="fine-print">这里只比较解的质量，不构成性能基准，也不声称存在量子加速。</p>
+          <button id="run-sampler" class="primary-button" type="button">运行采样</button>
+          <p class="fine-print"><b>精确解</b>会系统搜索并保证全局最优；<b>采样器</b>重复生成候选构型，展示出现频率，但不保证采到最优。这里只比较解的质量，不构成性能基准，也不声称存在量子加速。</p>
         </aside>
       </div>
       <div id="quantum-results" class="quantum-results" hidden></div>
@@ -913,6 +921,30 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
     return chosen;
   }
 
+  function randomWeightedGreedy(graph, weights, seed = 1) {
+    const random = mulberry32(seed);
+    const remaining = new Set(graph.points.map((_, i) => i));
+    const chosen = [];
+    while (remaining.size) {
+      const candidates = [...remaining];
+      const desirabilities = candidates.map((i) => {
+        const activeDegree = graph.adjacency[i].filter((j) => remaining.has(j)).length;
+        return Math.max(.01, Number(weights?.[i]) || 1) / (1 + activeDegree);
+      });
+      const total = desirabilities.reduce((sum, value) => sum + value, 0);
+      let target = random() * total;
+      let selected = candidates[candidates.length - 1];
+      for (let i = 0; i < candidates.length; i += 1) {
+        target -= desirabilities[i];
+        if (target <= 0) { selected = candidates[i]; break; }
+      }
+      chosen.push(selected);
+      remaining.delete(selected);
+      graph.adjacency[selected].forEach((j) => remaining.delete(j));
+    }
+    return chosen;
+  }
+
   function analyzeHeuristics(graph, exactSize, samples = 32) {
     const min = greedy(graph, "min-degree");
     const max = greedy(graph, "max-degree");
@@ -931,7 +963,7 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
     };
   }
 
-  const api = { greedy, randomGreedy, analyzeHeuristics, mulberry32 };
+  const api = { greedy, randomGreedy, randomWeightedGreedy, analyzeHeuristics, mulberry32 };
   root.MIS = root.MIS || {};
   Object.assign(root.MIS, api);
   if (typeof module !== "undefined" && module.exports) module.exports = api;
@@ -2404,6 +2436,7 @@ window.STANDARD_LEVELS = [
   const BOARD_HEIGHT = 640;
   const REVEAL_AFTER_FAILURES = 2;
   const MESSAGE_DURATION_MS = 5000;
+  const SAMPLER_SHOT_COUNT = 128;
   const levels = window.STANDARD_LEVELS || [];
   const state = {
     page: "intro",
@@ -2422,6 +2455,7 @@ window.STANDARD_LEVELS = [
     edgeRule: "lt",
     weights: [],
     weighted: false,
+    weightsInitialized: false,
     exact: null,
     builderSelected: null,
     builderPreset: "current",
@@ -2433,6 +2467,9 @@ window.STANDARD_LEVELS = [
     weightTimer: null,
     resizeTimer: null,
     quantumPreview: null,
+    samplerResults: new Map(),
+    samplerTotal: 0,
+    samplerSeed: 1,
   };
 
   const copy = {
@@ -2477,12 +2514,15 @@ window.STANDARD_LEVELS = [
   function clonePoints(points) { return points.map((point) => ({ x: point.x, y: point.y })); }
   function snapPoint(point) { return { x: Math.round(point.x * 2) / 2, y: Math.round(point.y * 2) / 2 }; }
   function formatWeight(value) { return Number(value).toFixed(1).replace(/\.0$/, ""); }
+  function randomWeight() { return (Math.floor(Math.random() * 10) + 1) / 2; }
+  function newAtomWeight() { return state.weighted ? randomWeight() : 1; }
   function scoreSelection() {
     if (!state.weighted) return state.selection.selected.size;
     return [...state.selection.selected].reduce((sum, i) => sum + (state.weights[i] || 1), 0);
   }
 
   function setProblem(points, radius, edgeRule = "lt", weights = null) {
+    resetSamplerAccumulator();
     state.points = clonePoints(points);
     state.radius = radius;
     state.edgeRule = edgeRule;
@@ -2497,6 +2537,15 @@ window.STANDARD_LEVELS = [
     } catch (error) {
       state.exact = { score: null, size: null, count: null, witnesses: [], error: error.message };
     }
+  }
+
+  function resetSamplerAccumulator() {
+    state.samplerResults = new Map();
+    state.samplerTotal = 0;
+    state.samplerSeed = 1;
+    state.quantumPreview = null;
+    const results = $("#quantum-results");
+    if (results) results.hidden = true;
   }
 
   function loadLevel(index) {
@@ -2679,16 +2728,16 @@ window.STANDARD_LEVELS = [
       const { index, moved } = state.dragging;
       state.dragging = null;
       state.builderSelected = index;
-      if (moved) { computeExact(); renderPlay(); } else renderPlay();
+      if (moved) { resetSamplerAccumulator(); computeExact(); renderPlay(); } else renderPlay();
     };
 
     board.onclick = (event) => {
       if (state.mode !== "builder" || !state.addMode || event.target.closest(".atom-group")) return;
-      if (state.points.length >= 36) { showFeedback("显示与求解上限为 36 个原子。"); return; }
+      if (state.points.length >= 64) { showFeedback("编辑与采样上限为 64 个原子。"); return; }
       let point = pointerWorld(event, board, transform);
       if (state.snap) point = snapPoint(point);
       state.points.push(point);
-      state.weights.push(1);
+      state.weights.push(newAtomWeight());
       state.builderSelected = state.points.length - 1;
       state.addMode = false;
       rebuildCustom(true);
@@ -2907,6 +2956,7 @@ window.STANDARD_LEVELS = [
     state.builderSelected = null;
     state.builderPreset = "current";
     state.weighted = false;
+    state.weightsInitialized = false;
     state.weights = state.points.map(() => 1);
     renderPlay();
   }
@@ -2933,6 +2983,7 @@ window.STANDARD_LEVELS = [
   }
 
   function rebuildCustom(recompute) {
+    resetSamplerAccumulator();
     state.graph = MIS.buildGraph(state.points, state.radius, state.edgeRule);
     state.selection = MIS.createSelectionState();
     if (recompute) computeExact();
@@ -2944,15 +2995,15 @@ window.STANDARD_LEVELS = [
     const average = MIS.degreeStats(state.graph).average;
     panel.innerHTML = `
       <h2>几何编辑器</h2>
-      <p class="level-subtitle">显示与求解上限 · 36 个原子</p>
+      <p class="level-subtitle">编辑与采样上限 · 64 个原子；精确解最多 52 个</p>
       <div class="builder-tools">
         <label class="field-label">几何预设<select id="preset-select">${["current","chain","ring","ladder","square","triangular","honeycomb","kagome","irregular"].map((name) => `<option value="${name}" ${name === state.builderPreset ? "selected" : ""}>${({current:"当前关卡",chain:"链",ring:"环",ladder:"梯形",square:"方格",triangular:"三角晶格",honeycomb:"蜂窝",kagome:"Kagome",irregular:"不规则"})[name]}</option>`).join("")}</select></label>
         <div class="atom-count-control">
           <div><strong>原子数量</strong><span>直接增减，也可以在画布中添加或删除</span></div>
           <div class="atom-count-stepper">
             <button id="decrease-atoms" type="button" aria-label="减少一个原子" ${state.points.length === 0 ? "disabled" : ""}>−</button>
-            <input id="atom-count-input" type="number" min="0" max="36" step="1" value="${state.points.length}" aria-label="原子数量">
-            <button id="increase-atoms" type="button" aria-label="增加一个原子" ${state.points.length >= 36 ? "disabled" : ""}>＋</button>
+            <input id="atom-count-input" type="number" min="0" max="64" step="1" value="${state.points.length}" aria-label="原子数量">
+            <button id="increase-atoms" type="button" aria-label="增加一个原子" ${state.points.length >= 64 ? "disabled" : ""}>＋</button>
           </div>
         </div>
         <label class="field-label">有效 blockade 半径 Rb · <span id="radius-value">${state.radius.toFixed(2)}</span><input id="radius-input" type="range" min="0.65" max="1.8" step="0.01" value="${state.radius}"></label>
@@ -2966,7 +3017,7 @@ window.STANDARD_LEVELS = [
         <div><span>平均度</span><strong id="metric-degree">${average.toFixed(1)}</strong></div>
         <div><span>${state.weighted ? "MWIS" : "MIS"}</span><strong id="metric-exact">${state.exact.score === null ? "…" : state.exact.score}</strong></div>
       </div>
-      <p class="edit-help">拖动原子改变冲突图。先选中原子，再删除或编辑权重；点击“添加原子”后，在画面空白处落点。${state.builderSelected === null ? "" : ` 当前坐标：(${state.points[state.builderSelected].x.toFixed(2)}, ${state.points[state.builderSelected].y.toFixed(2)})。`}</p>
+      <p class="edit-help">拖动原子改变冲突图。先选中原子，再删除或编辑权重；点击“添加原子”后，在画面空白处落点。超过 52 个原子时仍可采样，但不再提供浏览器精确解。${state.builderSelected === null ? "" : ` 当前坐标：(${state.points[state.builderSelected].x.toFixed(2)}, ${state.points[state.builderSelected].y.toFixed(2)})。`}</p>
       <div class="action-stack">
         <button id="done-builder" class="primary-button" type="button">试玩自定义问题 →</button>
         <div class="action-row">
@@ -3002,7 +3053,15 @@ window.STANDARD_LEVELS = [
         showFeedback("半格吸附已开启：原子已对齐到 0.5 网格。", null, "neutral");
       } else renderPlay();
     };
-    $("#weighted-input").onchange = (event) => { state.weighted = event.target.checked; computeExact(); renderPlay(); };
+    $("#weighted-input").onchange = (event) => {
+      state.weighted = event.target.checked;
+      if (state.weighted && !state.weightsInitialized) {
+        state.weights = state.points.map(randomWeight);
+        state.weightsInitialized = true;
+      }
+      computeExact();
+      renderPlay();
+    };
     $("#weight-input")?.addEventListener("input", updateSelectedWeight);
     $("#weight-input")?.addEventListener("change", (event) => updateSelectedWeight(event, true));
     $("#done-builder").onclick = () => {
@@ -3040,7 +3099,7 @@ window.STANDARD_LEVELS = [
     if (name === "current") { renderPlay(); return; }
     const points = presetPoints(name);
     state.points = points;
-    state.weights = points.map(() => 1);
+    state.weights = points.map(() => newAtomWeight());
     state.builderSelected = null;
     rebuildCustom(true);
   }
@@ -3067,7 +3126,7 @@ window.STANDARD_LEVELS = [
   }
 
   function adjustBuilderAtomCount(requestedCount) {
-    const target = Math.max(0, Math.min(36, Math.round(Number(requestedCount) || 0)));
+    const target = Math.max(0, Math.min(64, Math.round(Number(requestedCount) || 0)));
     while (state.points.length > target) {
       const index = state.builderSelected !== null && state.builderSelected < state.points.length
         ? state.builderSelected
@@ -3077,14 +3136,14 @@ window.STANDARD_LEVELS = [
       state.builderSelected = null;
     }
     while (state.points.length < target) {
-      state.points.push(nextAutomaticPoint());
-      state.weights.push(1);
+      state.points.push(nextAutomaticPoint(state.snap));
+      state.weights.push(newAtomWeight());
     }
     state.builderPreset = "current";
     rebuildCustom(true);
   }
 
-  function nextAutomaticPoint() {
+  function nextAutomaticPoint(snapToGrid = false) {
     if (!state.points.length) return { x: 0, y: 0 };
     const center = state.points.reduce((sum, point) => ({ x: sum.x + point.x, y: sum.y + point.y }), { x: 0, y: 0 });
     center.x /= state.points.length;
@@ -3095,11 +3154,13 @@ window.STANDARD_LEVELS = [
       const positions = Math.max(8, ring * 10);
       for (let step = 0; step < positions; step += 1) {
         const angle = step * Math.PI * 2 / positions + state.points.length * .37;
-        const candidate = { x: center.x + Math.cos(angle) * distance, y: center.y + Math.sin(angle) * distance };
+        const rawCandidate = { x: center.x + Math.cos(angle) * distance, y: center.y + Math.sin(angle) * distance };
+        const candidate = snapToGrid ? snapPoint(rawCandidate) : rawCandidate;
         if (state.points.every((point) => Math.hypot(point.x - candidate.x, point.y - candidate.y) >= minimumGap)) return candidate;
       }
     }
-    return { x: center.x + minimumGap * (state.points.length + 1), y: center.y };
+    const fallback = { x: center.x + minimumGap * (state.points.length + 1), y: center.y };
+    return snapToGrid ? snapPoint(fallback) : fallback;
   }
 
   function perturbPoints() {
@@ -3108,12 +3169,13 @@ window.STANDARD_LEVELS = [
   }
 
   function showPage(page) {
+    const enteringQuantum = page === "quantum" && state.page !== "quantum";
     state.page = page;
     if (page !== "quantum") state.quantumPreview = null;
     document.querySelectorAll(".page").forEach((element) => element.classList.toggle("active", element.id === `${page}-page`));
     document.querySelectorAll(".nav-button").forEach((button) => button.classList.toggle("active", button.dataset.page === page));
     if (page === "play") requestAnimationFrame(renderPlay);
-    if (page === "quantum") { state.quantumPreview = null; renderQuantum(); }
+    if (page === "quantum") { if (enteringQuantum) resetSamplerAccumulator(); renderQuantum(); }
   }
 
   function mappingDiagram(kind) {
@@ -3172,7 +3234,8 @@ window.STANDARD_LEVELS = [
     const source = state.mode === "standard" ? `第 ${state.levelIndex + 1} 关 — ${currentLevelCopy().title}` : "自定义问题";
     $("#quantum-source").textContent = source;
     const preview = state.quantumPreview;
-    $("#quantum-preview-label").textContent = preview ? `预览样本 · 得分 ${preview.score} · ${preview.bits}` : "显示你的原始选择";
+    const weightNote = state.weighted ? "MWIS · 节点上方数字为权重 · " : "";
+    $("#quantum-preview-label").textContent = preview ? `${weightNote}预览样本 · 得分 ${formatWeight(preview.score)} · ${preview.bits}` : `${weightNote}显示你的原始选择`;
     const board = $("#quantum-board");
     board.replaceChildren();
     if (!state.points.length) return;
@@ -3194,6 +3257,12 @@ window.STANDARD_LEVELS = [
       const indexLabel = svgElement("text", { x:p.x,y:p.y,class:"atom-index",style:`font-size:${13*screenCompensation}px` });
       indexLabel.textContent = String(i + 1);
       group.append(indexLabel);
+      if (state.weighted) {
+        group.append(svgElement("rect", { x:p.x - 14 * screenCompensation, y:p.y - 36 * screenCompensation, width:28 * screenCompensation, height:17 * screenCompensation, rx:8.5 * screenCompensation, class:"quantum-weight-bg" }));
+        const weightLabel = svgElement("text", { x:p.x, y:p.y - 27.5 * screenCompensation, class:"quantum-weight", style:`font-size:${11 * screenCompensation}px` });
+        weightLabel.textContent = formatWeight(state.weights[i]);
+        group.append(weightLabel);
+      }
       board.append(group);
     });
   }
@@ -3202,7 +3271,6 @@ window.STANDARD_LEVELS = [
     const button = $("#run-sampler");
     state.quantumPreview = null;
     button.disabled = true;
-    $("#quantum-results").hidden = true;
     const phases = [...document.querySelectorAll(".phase-list > div")];
     for (let i = 0; i < phases.length; i += 1) {
       phases.forEach((phase, index) => phase.classList.toggle("active", index === i));
@@ -3210,16 +3278,17 @@ window.STANDARD_LEVELS = [
       await new Promise((resolve) => setTimeout(resolve, matchMedia("(prefers-reduced-motion: reduce)").matches ? 10 : 520));
     }
     const greedy = MIS.greedy(state.graph, "min-degree");
-    const shots = samplerShots();
+    const shots = appendSamplerBatch();
     const best = Math.max(...shots.map((shot) => shot.score));
     const human = scoreSelection();
     const results = $("#quantum-results");
     results.innerHTML = `<div class="comparison">
-      <div><span>你的结果</span><strong>${human}</strong></div>
-      <div><span>最小度贪心</span><strong>${state.weighted ? greedy.reduce((s,i)=>s+state.weights[i],0) : greedy.length}</strong></div>
-      <div><span>采样器最佳</span><strong>${best}</strong></div>
-      <div><span>精确 ${state.weighted ? "MWIS" : "MIS"}</span><strong>${state.exact.score}</strong></div>
-    </div><div class="shots">${shots.slice(0, 6).map((shot, index) => `<button class="shot-button" type="button" data-shot="${index}" aria-pressed="false">${shot.bits} · ${shot.score}</button>`).join("")}</div>`;
+      <div><span>你的结果</span><strong>${formatWeight(human)}</strong></div>
+      <div><span>最小度贪心</span><strong>${formatWeight(state.weighted ? greedy.reduce((s,i)=>s+state.weights[i],0) : greedy.length)}</strong></div>
+      <div><span>采样器最佳</span><strong>${formatWeight(best)}</strong></div>
+      <div><span>精确 ${state.weighted ? "MWIS" : "MIS"}</span><strong>${state.exact.score === null ? "不可用" : formatWeight(state.exact.score)}</strong></div>
+    </div><div class="sample-summary"><strong>累计采样 ${state.samplerTotal} 次</strong><span>每次追加 ${SAMPLER_SHOT_COUNT} 次；以下按得分优先、同分按出现次数排序。</span></div>
+    <div class="shots">${shots.slice(0, 6).map((shot, index) => `<button class="shot-button" type="button" data-shot="${index}" aria-pressed="false"><span class="shot-bits">${shot.bits}</span><b>得分 ${formatWeight(shot.score)}</b><small>${shot.count} 次 · ${(shot.count / state.samplerTotal * 100).toFixed(1)}%</small></button>`).join("")}</div>`;
     results.hidden = false;
     const previewShot = (index) => {
       const shot = shots[index];
@@ -3234,20 +3303,24 @@ window.STANDARD_LEVELS = [
     results.querySelectorAll(".shot-button").forEach((shotButton) => shotButton.onclick = () => previewShot(Number(shotButton.dataset.shot)));
     if (shots.length) previewShot(0);
     button.disabled = false;
-    button.textContent = "再次运行";
+    button.textContent = "运行采样";
   }
 
-  function samplerShots() {
-    const found = new Map();
-    const add = (indices) => {
+  function appendSamplerBatch() {
+    for (let sample = 0; sample < SAMPLER_SHOT_COUNT; sample += 1) {
+      const seed = state.samplerSeed++ * 97;
+      const indices = state.weighted
+        ? MIS.randomWeightedGreedy(state.graph, state.weights, seed)
+        : MIS.randomGreedy(state.graph, seed);
       const sorted = [...indices].sort((a,b)=>a-b);
       const bits = state.points.map((_, i) => sorted.includes(i) ? "1" : "0").join("");
       const score = state.weighted ? sorted.reduce((sum,i)=>sum+state.weights[i],0) : sorted.length;
-      found.set(bits, { bits, score, indices: sorted });
-    };
-    state.exact.witnesses.forEach(add);
-    for (let seed = 1; seed <= 48; seed += 1) add(MIS.randomGreedy(state.graph, seed * 97));
-    return [...found.values()].sort((a,b) => b.score - a.score || a.bits.localeCompare(b.bits));
+      const existing = state.samplerResults.get(bits);
+      if (existing) existing.count += 1;
+      else state.samplerResults.set(bits, { bits, score, indices: sorted, count: 1 });
+    }
+    state.samplerTotal += SAMPLER_SHOT_COUNT;
+    return [...state.samplerResults.values()].sort((a,b) => b.score - a.score || b.count - a.count || a.bits.localeCompare(b.bits));
   }
 
   function learnLine(svg, a, b, radius = 14) {
