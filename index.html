@@ -343,12 +343,28 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
 .source-box span, .source-box small { color: var(--muted); font-size: 13px; }
 .source-box strong { font-size: 20px; }
 .phase-list { display: grid; }
+.phase-list[hidden], .sampler-candidates[hidden] { display: none; }
 .phase-list > div { display: grid; grid-template-columns: 33px 1fr; align-items: center; gap: 10px; padding: 10px 0; color: var(--muted); border-bottom: 1px solid var(--line); }
 .phase-list i { width: 31px; height: 31px; display: grid; place-items: center; border: 1px solid var(--line-dark); border-radius: 50%; font-size: 12px; font-style: normal; }
 .phase-list span { font-size: 14px; }
 .phase-list small { display: block; margin-top: 2px; font-size: 12px; }
 .phase-list > div.active { color: var(--accent); }
 .phase-list > div.active i { color: var(--white); border-color: var(--accent); background: var(--accent); }
+.sampler-candidates { display: grid; gap: 12px; }
+.candidate-summary { padding: 13px 14px; display: grid; gap: 4px; border-left: 3px solid var(--accent); background: var(--accent-soft); }
+.candidate-summary span { color: var(--muted); font-size: 12px; line-height: 1.45; }
+.candidate-summary strong { color: var(--accent); font-size: 19px; }
+.candidate-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.candidate-heading b { font-size: 16px; }.candidate-heading span { color: var(--subtle); font-size: 11px; }
+.candidate-list { display: grid; gap: 6px; }
+.candidate-button { min-width: 0; padding: 8px 9px; display: grid; grid-template-columns: 25px minmax(0,1fr) auto; align-items: center; gap: 9px; text-align: left; border: 1px solid var(--line); border-radius: 8px; background: rgba(251,250,247,.68); cursor: pointer; }
+.candidate-button i { width: 25px; height: 25px; display: grid; place-items: center; color: var(--muted); border: 1px solid var(--line-dark); border-radius: 50%; font-size: 11px; font-style: normal; }
+.candidate-button > span { min-width: 0; display: grid; gap: 2px; }.candidate-button b { font-size: 13px; }.candidate-button code { min-width: 0; overflow: hidden; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.candidate-button small { color: var(--muted); text-align: right; font-size: 11px; line-height: 1.35; white-space: nowrap; }
+.candidate-button.best-score { color: var(--white); border-color: var(--accent); background: var(--accent); box-shadow: 0 5px 14px rgba(50,103,93,.16); }
+.candidate-button.best-score i { color: var(--white); border-color: rgba(255,255,255,.65); }.candidate-button.best-score code, .candidate-button.best-score small { color: rgba(255,255,255,.82); }
+.candidate-button.active { outline: 2px solid var(--accent); outline-offset: 2px; }
+.candidate-button.best-score.active { outline-color: var(--ink); }
 .quantum-controls .primary-button { margin-top: auto; }
 .fine-print { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .quantum-results { margin-top: 22px; }
@@ -356,13 +372,6 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
 .comparison div { padding: 16px; background: var(--surface); }
 .comparison span { display: block; color: var(--muted); font-size: 13px; }
 .comparison strong { display: block; margin-top: 4px; font-size: 25px; }
-.sample-summary { margin-top: 14px; padding: 13px 15px; display: flex; align-items: baseline; justify-content: space-between; gap: 18px; border-left: 3px solid var(--accent); background: var(--accent-soft); }
-.sample-summary strong { color: var(--accent); font-size: 16px; }.sample-summary span { color: var(--muted); font-size: 13px; }
-.shots { margin-top: 10px; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
-.shot-button { min-width: 0; padding: 10px 11px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 4px 10px; text-align: left; border: 1px solid var(--line-dark); border-radius: 7px; background: transparent; cursor: pointer; font-size: 13px; }
-.shot-bits { min-width: 0; overflow: hidden; color: var(--muted); font-family: ui-monospace, monospace; text-overflow: ellipsis; white-space: nowrap; }.shot-button b { color: var(--ink); }.shot-button small { grid-column: 1 / -1; color: var(--subtle); font-size: 12px; }
-.shot-button.active { color: var(--white); border-color: var(--accent); background: var(--accent); box-shadow: 0 5px 14px rgba(50,103,93,.18); }
-.shot-button.active .shot-bits, .shot-button.active b, .shot-button.active small { color: var(--white); }
 .quantum-atom.excited .atom-visible { fill: var(--accent); stroke: var(--accent); }
 .quantum-atom.excited .atom-index { fill: var(--white); }
 .quantum-atom.blocked .atom-visible { fill: var(--blocked); stroke: #8c918b; }
@@ -484,8 +493,6 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
   .quantum-back-actions { width: 100%; display: grid; grid-template-columns: 1fr; margin-top: 18px; }
   .quantum-back-actions button { width: 100%; }
   .comparison { grid-template-columns: repeat(2,1fr); }
-  .sample-summary { align-items: flex-start; flex-direction: column; gap: 4px; }
-  .shots { grid-template-columns: 1fr; }
   .comparison div { padding: 14px; }
 
   .learn-card { min-height: 0; padding: 20px; grid-template-columns: 1fr; gap: 17px; }
@@ -634,8 +641,9 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
       <div class="quantum-layout">
         <section class="quantum-board-wrap"><div class="source-line"><span>问题来源：<strong id="quantum-source">第 1 关 — 初见微光</strong></span><span id="quantum-preview-label" class="preview-label">显示你的原始选择</span></div><svg id="quantum-board" viewBox="0 0 960 600" role="img" aria-label="已加载的原子问题"></svg></section>
         <aside class="quantum-controls">
-          <div class="source-box"><span>求解来源</span><strong>教学采样器</strong><small>每轮 128 次经典启发式采样</small></div>
-          <div class="phase-list" aria-label="采样阶段"><div data-phase="0"><i>1</i><span>初始化<small>|ggg…g⟩</small></span></div><div data-phase="1"><i>2</i><span>驱动<small>Ω(t), Δ(t)</small></span></div><div data-phase="2"><i>3</i><span>竞争<small>合法构型</small></span></div><div data-phase="3"><i>4</i><span>测量<small>采样比特串</small></span></div></div>
+          <div class="source-box"><span>求解来源</span><strong>教学采样器</strong><small>每轮 500 次经典启发式采样</small></div>
+          <div id="sampler-phases" class="phase-list" aria-label="采样阶段"><div data-phase="0"><i>1</i><span>初始化<small>|ggg…g⟩</small></span></div><div data-phase="1"><i>2</i><span>驱动<small>Ω(t), Δ(t)</small></span></div><div data-phase="2"><i>3</i><span>竞争<small>合法构型</small></span></div><div data-phase="3"><i>4</i><span>测量<small>采样比特串</small></span></div></div>
+          <div id="sampler-candidates" class="sampler-candidates" aria-live="polite" hidden></div>
           <button id="run-sampler" class="primary-button" type="button">运行采样</button>
           <p class="fine-print"><b>精确解</b>会系统搜索并保证全局最优；<b>采样器</b>重复生成候选构型，展示出现频率，但不保证采到最优。这里只比较解的质量，不构成性能基准，也不声称存在量子加速。</p>
         </aside>
@@ -2436,7 +2444,7 @@ window.STANDARD_LEVELS = [
   const BOARD_HEIGHT = 640;
   const REVEAL_AFTER_FAILURES = 2;
   const MESSAGE_DURATION_MS = 5000;
-  const SAMPLER_SHOT_COUNT = 128;
+  const SAMPLER_SHOT_COUNT = 500;
   const levels = window.STANDARD_LEVELS || [];
   const state = {
     page: "intro",
@@ -2546,6 +2554,10 @@ window.STANDARD_LEVELS = [
     state.quantumPreview = null;
     const results = $("#quantum-results");
     if (results) results.hidden = true;
+    const phases = $("#sampler-phases");
+    const candidates = $("#sampler-candidates");
+    if (phases) phases.hidden = false;
+    if (candidates) { candidates.hidden = true; candidates.replaceChildren(); }
   }
 
   function loadLevel(index) {
@@ -3271,7 +3283,11 @@ window.STANDARD_LEVELS = [
     const button = $("#run-sampler");
     state.quantumPreview = null;
     button.disabled = true;
-    const phases = [...document.querySelectorAll(".phase-list > div")];
+    const phasePanel = $("#sampler-phases");
+    const candidatePanel = $("#sampler-candidates");
+    phasePanel.hidden = false;
+    candidatePanel.hidden = true;
+    const phases = [...phasePanel.children];
     for (let i = 0; i < phases.length; i += 1) {
       phases.forEach((phase, index) => phase.classList.toggle("active", index === i));
       button.textContent = ["正在初始化…", "正在驱动…", "正在比较构型…", "正在测量…"][i];
@@ -3287,21 +3303,25 @@ window.STANDARD_LEVELS = [
       <div><span>最小度贪心</span><strong>${formatWeight(state.weighted ? greedy.reduce((s,i)=>s+state.weights[i],0) : greedy.length)}</strong></div>
       <div><span>采样器最佳</span><strong>${formatWeight(best)}</strong></div>
       <div><span>精确 ${state.weighted ? "MWIS" : "MIS"}</span><strong>${state.exact.score === null ? "不可用" : formatWeight(state.exact.score)}</strong></div>
-    </div><div class="sample-summary"><strong>累计采样 ${state.samplerTotal} 次</strong><span>每次追加 ${SAMPLER_SHOT_COUNT} 次；以下按得分优先、同分按出现次数排序。</span></div>
-    <div class="shots">${shots.slice(0, 6).map((shot, index) => `<button class="shot-button" type="button" data-shot="${index}" aria-pressed="false"><span class="shot-bits">${shot.bits}</span><b>得分 ${formatWeight(shot.score)}</b><small>${shot.count} 次 · ${(shot.count / state.samplerTotal * 100).toFixed(1)}%</small></button>`).join("")}</div>`;
+    </div>`;
+    candidatePanel.innerHTML = `<div class="candidate-summary"><span>本轮完成 · 每次继续追加 ${SAMPLER_SHOT_COUNT} 次</span><strong>累计采样 ${state.samplerTotal} 次</strong></div>
+      <div class="candidate-heading"><b>候选结果</b><span>按出现次数排序 · 最高得分标绿</span></div>
+      <div class="candidate-list">${shots.slice(0, 5).map((shot, index) => `<button class="candidate-button ${shot.score === best ? "best-score" : ""}" type="button" data-shot="${index}" aria-pressed="false"><i>${index + 1}</i><span><b>${shot.score === best ? "最高得分" : "得分"} ${formatWeight(shot.score)}</b><code>${shot.bits}</code></span><small>${shot.count} 次<br>${(shot.count / state.samplerTotal * 100).toFixed(1)}%</small></button>`).join("")}</div>`;
+    phasePanel.hidden = true;
+    candidatePanel.hidden = false;
     results.hidden = false;
     const previewShot = (index) => {
       const shot = shots[index];
       state.quantumPreview = state.quantumPreview?.bits === shot.bits ? null : shot;
       renderQuantum();
-      results.querySelectorAll(".shot-button").forEach((button) => {
+      candidatePanel.querySelectorAll(".candidate-button").forEach((button) => {
         const active = state.quantumPreview?.bits === shots[Number(button.dataset.shot)].bits;
         button.classList.toggle("active", active);
         button.setAttribute("aria-pressed", String(active));
       });
     };
-    results.querySelectorAll(".shot-button").forEach((shotButton) => shotButton.onclick = () => previewShot(Number(shotButton.dataset.shot)));
-    if (shots.length) previewShot(0);
+    candidatePanel.querySelectorAll(".candidate-button").forEach((shotButton) => shotButton.onclick = () => previewShot(Number(shotButton.dataset.shot)));
+    if (shots.length) previewShot(shots.findIndex((shot) => shot.score === best));
     button.disabled = false;
     button.textContent = "运行采样";
   }
@@ -3320,7 +3340,7 @@ window.STANDARD_LEVELS = [
       else state.samplerResults.set(bits, { bits, score, indices: sorted, count: 1 });
     }
     state.samplerTotal += SAMPLER_SHOT_COUNT;
-    return [...state.samplerResults.values()].sort((a,b) => b.score - a.score || b.count - a.count || a.bits.localeCompare(b.bits));
+    return [...state.samplerResults.values()].sort((a,b) => b.count - a.count || b.score - a.score || a.bits.localeCompare(b.bits));
   }
 
   function learnLine(svg, a, b, radius = 14) {
