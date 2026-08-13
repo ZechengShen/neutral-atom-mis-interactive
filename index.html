@@ -294,7 +294,8 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 .metrics div { padding: 10px 11px; border: 1px solid var(--line); border-radius: 8px; background: rgba(251,250,247,.45); }
 .metrics span { display: block; color: var(--muted); font-size: 13px; }
 .metrics strong { display: block; margin-top: 3px; font-size: 20px; }
-.switch-line { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.switch-line { display: flex; justify-content: space-between; align-items: center; gap: 14px; font-size: 14px; }
+.switch-copy { display: grid; gap: 2px; }.switch-copy small { color: var(--subtle); font-size: 12px; font-weight: 500; line-height: 1.45; }
 .switch-line input { width: 19px; height: 19px; accent-color: var(--accent); }
 .edit-help { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
 .weight-editor { padding-top: 11px; border-top: 1px solid var(--line); }
@@ -302,6 +303,8 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 /* Conflict edges are primary puzzle information: always visible, high enough
    contrast to survive the soft background and blockade overlays. */
 .graph-edge { stroke: var(--edge); stroke-width: 2.35; opacity: .82; vector-effect: non-scaling-stroke; stroke-linecap: round; transition: stroke 160ms ease, opacity 160ms ease, stroke-width 160ms ease; }
+.builder-grid-line { stroke: var(--line); stroke-width: 1; opacity: .48; vector-effect: non-scaling-stroke; }
+.builder-grid-line.major { stroke: var(--line-dark); opacity: .55; }
 .graph-edge.incident-edge { stroke: var(--accent); stroke-width: 3.2; opacity: 1; }
 .graph-edge.builder-edge { stroke-dasharray: 5 5; opacity: .72; }
 .blockade-ring { fill: var(--accent-wash); stroke: var(--accent); stroke-width: 1.25; stroke-dasharray: 5 6; opacity: .62; vector-effect: non-scaling-stroke; }
@@ -356,30 +359,30 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
 .quantum-atom.blocked .atom-index { fill: #4f544f; }
 
 .learn-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
-.learn-card { min-height: 275px; padding: 23px; display: grid; grid-template-columns: minmax(0,1fr) 205px; gap: 21px; align-items: center; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(251,250,247,.78); }
-.learn-copy h2 { margin: 6px 0 10px; }
-.learn-copy p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.75; }
-.learn-visual { position: relative; min-height: 160px; border-radius: 10px; background: var(--stage); overflow: hidden; }
-.learn-visual svg { width: 100%; height: 160px; }
+.learn-card { min-height: 292px; padding: 23px; display: grid; grid-template-columns: minmax(0,1fr) minmax(220px,.88fr); gap: 19px; align-items: center; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(251,250,247,.78); }
+.learn-copy { min-width: 0; }
+.learn-copy h2 { margin: 6px 0 11px; font-size: 21px; line-height: 1.42; text-wrap: pretty; }
+.learn-copy p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.78; word-break: normal; text-wrap: pretty; }
+.learn-visual { position: relative; min-height: 184px; padding: 6px; display: grid; place-items: center; border-radius: 10px; background: var(--stage); overflow: hidden; }
+.learn-visual svg { width: 100%; height: 176px; overflow: visible; }
+.learn-edge { stroke: var(--edge); stroke-width: 2.4; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.learn-radius { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.2; stroke-dasharray: 4 5; opacity: .82; vector-effect: non-scaling-stroke; }
+.learn-node-shape { fill: var(--surface); stroke: #5f655f; stroke-width: 2.2; vector-effect: non-scaling-stroke; transition: 160ms ease; }
+.learn-node-label { fill: var(--ink); text-anchor: middle; dominant-baseline: central; font-size: 12px; font-weight: 800; pointer-events: none; }
+.learn-node.selected .learn-node-shape { fill: var(--accent); stroke: var(--accent); }
+.learn-node.selected .learn-node-label { fill: var(--white); }
+.learn-node.warm-selected .learn-node-shape { fill: var(--warm); stroke: var(--warm); }
+.learn-node.warm-selected .learn-node-label { fill: var(--white); }
+.learn-node.blocked .learn-node-shape { fill: var(--blocked); stroke: #929790; }
+.learn-node[role="button"] { cursor: pointer; outline: none; }
+.learn-node[role="button"]:hover .learn-node-shape, .learn-node[role="button"]:focus .learn-node-shape { stroke: var(--warm); stroke-width: 3.2; }
+.learn-diagram-title { fill: var(--muted); text-anchor: middle; font-size: 11px; font-weight: 800; letter-spacing: .04em; }
+.learn-diagram-note { fill: var(--muted); text-anchor: middle; font-size: 11px; font-weight: 700; }
+.learn-diagram-note.accent { fill: var(--accent); }.learn-diagram-note.warm { fill: var(--warm); }
+.interactive-learn .learn-diagram-note { font-size: 12px; }
+.learn-page .page-heading p, .learn-copy p { text-wrap: pretty; }
+.learn-page h1, .learn-copy h2 { text-wrap: balance; }
 .learn-footer { margin: 16px 0 0; padding: 14px; color: var(--accent); text-align: center; font-size: 14px; font-weight: 700; background: var(--paper-2); border-radius: 9px; }
-.weight-demo i { position: absolute; z-index: 2; top: 48px; width: 34px; height: 34px; display: grid; place-items: center; border: 2px solid var(--warm); border-radius: 50%; color: var(--warm); font-style: normal; font-size: 13px; background: var(--surface); }
-.weight-demo i:nth-child(1) { left: 15px; }.weight-demo i:nth-child(2) { left: 80px; top: 84px; }.weight-demo i:nth-child(3) { right: 15px; }
-.weight-demo i.chosen { color: var(--white); background: var(--warm); }
-.weight-demo span { position: absolute; top: 63px; left: 43px; right: 43px; height: 55px; border-top: 2px solid var(--edge); border-bottom: 2px solid var(--edge); transform: skewY(27deg); }
-.weight-demo b, .geometry-demo > b, .blockade-demo b { position: absolute; right: 0; bottom: 12px; left: 0; color: var(--warm); text-align: center; font-size: 12px; }
-.geometry-demo { display: flex; align-items: center; justify-content: space-around; }
-.geometry-demo > strong { color: var(--accent); }
-.geo-left, .geo-right { position: relative; width: 58px; height: 90px; }
-.geo-left i, .geo-right i { position: absolute; width: 14px; height: 14px; border: 2px solid var(--accent); border-radius: 50%; background: var(--surface); }
-.geo-left i:nth-child(1), .geo-right i:nth-child(1) { top: 8px; left: 4px; }.geo-left i:nth-child(2), .geo-right i:nth-child(2) { top: 56px; left: 8px; }.geo-left i:nth-child(3), .geo-right i:nth-child(3) { top: 30px; right: 2px; }
-.geo-right span { position: absolute; left: 15px; width: 39px; border-top: 2px solid var(--edge); transform-origin: left; }
-.geo-right span:nth-of-type(1) { top: 20px; transform: rotate(30deg); }.geo-right span:nth-of-type(2) { top: 65px; transform: rotate(-31deg); }
-.geometry-demo > b { color: var(--accent); }
-.blockade-demo div { position: absolute; top: 17px; left: 30px; width: 122px; height: 122px; border: 1px dashed var(--accent); border-radius: 50%; background: var(--accent-soft); }
-.blockade-demo i { position: absolute; z-index: 2; top: 72px; width: 23px; height: 23px; border: 2px solid var(--accent); border-radius: 50%; background: var(--surface); }
-.blockade-demo i:nth-of-type(1) { left: 75px; background: var(--accent); }.blockade-demo i:nth-of-type(2) { right: 13px; }
-.blockade-demo span { position: absolute; z-index: 2; top: 28px; left: 65px; color: var(--accent); font-size: 12px; font-weight: 700; }
-.blockade-demo b { color: var(--muted); }
 
 @media (max-width: 1120px) {
   .intro-page.active { grid-template-columns: 1fr 440px; gap: 34px; }
@@ -591,7 +594,7 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
         <section class="board-panel" aria-label="原子挑战棋盘">
           <svg id="atom-board" viewBox="0 0 960 640" role="img" aria-labelledby="board-title board-desc">
             <title id="board-title">互动原子阵列</title><desc id="board-desc">选择原子。已选择的原子会阻止其冲突邻居被同时选择。</desc>
-            <g id="board-rings"></g><g id="board-edges"></g><g id="board-atoms"></g>
+            <g id="board-grid"></g><g id="board-rings"></g><g id="board-edges"></g><g id="board-atoms"></g>
           </svg>
           <div id="board-feedback" class="board-feedback" aria-live="polite"></div>
           <div id="board-verdict" class="board-verdict" aria-live="assertive" hidden></div>
@@ -628,14 +631,14 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
 
     <section id="learn-page" class="page learn-page" aria-labelledby="learn-title">
       <div class="page-heading split-heading">
-        <div><p class="eyebrow">学习 · 图、权重与原子</p><h1 id="learn-title">先看懂约束，再开始选择</h1><p>四张图把玩法背后的概念连起来。绿色表示被选中或激发，深色连线表示不能同时选择。</p></div>
+        <div><p class="eyebrow">学习 · 图、权重与原子</p><h1 id="learn-title">先看懂约束，再开始选择</h1><p>四张图沿用同一套颜色：绿色表示已选或已激发，灰色表示被阻塞，深色连线表示两个节点不能同时选择。</p></div>
         <button id="learn-mapping" class="secondary-button" type="button">查看三个映射案例</button>
       </div>
       <div class="learn-grid">
-        <article class="learn-card"><div class="learn-copy"><span>01</span><h2>独立集，不等于随便选</h2><p>同一条边两端不能同时入选。最大独立集寻找全局数量最多的合法选择；“再也加不进节点”的极大独立集，未必是最大独立集。</p></div><div id="learn-independent" class="learn-visual" role="img" aria-label="可点击的独立集示例"></div></article>
-        <article class="learn-card warm-card"><div class="learn-copy"><span>02</span><h2>MWIS 把数量换成价值</h2><p>每个节点带有权重后，目标不再是选得最多，而是让总权重最大。较少的高价值节点，可能胜过更多低价值节点。</p></div><div class="learn-visual weight-demo" aria-hidden="true"><i>2</i><i class="chosen">7</i><i>4</i><span></span><b>总价值优先</b></div></article>
-        <article class="learn-card"><div class="learn-copy"><span>03</span><h2>几何关系生成冲突图</h2><p>把候选项放在平面上：位置对应顶点，有效距离小于 Rb 的原子对形成冲突边，激发的原子对应被选节点。</p></div><div class="learn-visual geometry-demo" aria-hidden="true"><div class="geo-left"><i></i><i></i><i></i></div><strong>→</strong><div class="geo-right"><i></i><i></i><i></i><span></span><span></span></div><b>距离关系 → 冲突边</b></div></article>
-        <article class="learn-card"><div class="learn-copy"><span>04</span><h2>blockade 是有效模型</h2><p>真实 Rydberg 相互作用会随距离平滑变化，近似满足 V(r)∝C₆/r⁶。界面中的圆是帮助理解的有效边界，不是突然截断的物理墙。</p></div><div class="learn-visual blockade-demo" aria-hidden="true"><div></div><i></i><i></i><span>有效 Rb</span><b>V(r) ∝ C₆ / r⁶</b></div></article>
+        <article class="learn-card"><div class="learn-copy"><span>01</span><h2>独立集：相邻节点不能同选</h2><p>图中是一条五节点路径。初始绿色节点 1、3、5 两两不相邻，共选三个，已经达到最大值。你也可以点击节点，尝试其他合法选择。</p></div><div id="learn-independent" class="learn-visual interactive-learn" role="group" aria-label="可点击的五节点路径独立集示例"></div></article>
+        <article class="learn-card warm-card"><div class="learn-copy"><span>02</span><h2>MWIS 最大化总价值</h2><p>同一条三节点路径，若只看数量，会选两端：两个节点的总价值是 6；若看权重，则选中间：只选一个节点，总价值反而是 7。</p></div><div id="learn-mwis" class="learn-visual" role="img" aria-label="三节点路径中 MIS 与 MWIS 的差异"></div></article>
+        <article class="learn-card"><div class="learn-copy"><span>03</span><h2>距离关系生成冲突边</h2><p>左图是三个原子的位置。原子 1、2 都落在原子 3 的有效半径内，所以右图只画出 1—3 和 2—3 两条冲突边；1、2 之间没有边。</p></div><div id="learn-geometry" class="learn-visual" role="img" aria-label="三个原子的位置如何转换成两条冲突边"></div></article>
+        <article class="learn-card"><div class="learn-copy"><span>04</span><h2>blockade 表示有效约束</h2><p>绿色原子已激发，半径内的灰色原子被阻塞，圆外的白色原子仍可选择。圆只是便于推理的有效边界；真实相互作用会随距离平滑减弱。</p></div><div id="learn-blockade" class="learn-visual" role="img" aria-label="激发、阻塞与可选原子的有效 blockade 半径示意"></div></article>
       </div>
       <p class="learn-footer">原子的位置决定冲突，冲突决定图；目标函数决定我们是在求 MIS，还是 MWIS。</p>
     </section>
@@ -2394,6 +2397,7 @@ window.STANDARD_LEVELS = [
   const BOARD_WIDTH = 960;
   const BOARD_HEIGHT = 640;
   const REVEAL_AFTER_FAILURES = 2;
+  const MESSAGE_DURATION_MS = 5000;
   const levels = window.STANDARD_LEVELS || [];
   const state = {
     page: "intro",
@@ -2464,6 +2468,7 @@ window.STANDARD_LEVELS = [
     return { title, subtitle, purpose, hint };
   }
   function clonePoints(points) { return points.map((point) => ({ x: point.x, y: point.y })); }
+  function snapPoint(point) { return { x: Math.round(point.x * 2) / 2, y: Math.round(point.y * 2) / 2 }; }
   function scoreSelection() {
     if (!state.weighted) return state.selection.selected.size;
     return [...state.selection.selected].reduce((sum, i) => sum + (state.weights[i] || 1), 0);
@@ -2530,9 +2535,11 @@ window.STANDARD_LEVELS = [
 
   function renderBoard() {
     const board = $("#atom-board");
+    const gridLayer = $("#board-grid");
     const edgeLayer = $("#board-edges");
     const ringLayer = $("#board-rings");
     const atomLayer = $("#board-atoms");
+    gridLayer.replaceChildren();
     edgeLayer.replaceChildren();
     ringLayer.replaceChildren();
     atomLayer.replaceChildren();
@@ -2543,6 +2550,7 @@ window.STANDARD_LEVELS = [
     const renderedWidth = board.getBoundingClientRect().width;
     if (renderedWidth <= 0) return;
     const transform = fitTransform(state.points);
+    if (state.mode === "builder" && state.snap) renderBuilderGrid(gridLayer, transform);
     // The SVG viewBox scales on narrow screens. Counter-scale atoms and their
     // touch targets so nodes stay readable and easy to tap on phones.
     const screenCompensation = Math.max(1, BOARD_WIDTH / renderedWidth);
@@ -2604,6 +2612,23 @@ window.STANDARD_LEVELS = [
     installBoardInteractions(transform);
   }
 
+  function renderBuilderGrid(layer, transform) {
+    const topLeft = transform.toWorld(0, 0);
+    const bottomRight = transform.toWorld(BOARD_WIDTH, BOARD_HEIGHT);
+    const minX = Math.floor(topLeft.x * 2) / 2;
+    const maxX = Math.ceil(bottomRight.x * 2) / 2;
+    const minY = Math.floor(topLeft.y * 2) / 2;
+    const maxY = Math.ceil(bottomRight.y * 2) / 2;
+    for (let x = minX; x <= maxX + .001; x += .5) {
+      const screen = transform.toScreen({ x, y: 0 });
+      layer.append(svgElement("line", { x1: screen.x, y1: 0, x2: screen.x, y2: BOARD_HEIGHT, class: `builder-grid-line${Number.isInteger(x) ? " major" : ""}` }));
+    }
+    for (let y = minY; y <= maxY + .001; y += .5) {
+      const screen = transform.toScreen({ x: 0, y });
+      layer.append(svgElement("line", { x1: 0, y1: screen.y, x2: BOARD_WIDTH, y2: screen.y, class: `builder-grid-line${Number.isInteger(y) ? " major" : ""}` }));
+    }
+  }
+
   function installBoardInteractions(transform) {
     const board = $("#atom-board");
     board.querySelectorAll(".atom-group").forEach((group) => {
@@ -2620,7 +2645,7 @@ window.STANDARD_LEVELS = [
         const result = MIS.toggleAtom(state.selection, index, state.graph);
         state.selection = result.state;
         if (!result.changed) showFeedback(tr("blocked"), result.blocker);
-        else clearVerdict();
+        else { clearFeedback(); clearVerdict(); }
         renderPlay();
       });
       if (state.mode === "builder") {
@@ -2636,7 +2661,7 @@ window.STANDARD_LEVELS = [
       if (!state.dragging || state.dragging.pointerId !== event.pointerId) return;
       const world = pointerWorld(event, board, transform);
       const index = state.dragging.index;
-      state.points[index] = state.snap ? { x: Math.round(world.x * 2) / 2, y: Math.round(world.y * 2) / 2 } : world;
+      state.points[index] = state.snap ? snapPoint(world) : world;
       state.dragging.moved = true;
       state.graph = MIS.buildGraph(state.points, state.radius, state.edgeRule);
       renderBoard();
@@ -2653,7 +2678,7 @@ window.STANDARD_LEVELS = [
       if (state.mode !== "builder" || !state.addMode || event.target.closest(".atom-group")) return;
       if (state.points.length >= 36) { showFeedback("显示与求解上限为 36 个原子。"); return; }
       let point = pointerWorld(event, board, transform);
-      if (state.snap) point = { x: Math.round(point.x * 2) / 2, y: Math.round(point.y * 2) / 2 };
+      if (state.snap) point = snapPoint(point);
       state.points.push(point);
       state.weights.push(1);
       state.builderSelected = state.points.length - 1;
@@ -2677,7 +2702,15 @@ window.STANDARD_LEVELS = [
       if (group) group.classList.add("conflict-source");
     }
     clearTimeout(state.feedbackTimer);
-    state.feedbackTimer = setTimeout(() => box.classList.remove("show"), 1100);
+    state.feedbackTimer = setTimeout(clearFeedback, MESSAGE_DURATION_MS);
+  }
+
+  function clearFeedback() {
+    clearTimeout(state.feedbackTimer);
+    state.feedbackTimer = null;
+    const box = $("#board-feedback");
+    box.classList.remove("show", "mistake");
+    document.querySelectorAll(".conflict-source").forEach((group) => group.classList.remove("conflict-source"));
   }
 
   function clearVerdict() {
@@ -2688,6 +2721,11 @@ window.STANDARD_LEVELS = [
     verdict.className = "board-verdict";
     verdict.replaceChildren();
     document.body.classList.remove("board-success", "board-mistake");
+  }
+
+  function dismissVerdictAfterDelay() {
+    clearTimeout(state.verdictTimer);
+    state.verdictTimer = setTimeout(clearVerdict, MESSAGE_DURATION_MS);
   }
 
   function adviceForSubmission(score, optimum) {
@@ -2719,6 +2757,7 @@ window.STANDARD_LEVELS = [
     document.body.classList.remove("board-success", "board-mistake");
     void document.body.offsetWidth;
     document.body.classList.add(correct ? "board-success" : "board-mistake");
+    dismissVerdictAfterDelay();
   }
 
   function renderPlay() {
@@ -2738,10 +2777,7 @@ window.STANDARD_LEVELS = [
     const panel = $("#control-panel");
     const level = currentLevel();
     const selectedScore = scoreSelection();
-    let message = "";
     const localized = currentLevelCopy();
-    if (state.solved) message = `<strong>✓ ${tr("correct")(state.exact.score)}</strong><span>${state.mode === "standard" && state.levelIndex < levels.length - 1 ? `下一关：${levelCopy[levels[state.levelIndex + 1].id][0]}` : "已完成当前挑战。"}</span>`;
-    else if (state.revealed) message = `<strong>参考答案已显示</strong><span>绿色节点组成一组大小为 ${state.exact.score} 的最优解。观察它避开了哪些高冲突节点，再点击“检查答案”继续。</span>`;
     const mainLabel = state.solved
       ? (state.mode === "custom" ? "查看结果对比 →" : state.levelIndex === levels.length - 1 ? "设计自己的问题 →" : "下一关 →")
       : tr("check");
@@ -2758,7 +2794,6 @@ window.STANDARD_LEVELS = [
       </div>` : ""}
       <p class="level-purpose">${state.mode === "standard" ? localized.purpose : "在你创建的几何结构中，找出总数量或总权重最大的兼容集合。"}</p>
       <div class="score-line"><span>${state.weighted ? tr("score") : tr("selected")}</span><strong>${selectedScore}</strong></div>
-      ${message ? `<p class="status-message ${state.solved || state.revealed ? "success" : "mistake"}" aria-live="polite">${message}</p>` : ""}
       <div class="action-stack">
         <button id="main-action" class="primary-button" type="button">${mainLabel}</button>
         <div class="solution-slot">${solutionControlMarkup()}</div>
@@ -2852,12 +2887,7 @@ window.STANDARD_LEVELS = [
     verdict.classList.remove("mistake");
     verdict.hidden = false;
     document.body.classList.add("board-success");
-    clearTimeout(state.verdictTimer);
-    state.verdictTimer = setTimeout(() => {
-      verdict.hidden = true;
-      verdict.replaceChildren();
-      state.verdictTimer = null;
-    }, 2400);
+    dismissVerdictAfterDelay();
   }
 
   function enterBuilder() {
@@ -2918,7 +2948,7 @@ window.STANDARD_LEVELS = [
           </div>
         </div>
         <label class="field-label">有效 blockade 半径 Rb · <span id="radius-value">${state.radius.toFixed(2)}</span><input id="radius-input" type="range" min="0.65" max="1.8" step="0.01" value="${state.radius}"></label>
-        <label class="switch-line">吸附到半格<input id="snap-input" type="checkbox" ${state.snap ? "checked" : ""}></label>
+        <label class="switch-line"><span class="switch-copy">吸附到 0.5 网格<small>${state.snap ? "已开启：拖动与新增都会落在网格交点" : "开启后同时对齐现有原子"}</small></span><input id="snap-input" type="checkbox" ${state.snap ? "checked" : ""}></label>
         <label class="switch-line">启用 MWIS<input id="weighted-input" type="checkbox" ${state.weighted ? "checked" : ""}></label>
         ${state.weighted && state.builderSelected !== null ? `<label class="field-label weight-editor">所选原子的权重<input id="weight-input" type="number" min="1" max="9" step="1" value="${state.weights[state.builderSelected] || 1}"></label>` : ""}
       </div>
@@ -2928,7 +2958,7 @@ window.STANDARD_LEVELS = [
         <div><span>平均度</span><strong id="metric-degree">${average.toFixed(1)}</strong></div>
         <div><span>${state.weighted ? "MWIS" : "MIS"}</span><strong id="metric-exact">${state.exact.score === null ? "…" : state.exact.score}</strong></div>
       </div>
-      <p class="edit-help">拖动原子改变冲突图。先选中原子，再删除或编辑权重；点击“添加原子”后，在画面空白处落点。</p>
+      <p class="edit-help">拖动原子改变冲突图。先选中原子，再删除或编辑权重；点击“添加原子”后，在画面空白处落点。${state.builderSelected === null ? "" : ` 当前坐标：(${state.points[state.builderSelected].x.toFixed(2)}, ${state.points[state.builderSelected].y.toFixed(2)})。`}</p>
       <div class="action-stack">
         <button id="done-builder" class="primary-button" type="button">试玩自定义问题 →</button>
         <div class="action-row">
@@ -2955,7 +2985,15 @@ window.STANDARD_LEVELS = [
       renderBoard();
     };
     $("#radius-input").onchange = () => { computeExact(); renderPlay(); };
-    $("#snap-input").onchange = (event) => { state.snap = event.target.checked; renderPlay(); };
+    $("#snap-input").onchange = (event) => {
+      state.snap = event.target.checked;
+      if (state.snap) {
+        state.points = state.points.map(snapPoint);
+        state.builderPreset = "current";
+        rebuildCustom(true);
+        showFeedback("半格吸附已开启：原子已对齐到 0.5 网格。", null, "neutral");
+      } else renderPlay();
+    };
     $("#weighted-input").onchange = (event) => { state.weighted = event.target.checked; computeExact(); renderPlay(); };
     $("#weight-input")?.addEventListener("change", (event) => {
       state.weights[state.builderSelected] = Math.max(1, Math.min(9, Number(event.target.value) || 1));
@@ -3187,25 +3225,128 @@ window.STANDARD_LEVELS = [
     return [...found.values()].sort((a,b) => b.score - a.score || a.bits.localeCompare(b.bits));
   }
 
-  function initLearnDemo() {
+  function learnLine(svg, a, b, radius = 14) {
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const length = Math.hypot(dx, dy) || 1;
+    const ux = dx / length;
+    const uy = dy / length;
+    svg.append(svgElement("line", {
+      x1: a.x + ux * radius, y1: a.y + uy * radius,
+      x2: b.x - ux * radius, y2: b.y - uy * radius,
+      class: "learn-edge",
+    }));
+  }
+
+  function learnNode(svg, point, label, classes = "", radius = 14) {
+    const group = svgElement("g", { class: `learn-node ${classes}`.trim() });
+    group.append(svgElement("circle", { cx: point.x, cy: point.y, r: radius, class: "learn-node-shape" }));
+    const text = svgElement("text", { x: point.x, y: point.y, class: "learn-node-label" });
+    text.textContent = label;
+    group.append(text);
+    svg.append(group);
+    return group;
+  }
+
+  function learnText(svg, x, y, content, className = "learn-diagram-note") {
+    const text = svgElement("text", { x, y, class: className });
+    text.textContent = content;
+    svg.append(text);
+    return text;
+  }
+
+  function initIndependentLearnDemo() {
     const host = $("#learn-independent");
-    const svg = svgElement("svg", { viewBox:"0 0 190 160", role:"img", "aria-label":"点击节点组成独立集" });
-    const points = [{x:20,y:80},{x:65,y:42},{x:65,y:118},{x:125,y:42},{x:125,y:118},{x:170,y:80}];
-    const edges = [[0,1],[0,2],[1,2],[1,3],[2,4],[3,4],[3,5],[4,5]];
-    edges.forEach(([a,b]) => svg.append(svgElement("line", {x1:points[a].x,y1:points[a].y,x2:points[b].x,y2:points[b].y,class:"graph-edge"})));
-    const chosen = new Set();
-    points.forEach((point, i) => {
-      const node = svgElement("circle", {cx:point.x,cy:point.y,r:13,class:"atom-visible",style:"cursor:pointer"});
-      node.onclick = () => {
-        const conflicts = edges.some(([a,b]) => (a===i&&chosen.has(b)) || (b===i&&chosen.has(a)));
+    const svg = svgElement("svg", { viewBox:"0 0 230 176", role:"img", "aria-label":"五节点路径，节点一、三、五构成最大独立集" });
+    const points = [{x:27,y:78},{x:71,y:78},{x:115,y:78},{x:159,y:78},{x:203,y:78}];
+    const edges = [[0,1],[1,2],[2,3],[3,4]];
+    edges.forEach(([a,b]) => learnLine(svg, points[a], points[b]));
+    const chosen = new Set([0,2,4]);
+    const nodes = points.map((point, i) => {
+      const group = learnNode(svg, point, String(i + 1));
+      group.setAttribute("role", "button");
+      group.setAttribute("tabindex", "0");
+      group.setAttribute("aria-label", `节点 ${i + 1}`);
+      return group;
+    });
+    const status = learnText(svg, 115, 132, "", "learn-diagram-note accent");
+    const update = () => {
+      nodes.forEach((node, i) => {
+        const blocked = edges.some(([a,b]) => (a === i && chosen.has(b)) || (b === i && chosen.has(a)));
+        node.classList.toggle("selected", chosen.has(i));
+        node.classList.toggle("blocked", !chosen.has(i) && blocked);
+        node.setAttribute("aria-pressed", String(chosen.has(i)));
+      });
+      status.textContent = `当前选择：${chosen.size} 个${chosen.size === 3 ? " · 已达最大值" : " · 最大值是 3"}`;
+    };
+    nodes.forEach((node, i) => {
+      const toggle = () => {
+        const conflicts = edges.some(([a,b]) => (a === i && chosen.has(b)) || (b === i && chosen.has(a)));
         if (!chosen.has(i) && conflicts) return;
         chosen.has(i) ? chosen.delete(i) : chosen.add(i);
-        node.style.fill = chosen.has(i) ? "var(--accent)" : "var(--paper)";
-        node.style.stroke = chosen.has(i) ? "var(--accent)" : "#777b75";
+        update();
       };
-      svg.append(node);
+      node.addEventListener("click", toggle);
+      node.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); toggle(); } });
     });
+    update();
     host.append(svg);
+  }
+
+  function initMwisLearnDemo() {
+    const svg = svgElement("svg", { viewBox:"0 0 230 176", role:"img", "aria-label":"同一条三节点路径中，MIS 选两端总价值六，MWIS 选中间总价值七" });
+    const xs = [54,115,176];
+    [[50, "MIS：数量优先", ["selected","blocked","selected"], "2 个节点 · 总价值 6", "accent"],
+     [122, "MWIS：价值优先", ["blocked","warm-selected","blocked"], "1 个节点 · 总价值 7", "warm"]].forEach(([y, title, classes, note, tone]) => {
+      const points = xs.map((x) => ({ x, y }));
+      learnText(svg, 115, y - 28, title, "learn-diagram-title");
+      learnLine(svg, points[0], points[1]);
+      learnLine(svg, points[1], points[2]);
+      points.forEach((point, i) => learnNode(svg, point, [2,7,4][i], classes[i]));
+      learnText(svg, 115, y + 28, note, `learn-diagram-note ${tone}`);
+    });
+    $("#learn-mwis").append(svg);
+  }
+
+  function initGeometryLearnDemo() {
+    const svg = svgElement("svg", { viewBox:"0 0 260 176", role:"img", "aria-label":"三个原子的位置转换为节点三连接节点一和节点二的冲突图" });
+    const left = [{x:37,y:55},{x:37,y:121},{x:75,y:88}];
+    const right = [{x:231,y:55},{x:231,y:121},{x:190,y:88}];
+    learnText(svg, 63, 19, "原子位置", "learn-diagram-title");
+    learnText(svg, 207, 19, "冲突图", "learn-diagram-title");
+    svg.append(svgElement("circle", { cx:left[2].x, cy:left[2].y, r:53, class:"learn-radius" }));
+    left.forEach((point, i) => learnNode(svg, point, String(i + 1), i === 2 ? "selected" : "", 12));
+    learnText(svg, 132, 92, "→", "learn-diagram-note accent");
+    learnLine(svg, right[0], right[2], 12);
+    learnLine(svg, right[1], right[2], 12);
+    right.forEach((point, i) => learnNode(svg, point, String(i + 1), i === 2 ? "selected" : "", 12));
+    learnText(svg, 130, 163, "d(1,3)、d(2,3) < Rb", "learn-diagram-note accent");
+    $("#learn-geometry").append(svg);
+  }
+
+  function initBlockadeLearnDemo() {
+    const svg = svgElement("svg", { viewBox:"0 0 230 176", role:"img", "aria-label":"绿色激发原子的有效半径内有灰色阻塞原子，半径外有白色可选原子" });
+    const center = {x:79,y:87};
+    const blocked = {x:128,y:61};
+    const available = {x:187,y:112};
+    svg.append(svgElement("circle", { cx:center.x, cy:center.y, r:62, class:"learn-radius" }));
+    svg.append(svgElement("line", { x1:center.x, y1:center.y, x2:center.x, y2:25, class:"learn-edge" }));
+    learnText(svg, 102, 26, "有效 Rb", "learn-diagram-note accent");
+    learnNode(svg, center, "1", "selected");
+    learnNode(svg, blocked, "2", "blocked");
+    learnNode(svg, available, "3");
+    learnText(svg, 79, 127, "已激发", "learn-diagram-note accent");
+    learnText(svg, 143, 48, "已阻塞", "learn-diagram-note");
+    learnText(svg, 187, 143, "可选", "learn-diagram-note");
+    learnText(svg, 115, 166, "半径内互斥 · 半径外仍可选择", "learn-diagram-note");
+    $("#learn-blockade").append(svg);
+  }
+
+  function initLearnDemo() {
+    initIndependentLearnDemo();
+    initMwisLearnDemo();
+    initGeometryLearnDemo();
+    initBlockadeLearnDemo();
   }
 
   function init() {
