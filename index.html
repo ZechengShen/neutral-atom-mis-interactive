@@ -245,6 +245,7 @@ button:disabled { opacity: .42; cursor: not-allowed; transform: none !important;
 @keyframes verdict-in { from { opacity: 0; transform: translateY(-8px) scale(.98); } }
 .board-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 30px; padding: 18px 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 15px; }
 .mobile-game-actions { display: none; }
+.mobile-level-picker { display: none; }
 .board-legend span { display: inline-flex; align-items: center; gap: 9px; white-space: nowrap; }
 .board-legend b { min-width: 26px; height: 26px; display: inline-grid; place-items: center; margin-left: 1px; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
 #excited-count { color: var(--white); border-color: var(--accent); background: var(--accent); }
@@ -430,7 +431,8 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
   .mapping-logic, .blockade-bridge { grid-template-columns: 1fr; }.mapping-logic ol { grid-template-columns: 1fr 1fr 1fr; }
   .mapping-card { grid-template-columns: 1fr; }.mapping-card > header, .mapping-card > .case-question, .mapping-card > .mapping-diagram, .mapping-card > .flow-strip, .mapping-card > .case-logic { grid-column: 1; grid-row: auto; }.mapping-card > .case-logic { margin-top: 17px; }
   .control-panel, .quantum-controls { min-height: 0; }
-  .control-panel .level-picker { order: 10; margin-top: 4px; }
+  .mobile-level-picker:not(:empty) { display: block; }
+  .control-panel > .level-picker { display: none; }
   .mobile-game-actions:not(:empty) { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; padding: 12px; border-top: 1px solid var(--line); background: var(--paper-2); }
   .mobile-game-actions .ghost-button { min-width: 0; padding: 0 8px; }
   .mobile-hint-slot { grid-column: 1 / -1; }
@@ -633,6 +635,7 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
         <div class="progress-wrap"><span id="progress-label">已完成 0 / 10</span><div class="progress-track" aria-hidden="true"><i id="progress-fill"></i></div></div>
       </div>
       <div class="play-layout">
+        <div id="mobile-level-picker" class="mobile-level-picker" aria-label="移动端关卡导航"></div>
         <section class="board-panel" aria-label="原子挑战棋盘">
           <svg id="atom-board" viewBox="0 0 960 640" role="img" aria-labelledby="board-title board-desc">
             <title id="board-title">互动原子阵列</title><desc id="board-desc">选择原子。已选择的原子会阻止其冲突邻居被同时选择。</desc>
@@ -3159,9 +3162,22 @@ window.STANDARD_LEVELS = [
         ? `<button id="mobile-sampler-action" class="ghost-button sampler-button" type="button">采样</button>`
         : `<button id="mobile-hint-action" class="ghost-button" type="button">${tr("hint")}</button><div class="hint-slot mobile-hint-slot" aria-live="polite">${hintPanelMarkup()}</div>`}`;
 
+    const mobileLevelPicker = $("#mobile-level-picker");
+    mobileLevelPicker.innerHTML = state.mode === "standard" ? `<div class="level-picker">
+      <div class="level-picker-heading"><span>关卡导航</span><b>${String(state.levelIndex + 1).padStart(2, "0")} / ${levels.length}</b></div>
+      <div class="level-picker-row">
+        <button id="mobile-previous-level" class="level-step" type="button" aria-label="上一关" ${state.levelIndex === 0 ? "disabled" : ""}>←</button>
+        <label class="level-select-shell"><span class="sr-only">选择关卡</span><select id="mobile-level-select" aria-label="选择关卡">${levels.map((item, i) => `<option value="${i}" ${i === state.levelIndex ? "selected" : ""}>${String(i + 1).padStart(2, "0")} · ${levelCopy[item.id][0]}</option>`).join("")}</select><i aria-hidden="true">⌄</i></label>
+        <button id="mobile-next-level" class="level-step" type="button" aria-label="下一关" ${state.levelIndex === levels.length - 1 ? "disabled" : ""}>→</button>
+      </div>
+    </div>` : "";
+
     $("#level-select")?.addEventListener("change", (event) => loadLevel(Number(event.target.value)));
     $("#previous-level")?.addEventListener("click", () => loadLevel(state.levelIndex - 1));
     $("#next-level")?.addEventListener("click", () => loadLevel(state.levelIndex + 1));
+    $("#mobile-level-select")?.addEventListener("change", (event) => loadLevel(Number(event.target.value)));
+    $("#mobile-previous-level")?.addEventListener("click", () => loadLevel(state.levelIndex - 1));
+    $("#mobile-next-level")?.addEventListener("click", () => loadLevel(state.levelIndex + 1));
     $("#main-action").onclick = mainAction;
     const undoAction = () => { state.selection = MIS.undoSelection(state.selection); state.solved = false; clearVerdict(); renderPlay(); };
     const resetAction = () => { state.selection = MIS.resetSelection(state.selection); state.solved = false; state.revealed = false; state.failures = 0; clearVerdict(); renderPlay(); };
@@ -3288,6 +3304,7 @@ window.STANDARD_LEVELS = [
 
   function renderBuilderControls() {
     $("#mobile-game-actions").replaceChildren();
+    $("#mobile-level-picker").replaceChildren();
     const panel = $("#control-panel");
     const average = MIS.degreeStats(state.graph).average;
     panel.innerHTML = `
