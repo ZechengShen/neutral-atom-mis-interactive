@@ -2818,13 +2818,13 @@ window.STANDARD_LEVELS = [
     renderPlay();
   }
 
-  function fitTransform(points, width = BOARD_WIDTH, height = BOARD_HEIGHT, padding = 86, maxScale = 118) {
+  function fitTransform(points, width = BOARD_WIDTH, height = BOARD_HEIGHT, padding = 86, maxScale = 118, includeOrigin = true) {
     const xs = points.map((p) => p.x);
     const ys = points.map((p) => p.y);
-    const minX = Math.min(...xs, 0);
-    const maxX = Math.max(...xs, 1);
-    const minY = Math.min(...ys, 0);
-    const maxY = Math.max(...ys, 1);
+    const minX = includeOrigin ? Math.min(...xs, 0) : Math.min(...xs);
+    const maxX = includeOrigin ? Math.max(...xs, 1) : Math.max(...xs);
+    const minY = includeOrigin ? Math.min(...ys, 0) : Math.min(...ys);
+    const maxY = includeOrigin ? Math.max(...ys, 1) : Math.max(...ys);
     const scale = Math.min((width - padding * 2) / Math.max(maxX - minX, 1), (height - padding * 2) / Math.max(maxY - minY, 1), maxScale);
     const offsetX = (width - (maxX - minX) * scale) / 2 - minX * scale;
     const offsetY = (height - (maxY - minY) * scale) / 2 - minY * scale;
@@ -2865,8 +2865,9 @@ window.STANDARD_LEVELS = [
       state.points,
       BOARD_WIDTH,
       BOARD_HEIGHT,
-      mobileBoard ? 40 : 86,
+      mobileBoard ? 64 : 86,
       mobileBoard ? 220 : 118,
+      !mobileBoard,
     );
     if (state.mode === "builder" && state.snap) renderBuilderGrid(gridLayer, transform);
     // The SVG viewBox scales on narrow screens. Counter-scale atoms and their
@@ -2874,19 +2875,11 @@ window.STANDARD_LEVELS = [
     const screenCompensation = Math.max(1, BOARD_WIDTH / renderedWidth);
     const hitRadius = (mobileBoard ? 24 : 35) * screenCompensation;
     const screenPoints = state.points.map((point) => transform.toScreen(point));
-    let minimumSpacing = Infinity;
-    if (mobileBoard) {
-      for (let i = 0; i < screenPoints.length; i += 1) {
-        for (let j = i + 1; j < screenPoints.length; j += 1) {
-          minimumSpacing = Math.min(minimumSpacing, Math.hypot(screenPoints[i].x - screenPoints[j].x, screenPoints[i].y - screenPoints[j].y));
-        }
-      }
-    }
-    const visibleRadiusCss = mobileBoard && Number.isFinite(minimumSpacing)
-      ? Math.max(6, Math.min(16, minimumSpacing / screenCompensation * .38))
-      : 16;
+    // Keep node size stable between levels. Dense layouts remain tappable
+    // because interaction is resolved to the nearest node below.
+    const visibleRadiusCss = mobileBoard ? 8 : 16;
     const visibleRadius = visibleRadiusCss * screenCompensation;
-    const nodeFontSize = (mobileBoard ? Math.max(9, Math.min(13, visibleRadiusCss * 1.15)) : 13) * screenCompensation;
+    const nodeFontSize = (mobileBoard ? 9 : 13) * screenCompensation;
     const blockedSources = MIS.blockedBy(state.selection.selected, state.graph);
     const excitedCount = state.selection.selected.size;
     const blockedCount = blockedSources.reduce((count, sources, i) => count + (!state.selection.selected.has(i) && sources.length > 0 ? 1 : 0), 0);
