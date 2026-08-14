@@ -2857,11 +2857,36 @@ window.STANDARD_LEVELS = [
     // hidden element. renderBoard is called again immediately on page entry.
     const renderedWidth = board.getBoundingClientRect().width;
     if (renderedWidth <= 0) return;
-    const transform = fitTransform(state.points);
+    const mobileBoard = renderedWidth < 620;
+    // On narrow screens the SVG itself shrinks, while nodes retain a usable
+    // tap size. Give the graph more of the viewBox so neighboring atoms do not
+    // collapse into the same touch area.
+    const transform = fitTransform(
+      state.points,
+      BOARD_WIDTH,
+      BOARD_HEIGHT,
+      mobileBoard ? 40 : 86,
+      mobileBoard ? 220 : 118,
+    );
     if (state.mode === "builder" && state.snap) renderBuilderGrid(gridLayer, transform);
     // The SVG viewBox scales on narrow screens. Counter-scale atoms and their
     // touch targets so nodes stay readable and easy to tap on phones.
     const screenCompensation = Math.max(1, BOARD_WIDTH / renderedWidth);
+    const hitRadius = (mobileBoard ? 24 : 35) * screenCompensation;
+    const screenPoints = state.points.map((point) => transform.toScreen(point));
+    let minimumSpacing = Infinity;
+    if (mobileBoard) {
+      for (let i = 0; i < screenPoints.length; i += 1) {
+        for (let j = i + 1; j < screenPoints.length; j += 1) {
+          minimumSpacing = Math.min(minimumSpacing, Math.hypot(screenPoints[i].x - screenPoints[j].x, screenPoints[i].y - screenPoints[j].y));
+        }
+      }
+    }
+    const visibleRadiusCss = mobileBoard && Number.isFinite(minimumSpacing)
+      ? Math.max(6, Math.min(16, minimumSpacing / screenCompensation * .38))
+      : 16;
+    const visibleRadius = visibleRadiusCss * screenCompensation;
+    const nodeFontSize = (mobileBoard ? Math.max(9, Math.min(13, visibleRadiusCss * 1.15)) : 13) * screenCompensation;
     const blockedSources = MIS.blockedBy(state.selection.selected, state.graph);
     const excitedCount = state.selection.selected.size;
     const blockedCount = blockedSources.reduce((count, sources, i) => count + (!state.selection.selected.has(i) && sources.length > 0 ? 1 : 0), 0);
@@ -2870,15 +2895,15 @@ window.STANDARD_LEVELS = [
     $("#excited-count").textContent = excitedCount;
     $("#blocked-count").textContent = blockedCount;
     state.graph.edges.forEach(({ i, j }) => {
-      const a = transform.toScreen(state.points[i]);
-      const b = transform.toScreen(state.points[j]);
+      const a = screenPoints[i];
+      const b = screenPoints[j];
       const incident = state.selection.selected.has(i) || state.selection.selected.has(j);
       const classes = ["graph-edge", state.mode === "builder" ? "builder-edge" : "", incident ? "incident-edge" : ""].filter(Boolean).join(" ");
       edgeLayer.append(svgElement("line", { x1: a.x, y1: a.y, x2: b.x, y2: b.y, class: classes }));
     });
 
     if (state.mode !== "builder") [...state.selection.selected].forEach((i) => {
-      const point = transform.toScreen(state.points[i]);
+      const point = screenPoints[i];
       ringLayer.append(svgElement("circle", {
         cx: point.x, cy: point.y, r: state.radius * transform.scale,
         class: "blockade-ring",
@@ -2886,7 +2911,7 @@ window.STANDARD_LEVELS = [
     });
 
     state.points.forEach((worldPoint, i) => {
-      const point = transform.toScreen(worldPoint);
+      const point = screenPoints[i];
       const group = svgElement("g", { class: "atom-group", "data-index": i });
       const selected = state.selection.selected.has(i);
       const blocked = blockedSources[i].length > 0;
@@ -2895,20 +2920,20 @@ window.STANDARD_LEVELS = [
       if (state.mode === "builder" && state.builderSelected === i) group.classList.add("builder-selected");
       if (state.hintLevel >= 2 && currentLevel()?.analysis?.badFirstMoves?.includes(i) && state.mode === "standard") group.classList.add("hinted");
       if (state.solved && selected) group.classList.add("solved");
-      group.append(svgElement("circle", { cx: point.x, cy: point.y, r: 35 * screenCompensation, class: "atom-hit", "aria-hidden": "true" }));
+      group.append(svgElement("circle", { cx: point.x, cy: point.y, r: hitRadius, class: "atom-hit", "aria-hidden": "true" }));
       // Selection changes color and incident edges, never the node diameter.
-      group.append(svgElement("circle", { cx: point.x, cy: point.y, r: 16 * screenCompensation, class: "atom-visible" }));
+      group.append(svgElement("circle", { cx: point.x, cy: point.y, r: visibleRadius, class: "atom-visible" }));
       const indexLabel = svgElement("text", {
         x: point.x,
         y: point.y,
         class: "atom-index",
-        style: `font-size:${13 * screenCompensation}px`,
+        style: `font-size:${nodeFontSize}px`,
         "aria-hidden": "true",
       });
       indexLabel.textContent = String(i + 1);
       group.append(indexLabel);
       if (state.weighted) {
-        const label = svgElement("text", { x: point.x, y: point.y - 21 * screenCompensation, class: "atom-label", style: `font-size:${13 * screenCompensation}px` });
+        const label = svgElement("text", { x: point.x, y: point.y - (visibleRadiusCss + 8) * screenCompensation, class: "atom-label", style: `font-size:${(mobileBoard ? 11 : 13) * screenCompensation}px` });
         label.textContent = `权重 ${formatWeight(state.weights[i])}`;
         group.append(label);
       }
@@ -2939,18 +2964,34 @@ window.STANDARD_LEVELS = [
 
   function installBoardInteractions(transform) {
     const board = $("#atom-board");
+    const nearestAtomIndex = (event) => {
+      const rect = board.getBoundingClientRect();
+      const pointer = {
+        x: (event.clientX - rect.left) * BOARD_WIDTH / rect.width,
+        y: (event.clientY - rect.top) * BOARD_HEIGHT / rect.height,
+      };
+      let nearest = null;
+      let distance = Infinity;
+      state.points.forEach((point, index) => {
+        const screen = transform.toScreen(point);
+        const candidate = Math.hypot(pointer.x - screen.x, pointer.y - screen.y);
+        if (candidate < distance) { nearest = index; distance = candidate; }
+      });
+      return nearest;
+    };
     board.querySelectorAll(".atom-group").forEach((group) => {
       const index = Number(group.dataset.index);
       group.addEventListener("click", (event) => {
         event.stopPropagation();
+        const clickedIndex = nearestAtomIndex(event) ?? index;
         if (state.mode === "builder") {
           if (state.dragging?.moved) return;
-          state.builderSelected = index;
+          state.builderSelected = clickedIndex;
           renderPlay();
           return;
         }
         if (state.solved) return;
-        const result = MIS.toggleAtom(state.selection, index, state.graph);
+        const result = MIS.toggleAtom(state.selection, clickedIndex, state.graph);
         state.selection = result.state;
         if (!result.changed) showFeedback(tr("blocked"), result.blocker);
         else { clearFeedback(); clearVerdict(); }
@@ -2960,7 +3001,7 @@ window.STANDARD_LEVELS = [
         group.addEventListener("pointerdown", (event) => {
           event.preventDefault();
           board.setPointerCapture(event.pointerId);
-          state.dragging = { index, pointerId: event.pointerId, moved: false };
+          state.dragging = { index: nearestAtomIndex(event) ?? index, pointerId: event.pointerId, moved: false };
         });
       }
     });
