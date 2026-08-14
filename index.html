@@ -2877,9 +2877,9 @@ window.STANDARD_LEVELS = [
     const screenPoints = state.points.map((point) => transform.toScreen(point));
     // Keep node size stable between levels. Dense layouts remain tappable
     // because interaction is resolved to the nearest node below.
-    const visibleRadiusCss = mobileBoard ? 8 : 16;
+    const visibleRadiusCss = mobileBoard ? 11 : 16;
     const visibleRadius = visibleRadiusCss * screenCompensation;
-    const nodeFontSize = (mobileBoard ? 9 : 13) * screenCompensation;
+    const nodeFontSize = (mobileBoard ? 10 : 13) * screenCompensation;
     const blockedSources = MIS.blockedBy(state.selection.selected, state.graph);
     const excitedCount = state.selection.selected.size;
     const blockedCount = blockedSources.reduce((count, sources, i) => count + (!state.selection.selected.has(i) && sources.length > 0 ? 1 : 0), 0);
