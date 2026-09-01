@@ -631,8 +631,8 @@ body.board-mistake #atom-board { animation: board-mistake 330ms ease; }
 
     <section id="play-page" class="page" aria-labelledby="play-title">
       <div class="play-heading">
-        <div><p class="eyebrow" id="level-kicker">挑战 1 / 10</p><div class="play-title-line"><h1 id="play-title">初见微光</h1><span id="play-subtitle">一条断裂的路径</span></div><p id="rule-copy">在满足 blockade 约束的前提下，激发尽可能多的原子。</p></div>
-        <div class="progress-wrap"><span id="progress-label">已完成 0 / 10</span><div class="progress-track" aria-hidden="true"><i id="progress-fill"></i></div></div>
+        <div><p class="eyebrow" id="level-kicker">第 1 / 15 关 · MIS 1 / 10</p><div class="play-title-line"><h1 id="play-title">初见微光</h1><span id="play-subtitle">一条断裂的路径</span></div><p id="rule-copy">在满足 blockade 约束的前提下，激发尽可能多的原子。</p></div>
+        <div class="progress-wrap"><span id="progress-label">已完成 0 / 15</span><div class="progress-track" aria-hidden="true"><i id="progress-fill"></i></div></div>
       </div>
       <div class="play-layout">
         <div id="mobile-level-picker" class="mobile-level-picker" aria-label="移动端关卡导航"></div>
@@ -2675,6 +2675,124 @@ window.STANDARD_LEVELS = [
 ];
 
 
+window.MWIS_LEVELS = [
+  {
+    "id": "mwis-01",
+    "problemType": "MWIS",
+    "title": "Less Can Weigh More",
+    "subtitle": "Three-node weighted path",
+    "purpose": "See why the best weighted solution can contain fewer nodes than the MIS.",
+    "hint": "Compare the middle weight with the sum of the two endpoint weights.",
+    "coordinates": [
+      { "x": 0.5, "y": 1.5 },
+      { "x": 1.5, "y": 1.5 },
+      { "x": 2.5, "y": 1.5 }
+    ],
+    "weights": [2, 5, 2],
+    "blockadeRadius": 1.18,
+    "edgeRule": "lt",
+    "exactMISSize": 2,
+    "exactMWISScore": 5,
+    "exactMWISWitnesses": [[1]],
+    "edgeCount": 2,
+    "analysis": { "numOptima": 1, "badFirstMoves": [0, 2] }
+  },
+  {
+    "id": "mwis-02",
+    "problemType": "MWIS",
+    "title": "Teamwork Beats the Star",
+    "subtitle": "A weighted star",
+    "purpose": "Learn that the single heaviest node need not form the heaviest independent set.",
+    "hint": "The four leaves do not conflict with one another; add their weights together.",
+    "coordinates": [
+      { "x": 1.5, "y": 1.5 },
+      { "x": 0.5, "y": 1.5 },
+      { "x": 1.5, "y": 0.5 },
+      { "x": 2.5, "y": 1.5 },
+      { "x": 1.5, "y": 2.5 }
+    ],
+    "weights": [5, 1.5, 1.5, 1.5, 1.5],
+    "blockadeRadius": 1.18,
+    "edgeRule": "lt",
+    "exactMISSize": 4,
+    "exactMWISScore": 6,
+    "exactMWISWitnesses": [[1, 2, 3, 4]],
+    "edgeCount": 4,
+    "analysis": { "numOptima": 1, "badFirstMoves": [0] }
+  },
+  {
+    "id": "mwis-03",
+    "problemType": "MWIS",
+    "title": "Local-Weight Trap",
+    "subtitle": "Five-node weighted path",
+    "purpose": "Avoid a greedy choice that repeatedly takes the locally heaviest node.",
+    "hint": "Two local peaks look attractive, but three alternating nodes have a larger total weight.",
+    "coordinates": [
+      { "x": 0.5, "y": 1.5 },
+      { "x": 1.5, "y": 1.5 },
+      { "x": 2.5, "y": 1.5 },
+      { "x": 3.5, "y": 1.5 },
+      { "x": 4.5, "y": 1.5 }
+    ],
+    "weights": [3.5, 4.5, 3.5, 4.5, 3.5],
+    "blockadeRadius": 1.18,
+    "edgeRule": "lt",
+    "exactMISSize": 3,
+    "exactMWISScore": 10.5,
+    "exactMWISWitnesses": [[0, 2, 4]],
+    "edgeCount": 4,
+    "analysis": { "numOptima": 1, "badFirstMoves": [1, 3] }
+  },
+  {
+    "id": "mwis-04",
+    "problemType": "MWIS",
+    "title": "Equal Score, Different Shape",
+    "subtitle": "A weighted fork with a tail",
+    "purpose": "Recognize that MWIS compares total weight, not the number of selected nodes.",
+    "hint": "There are two optimal answers: one uses two nodes, while the other uses three.",
+    "coordinates": [
+      { "x": 1.5, "y": 1.5 },
+      { "x": 0.5, "y": 1.5 },
+      { "x": 1.5, "y": 0.5 },
+      { "x": 2.5, "y": 1.5 },
+      { "x": 3.5, "y": 1.5 }
+    ],
+    "weights": [5, 2, 2, 4, 3],
+    "blockadeRadius": 1.18,
+    "edgeRule": "lt",
+    "exactMISSize": 3,
+    "exactMWISScore": 8,
+    "exactMWISWitnesses": [[0, 4], [1, 2, 3]],
+    "edgeCount": 4,
+    "analysis": { "numOptima": 2, "badFirstMoves": [] }
+  },
+  {
+    "id": "mwis-05",
+    "problemType": "MWIS",
+    "title": "Trade-offs Around a Loop",
+    "subtitle": "A six-node weighted cycle",
+    "purpose": "Balance the whole cycle when two maximum-weight nodes conflict with each other.",
+    "hint": "The two nodes of weight 5 cannot coexist; compare the totals of alternating choices around the loop.",
+    "coordinates": [
+      { "x": 3, "y": 2 },
+      { "x": 2.5, "y": 2.866 },
+      { "x": 1.5, "y": 2.866 },
+      { "x": 1, "y": 2 },
+      { "x": 1.5, "y": 1.134 },
+      { "x": 2.5, "y": 1.134 }
+    ],
+    "weights": [5, 1.5, 4.5, 3.5, 2, 5],
+    "blockadeRadius": 1.18,
+    "edgeRule": "lt",
+    "exactMISSize": 3,
+    "exactMWISScore": 11.5,
+    "exactMWISWitnesses": [[0, 2, 4]],
+    "edgeCount": 6,
+    "analysis": { "numOptima": 1, "badFirstMoves": [1, 3, 5] }
+  }
+];
+
+
 (function () {
   "use strict";
 
@@ -2685,7 +2803,9 @@ window.STANDARD_LEVELS = [
   const REVEAL_AFTER_FAILURES = 2;
   const MESSAGE_DURATION_MS = 5000;
   const SAMPLER_SHOT_COUNT = 1000;
-  const levels = window.STANDARD_LEVELS || [];
+  const misLevels = window.STANDARD_LEVELS || [];
+  const mwisLevels = window.MWIS_LEVELS || [];
+  const levels = [...misLevels, ...mwisLevels];
   const state = {
     page: "intro",
     levelIndex: 0,
@@ -2751,11 +2871,33 @@ window.STANDARD_LEVELS = [
     "level-08": ["受挫网络", "带缺陷的晶格几何", "短环让局部密集的选择相互竞争。", "不要太早填满视觉上最明显的一行。"],
     "level-09": ["瓶颈", "不规则单位圆盘图", "一个早期分支，就会改变整张图的容量。", "最差的第一步会让最终答案少两个原子。"],
     "level-10": ["无规则终局", "不规则单位圆盘图", "没有整齐的晶格图案告诉你从哪里开始。", "根据冲突关系推理，不要依赖表面对称。"],
+    "mwis-01": ["少而更重", "三节点加权路径", "先别数点：目标是让已选节点的权重总和最大。", "比较中间节点与两个端点的权重之和。"],
+    "mwis-02": ["合力胜过巨星", "加权星形图", "单个最重节点，不一定组成总权重最大的独立集。", "四个叶节点彼此不冲突，把它们的权重加起来。"],
+    "mwis-03": ["局部重权陷阱", "五节点加权路径", "连续追逐眼前最重节点，可能错过更大的整体收益。", "两个局部高点很诱人，但三个交错节点的权重和更大。"],
+    "mwis-04": ["同分异构", "带尾加权岔路", "MWIS 只比较总权重，选中节点数量可以不同。", "本关有两种最优形状：一种选 2 个，一种选 3 个。"],
+    "mwis-05": ["闭环权衡", "六节点加权环", "两个最高权重节点彼此冲突，需要比较整圈的总收益。", "两个权重 5 的节点不能同时选择；比较沿圆环交错选择的两组总和。"],
   };
 
   function tr(key) { return copy[state.language][key]; }
   function currentLevel() { return levels[state.levelIndex]; }
-  function allStandardLevelsCompleted() { return state.completed.size >= levels.length; }
+  function levelType(level = currentLevel()) { return level?.problemType === "MWIS" ? "MWIS" : "MIS"; }
+  function levelTypeProgress(level = currentLevel()) {
+    const group = levelType(level) === "MWIS" ? mwisLevels : misLevels;
+    return { current: group.indexOf(level) + 1, total: group.length };
+  }
+  function allChallengeLevelsCompleted() { return state.completed.size >= levels.length; }
+  function exactWitnesses(level = currentLevel()) {
+    return levelType(level) === "MWIS" ? level.exactMWISWitnesses : level.exactMISWitnesses;
+  }
+  function levelOptionsMarkup() {
+    return [
+      ["MIS · 最大独立集", misLevels],
+      ["MWIS · 最大权重独立集", mwisLevels],
+    ].filter(([, group]) => group.length).map(([label, group]) => `<optgroup label="${label}">${group.map((item) => {
+      const index = levels.indexOf(item);
+      return `<option value="${index}" ${index === state.levelIndex ? "selected" : ""}>${String(index + 1).padStart(2, "0")} · ${levelCopy[item.id][0]}</option>`;
+    }).join("")}</optgroup>`).join("");
+  }
   function currentLevelCopy() {
     const [title, subtitle, purpose, hint] = levelCopy[currentLevel().id];
     return { title, subtitle, purpose, hint };
@@ -2812,11 +2954,13 @@ window.STANDARD_LEVELS = [
     state.hintLevel = 0;
     state.solved = false;
     state.revealed = false;
-    state.weighted = false;
+    state.weighted = levelType(level) === "MWIS";
+    state.weightsInitialized = state.weighted;
     state.builderSelected = null;
-    setProblem(level.coordinates, level.blockadeRadius, level.edgeRule);
-    if (state.exact.size !== level.exactMISSize) {
-      throw new Error(`Level validation failed for ${level.id}: metadata ${level.exactMISSize}, solver ${state.exact.size}`);
+    setProblem(level.coordinates, level.blockadeRadius, level.edgeRule, level.weights || null);
+    const expected = state.weighted ? level.exactMWISScore : level.exactMISSize;
+    if (Math.abs(state.exact.score - expected) > 1e-9) {
+      throw new Error(`Level validation failed for ${level.id}: metadata ${expected}, solver ${state.exact.score}`);
     }
     renderPlay();
   }
@@ -2934,7 +3078,8 @@ window.STANDARD_LEVELS = [
         group.append(label);
       }
       group.setAttribute("role", "button");
-      group.setAttribute("aria-label", `原子 ${i + 1}，${selected ? "已激发" : blocked ? "已阻塞" : "可选择"}`);
+      const weightDescription = state.weighted ? `，权重 ${formatWeight(state.weights[i])}` : "";
+      group.setAttribute("aria-label", `原子 ${i + 1}${weightDescription}，${selected ? "已激发" : blocked ? "已阻塞" : "可选择"}`);
       atomLayer.append(group);
     });
 
@@ -3076,9 +3221,12 @@ window.STANDARD_LEVELS = [
   function adviceForSubmission(score, optimum) {
     const gap = optimum - score;
     const selected = [...state.selection.selected];
-    if (!selected.length) return "你还没有选择原子。先从外围或度数较低的节点开始，通常能保留更多后续空间。";
+    if (!selected.length) return state.weighted
+      ? "你还没有选择原子。先比较节点权重，再检查它会阻塞哪些高权重组合。"
+      : "你还没有选择原子。先从外围或度数较低的节点开始，通常能保留更多后续空间。";
     const degrees = selected.map((index) => ({ index, degree: state.graph.adjacency[index].length })).sort((a, b) => b.degree - a.degree);
     const crowded = degrees[0];
+    if (state.weighted) return `当前总权重还差 ${formatWeight(gap)}。不要只追求节点数量或单个最高权重；重新比较原子 ${crowded.index + 1} 阻塞的邻居权重之和。`;
     if (gap >= 2) return `当前方案距离最优还差 ${gap}。尝试撤掉原子 ${crowded.index + 1}：它连接 ${crowded.degree} 条冲突边，可能一次阻塞了多个分支。`;
     if (crowded.degree >= 3) return `只差一步。原子 ${crowded.index + 1} 的冲突邻居较多；撤掉它，再寻找两个彼此兼容的替代节点。`;
     return "只差一步。当前选择可能是“极大”但不是“最大”：撤销最后一两个选择，比较另一条分支能否多保留一个位置。";
@@ -3086,15 +3234,18 @@ window.STANDARD_LEVELS = [
 
   function showVerdict(correct, score, optimum) {
     const verdict = $("#board-verdict");
-    const title = correct ? `正确！本关最大值是 ${optimum}` : `还不是最大值：${score} / ${optimum}`;
+    const displayScore = state.weighted ? formatWeight(score) : score;
+    const displayOptimum = state.weighted ? formatWeight(optimum) : optimum;
+    const metric = state.weighted ? "最高总权重" : "最大值";
+    const title = correct ? `正确！本关${metric}是 ${displayOptimum}` : `还不是${metric}：${displayScore} / ${displayOptimum}`;
     let detail = correct
       ? (state.mode === "custom"
         ? "自定义挑战完成！你可以查看结果对比，或返回编辑继续调整原子位置与约束。"
         : state.levelIndex < levels.length - 1
           ? `这一组选择两两兼容。下一关是“${levelCopy[levels[state.levelIndex + 1].id][0]}”。`
-          : allStandardLevelsCompleted()
-            ? "十个策略关卡全部完成！你可以继续进入几何编辑器，设计自己的 MIS / MWIS。"
-            : `第十关完成！目前已完成 ${state.completed.size} / ${levels.length}。你可以通过关卡导航补做其他关卡，也可以继续进入几何编辑器。`)
+          : allChallengeLevelsCompleted()
+            ? "十五个 MIS / MWIS 策略关卡全部完成！你可以继续进入几何编辑器，设计自己的问题。"
+            : `第 ${state.levelIndex + 1} 关完成！目前已完成 ${state.completed.size} / ${levels.length}。你可以通过关卡导航补做其他关卡，也可以继续进入几何编辑器。`)
       : adviceForSubmission(score, optimum);
     verdict.innerHTML = `<strong>${title}</strong><span>${detail}</span>`;
     verdict.classList.toggle("mistake", !correct);
@@ -3108,10 +3259,15 @@ window.STANDARD_LEVELS = [
   function renderPlay() {
     const level = currentLevel();
     const localized = currentLevelCopy();
-    $("#level-kicker").textContent = state.mode === "standard" ? `挑战 ${state.levelIndex + 1} / ${levels.length}` : state.mode === "builder" ? "重构 / 编辑" : "自定义挑战";
+    const typeProgress = levelTypeProgress(level);
+    $("#level-kicker").textContent = state.mode === "standard" ? `第 ${state.levelIndex + 1} / ${levels.length} 关 · ${levelType(level)} ${typeProgress.current} / ${typeProgress.total}` : state.mode === "builder" ? "重构 / 编辑" : "自定义挑战";
     $("#play-title").textContent = state.mode === "standard" ? localized.title : state.mode === "builder" ? "移动原子，改变冲突图" : "你的自定义谜题";
     $("#play-subtitle").textContent = state.mode === "standard" ? localized.subtitle : "";
-    $("#rule-copy").textContent = state.mode === "builder" ? "拖动、添加或删除原子，冲突边会随几何结构实时更新。" : tr("rule");
+    $("#rule-copy").textContent = state.mode === "builder"
+      ? "拖动、添加或删除原子，冲突边会随几何结构实时更新。"
+      : state.weighted
+        ? "在满足 blockade 约束的前提下，让已激发原子的总权重最大；选得更多不一定更优。"
+        : tr("rule");
     $("#progress-label").textContent = `已完成 ${state.completed.size} / ${levels.length}`;
     $("#progress-fill").style.width = `${state.completed.size / levels.length * 100}%`;
     renderBoard();
@@ -3123,6 +3279,7 @@ window.STANDARD_LEVELS = [
     const panel = $("#control-panel");
     const level = currentLevel();
     const selectedScore = scoreSelection();
+    const selectedScoreDisplay = state.weighted ? formatWeight(selectedScore) : selectedScore;
     const localized = currentLevelCopy();
     const mainLabel = state.solved
       ? (state.mode === "custom" ? "查看结果对比 →" : state.levelIndex === levels.length - 1 ? "设计自己的问题 →" : "下一关 →")
@@ -3130,15 +3287,15 @@ window.STANDARD_LEVELS = [
     panel.innerHTML = `
       ${state.mode === "standard" ? "" : `<h2>自定义问题</h2><p class="level-subtitle">${state.weighted ? "最大权重独立集 · MWIS" : "几何最大独立集 · MIS"}</p>`}
       ${state.mode === "standard" ? `<div class="level-picker">
-        <div class="level-picker-heading"><span>关卡导航</span><b>${String(state.levelIndex + 1).padStart(2, "0")} / ${levels.length}</b></div>
+        <div class="level-picker-heading"><span>关卡导航 · ${levelType(level)}</span><b>${String(state.levelIndex + 1).padStart(2, "0")} / ${levels.length}</b></div>
         <div class="level-picker-row">
           <button id="previous-level" class="level-step" type="button" aria-label="上一关" ${state.levelIndex === 0 ? "disabled" : ""}>←</button>
-          <label class="level-select-shell"><span class="sr-only">选择关卡</span><select id="level-select" aria-label="选择关卡">${levels.map((item, i) => `<option value="${i}" ${i === state.levelIndex ? "selected" : ""}>${String(i + 1).padStart(2, "0")} · ${levelCopy[item.id][0]}</option>`).join("")}</select><i aria-hidden="true">⌄</i></label>
+          <label class="level-select-shell"><span class="sr-only">选择关卡</span><select id="level-select" aria-label="选择关卡">${levelOptionsMarkup()}</select><i aria-hidden="true">⌄</i></label>
           <button id="next-level" class="level-step" type="button" aria-label="下一关" ${state.levelIndex === levels.length - 1 ? "disabled" : ""}>→</button>
         </div>
       </div>` : ""}
       <p class="level-purpose">${state.mode === "standard" ? localized.purpose : "在你创建的几何结构中，找出总数量或总权重最大的兼容集合。"}</p>
-      <div class="score-line"><span>${state.weighted ? tr("score") : tr("selected")}</span><strong>${selectedScore}</strong></div>
+      <div class="score-line"><span>${state.weighted ? tr("score") : tr("selected")}</span><strong>${selectedScoreDisplay}</strong></div>
       <div class="action-stack">
         <button id="main-action" class="primary-button" type="button">${mainLabel}</button>
         <div class="solution-slot">${solutionControlMarkup()}</div>
@@ -3164,10 +3321,10 @@ window.STANDARD_LEVELS = [
 
     const mobileLevelPicker = $("#mobile-level-picker");
     mobileLevelPicker.innerHTML = state.mode === "standard" ? `<div class="level-picker">
-      <div class="level-picker-heading"><span>关卡导航</span><b>${String(state.levelIndex + 1).padStart(2, "0")} / ${levels.length}</b></div>
+      <div class="level-picker-heading"><span>关卡导航 · ${levelType(level)}</span><b>${String(state.levelIndex + 1).padStart(2, "0")} / ${levels.length}</b></div>
       <div class="level-picker-row">
         <button id="mobile-previous-level" class="level-step" type="button" aria-label="上一关" ${state.levelIndex === 0 ? "disabled" : ""}>←</button>
-        <label class="level-select-shell"><span class="sr-only">选择关卡</span><select id="mobile-level-select" aria-label="选择关卡">${levels.map((item, i) => `<option value="${i}" ${i === state.levelIndex ? "selected" : ""}>${String(i + 1).padStart(2, "0")} · ${levelCopy[item.id][0]}</option>`).join("")}</select><i aria-hidden="true">⌄</i></label>
+        <label class="level-select-shell"><span class="sr-only">选择关卡</span><select id="mobile-level-select" aria-label="选择关卡">${levelOptionsMarkup()}</select><i aria-hidden="true">⌄</i></label>
         <button id="mobile-next-level" class="level-step" type="button" aria-label="下一关" ${state.levelIndex === levels.length - 1 ? "disabled" : ""}>→</button>
       </div>
     </div>` : "";
@@ -3216,7 +3373,7 @@ window.STANDARD_LEVELS = [
     if (state.hintLevel === 2) return level.analysis.badFirstMoves.length
       ? "画面中带橙色轮廓的原子是容易误选的位置。比较它与邻居的连线数量，试着从其他分支开始。"
       : "比较图中不同区域的连线数量，优先试选冲突较少、又能覆盖独立区域的原子。";
-    const witness = level.exactMISWitnesses[0].map((i) => i + 1).join(", ");
+    const witness = exactWitnesses(level)[0].map((i) => i + 1).join(", ");
     return `可尝试的一条最优路径：选择编号 ${witness}。编号显示在每个圆点中央；这只是多种正确答案中的一种。`;
   }
 
@@ -3252,7 +3409,7 @@ window.STANDARD_LEVELS = [
     state.revealed = true;
     renderPlay();
     const verdict = $("#board-verdict");
-    verdict.innerHTML = `<strong>已标出一种正确答案</strong><span>绿色节点两两之间没有冲突边，总值为 ${state.exact.score}。这只是多种最优解中的一种。</span>`;
+    verdict.innerHTML = `<strong>已标出一种正确答案</strong><span>绿色节点两两之间没有冲突边，${state.weighted ? "总权重" : "总数"}为 ${state.weighted ? formatWeight(state.exact.score) : state.exact.score}。这只是多种最优解中的一种。</span>`;
     verdict.classList.remove("mistake");
     verdict.hidden = false;
     document.body.classList.add("board-success");
@@ -3260,6 +3417,8 @@ window.STANDARD_LEVELS = [
   }
 
   function enterBuilder() {
+    const preserveWeightedLevel = state.mode === "standard" && levelType(currentLevel()) === "MWIS";
+    const currentWeights = [...state.weights];
     state.mode = "builder";
     state.selection = MIS.createSelectionState();
     state.solved = false;
@@ -3267,9 +3426,10 @@ window.STANDARD_LEVELS = [
     state.hintLevel = 0;
     state.builderSelected = null;
     state.builderPreset = "current";
-    state.weighted = false;
-    state.weightsInitialized = false;
-    state.weights = state.points.map(() => 1);
+    state.weighted = preserveWeightedLevel;
+    state.weightsInitialized = preserveWeightedLevel;
+    state.weights = preserveWeightedLevel ? currentWeights : state.points.map(() => 1);
+    computeExact();
     renderPlay();
   }
 
@@ -3788,7 +3948,7 @@ window.STANDARD_LEVELS = [
   }
 
   function init() {
-    if (!levels.length) throw new Error("Standard levels were not loaded");
+    if (!levels.length) throw new Error("Challenge levels were not loaded");
     document.querySelectorAll("[data-page]").forEach((button) => button.onclick = () => showPage(button.dataset.page));
     $("#run-sampler").onclick = runSampler;
     $("#quantum-back-problem").onclick = returnToCustomChallenge;
@@ -3816,3 +3976,4 @@ window.STANDARD_LEVELS = [
 </script>
 </body>
 </html>
+
