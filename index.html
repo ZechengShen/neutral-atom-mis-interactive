@@ -3119,26 +3119,25 @@ window.MWIS_LEVELS = [
     state.verdictTimer = setTimeout(clearVerdict, MESSAGE_DURATION_MS);
   }
 
-  function adviceForSubmission(score, optimum) {
-    const gap = optimum - score;
+  function adviceForSubmission() {
     const selected = [...state.selection.selected];
     if (!selected.length) return state.weighted
       ? "你还没有选择原子。先比较节点权重，再检查它会阻塞哪些高权重组合。"
       : "你还没有选择原子。先从外围或度数较低的节点开始，通常能保留更多后续空间。";
     const degrees = selected.map((index) => ({ index, degree: state.graph.adjacency[index].length })).sort((a, b) => b.degree - a.degree);
     const crowded = degrees[0];
-    if (state.weighted) return `当前总权重还差 ${formatWeight(gap)}。不要只追求节点数量或单个最高权重；重新比较原子 ${crowded.index + 1} 阻塞的邻居权重之和。`;
-    if (gap >= 2) return `当前方案距离最优还差 ${gap}。尝试撤掉原子 ${crowded.index + 1}：它连接 ${crowded.degree} 条冲突边，可能一次阻塞了多个分支。`;
-    if (crowded.degree >= 3) return `只差一步。原子 ${crowded.index + 1} 的冲突邻居较多；撤掉它，再寻找两个彼此兼容的替代节点。`;
-    return "只差一步。当前选择可能是“极大”但不是“最大”：撤销最后一两个选择，比较另一条分支能否多保留一个位置。";
+    if (state.weighted) return `当前组合还可以改进。不要只追求节点数量或单个最高权重；重新比较原子 ${crowded.index + 1} 阻塞的邻居权重之和。`;
+    if (crowded.degree >= 3) return `当前组合还可以改进。原子 ${crowded.index + 1} 连接 ${crowded.degree} 条冲突边；尝试撤掉它，寻找彼此兼容的替代节点。`;
+    return "当前选择可能是“极大”但不是“最大”：撤销最后一两个选择，比较另一条分支是否能保留更多位置。";
   }
 
   function showVerdict(correct, score, optimum) {
     const verdict = $("#board-verdict");
-    const displayScore = state.weighted ? formatWeight(score) : score;
     const displayOptimum = state.weighted ? formatWeight(optimum) : optimum;
     const metric = state.weighted ? "最高总权重" : "最大值";
-    const title = correct ? `正确！本关${metric}是 ${displayOptimum}` : `还不是${metric}：${displayScore} / ${displayOptimum}`;
+    const title = correct
+      ? `正确！本关${metric}是 ${displayOptimum}`
+      : state.weighted ? "这个组合还不是最高总权重" : "这个组合还不是最大独立集";
     let detail = correct
       ? (state.mode === "custom"
         ? "自定义挑战完成！你可以查看结果对比，或返回编辑继续调整原子位置与约束。"
@@ -3147,7 +3146,7 @@ window.MWIS_LEVELS = [
           : allChallengeLevelsCompleted()
             ? "十五个 MIS / MWIS 策略关卡全部完成！你可以继续进入几何编辑器，设计自己的问题。"
             : `第 ${state.levelIndex + 1} 关完成！目前已完成 ${state.completed.size} / ${levels.length}。你可以通过关卡导航补做其他关卡，也可以继续进入几何编辑器。`)
-      : adviceForSubmission(score, optimum);
+      : adviceForSubmission();
     verdict.innerHTML = `<strong>${title}</strong><span>${detail}</span>`;
     verdict.classList.toggle("mistake", !correct);
     verdict.hidden = false;
