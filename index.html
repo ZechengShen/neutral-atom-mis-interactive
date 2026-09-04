@@ -3613,17 +3613,27 @@ window.MWIS_LEVELS = [
     const board = $("#quantum-board");
     board.replaceChildren();
     if (!state.points.length) return;
-    const transform = fitTransform(state.points, 960, 600, 84, 98);
     const screenCompensation = Math.max(1, 960 / Math.max(board.clientWidth, 360));
+    // Center the actual graph bounds. Including the unused (0,0) origin shifts
+    // layouts whose coordinates start above zero toward the lower right.
+    const transform = fitTransform(state.points, 960, 600, 84, 98, false);
+    // Weight badges extend 36 px above a node but the circle only extends 16 px
+    // below it. Shift the complete weighted drawing by half that imbalance so
+    // the visible graph, rather than only its node centers, is vertically centered.
+    const visualYOffset = state.weighted ? 10 * screenCompensation : 0;
+    const quantumPoint = (point) => {
+      const projected = transform.toScreen(point);
+      return { x: projected.x, y: projected.y + visualYOffset };
+    };
     state.graph.edges.forEach(({ i, j }) => {
-      const a = transform.toScreen(state.points[i]); const b = transform.toScreen(state.points[j]);
+      const a = quantumPoint(state.points[i]); const b = quantumPoint(state.points[j]);
       board.append(svgElement("line", { x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:`graph-edge${state.weighted ? " weighted-edge" : ""}` }));
     });
     const selectedIndices = preview ? preview.indices : [...state.selection.selected];
     const selectedSet = new Set(selectedIndices);
     const previewBlocked = MIS.blockedBy(selectedSet, state.graph);
     state.points.forEach((point, i) => {
-      const p = transform.toScreen(point);
+      const p = quantumPoint(point);
       const selected = selectedSet.has(i);
       const blocked = !selected && previewBlocked[i].length > 0;
       const group = svgElement("g", { class: `quantum-atom ${selected ? "excited" : blocked ? "blocked" : "available"}` });
