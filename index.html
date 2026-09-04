@@ -2676,51 +2676,11 @@ window.STANDARD_LEVELS = [
 
 
 window.MWIS_LEVELS = [
-  {
-    "id": "mwis-01", "problemType": "MWIS", "title": "Weighted Trade-off",
-    "subtitle": "A seven-node weighted path", "purpose": "Avoid the single heaviest-node decoy and compare a smaller weighted set with the MIS.",
-    "hint": "The node of weight 5 is a decoy; compare what it blocks with the three-node alternative.",
-    "coordinates": [{"x":0.5,"y":1.5},{"x":1.5,"y":1.5},{"x":2.5,"y":1.5},{"x":3.5,"y":1.5},{"x":4.5,"y":1.5},{"x":5.5,"y":1.5},{"x":6.5,"y":1.5}],
-    "weights": [2,3.5,0.5,3.5,5,4.5,1.5], "blockadeRadius": 1.18, "edgeRule": "lt",
-    "exactMISSize": 4, "exactMWISScore": 11.5, "exactMWISWitnesses": [[1,3,5]], "edgeCount": 6,
-    "analysis": {"numOptima":1,"badFirstMoves":[0,2,4,6]}
-  },
-  {
-    "id": "mwis-02", "problemType": "MWIS", "title": "Coupled Clusters",
-    "subtitle": "Two coupled weighted stars", "purpose": "Choose a different center-versus-leaves strategy in each coupled cluster.",
-    "hint": "Leaves win on the left and the center wins on the right, while the two centers conflict.",
-    "coordinates": [{"x":2,"y":2},{"x":3,"y":2},{"x":1.826,"y":2.985},{"x":1,"y":2},{"x":1.826,"y":1.015},{"x":3.174,"y":1.015},{"x":4,"y":2},{"x":3.174,"y":2.985}],
-    "weights": [5,4.5,2,2,1.5,1.5,1.5,1], "blockadeRadius": 1.18, "edgeRule": "lt",
-    "exactMISSize": 6, "exactMWISScore": 10, "exactMWISWitnesses": [[1,2,3,4]], "edgeCount": 7,
-    "analysis": {"numOptima":1,"badFirstMoves":[0,5,6,7]}
-  },
-  {
-    "id": "mwis-03", "problemType": "MWIS", "title": "Ladder Trap",
-    "subtitle": "A ten-node weighted ladder", "purpose": "Break a highest-weight-first greedy strategy across coupled rows.",
-    "hint": "Treat both rows together and compare an alternating zigzag with the local peaks.",
-    "coordinates": [{"x":0.5,"y":1},{"x":1.5,"y":1},{"x":2.5,"y":1},{"x":3.5,"y":1},{"x":4.5,"y":1},{"x":0.5,"y":2},{"x":1.5,"y":2},{"x":2.5,"y":2},{"x":3.5,"y":2},{"x":4.5,"y":2}],
-    "weights": [2.5,4.5,3.5,3.5,3.5,5,5,4.5,3,2.5], "blockadeRadius": 1.18, "edgeRule": "lt",
-    "exactMISSize": 5, "exactMWISScore": 20, "exactMWISWitnesses": [[1,3,5,7,9]], "edgeCount": 13,
-    "analysis": {"numOptima":1,"badFirstMoves":[0,2,4,6,8]}
-  },
-  {
-    "id": "mwis-04", "problemType": "MWIS", "title": "Equal Weight, Different Shape",
-    "subtitle": "A nine-node weighted grid", "purpose": "Find optimal solutions with equal total weight but different node counts.",
-    "hint": "One optimum uses four edge nodes; another uses only three nodes across the top and bottom.",
-    "coordinates": [{"x":0.5,"y":0.5},{"x":1.5,"y":0.5},{"x":2.5,"y":0.5},{"x":0.5,"y":1.5},{"x":1.5,"y":1.5},{"x":2.5,"y":1.5},{"x":0.5,"y":2.5},{"x":1.5,"y":2.5},{"x":2.5,"y":2.5}],
-    "weights": [1,4,2,0.5,0.5,3.5,4.5,4.5,4], "blockadeRadius": 1.18, "edgeRule": "lt",
-    "exactMISSize": 5, "exactMWISScore": 12.5, "exactMWISWitnesses": [[1,3,5,7],[1,6,8]], "edgeCount": 12,
-    "analysis": {"numOptima":2,"badFirstMoves":[0,2,4]}
-  },
-  {
-    "id": "mwis-05", "problemType": "MWIS", "title": "Grid Finale",
-    "subtitle": "A twelve-node weighted grid", "purpose": "Coordinate several local trade-offs across an interlocked grid.",
-    "hint": "The heaviest visible nodes do not fit into one best set; compare choices column by column.",
-    "coordinates": [{"x":0.5,"y":0.5},{"x":1.5,"y":0.5},{"x":2.5,"y":0.5},{"x":3.5,"y":0.5},{"x":0.5,"y":1.5},{"x":1.5,"y":1.5},{"x":2.5,"y":1.5},{"x":3.5,"y":1.5},{"x":0.5,"y":2.5},{"x":1.5,"y":2.5},{"x":2.5,"y":2.5},{"x":3.5,"y":2.5}],
-    "weights": [5,2,2.5,1,2.5,4,4,4.5,1,4,4,3], "blockadeRadius": 1.18, "edgeRule": "lt",
-    "exactMISSize": 6, "exactMWISScore": 21, "exactMWISWitnesses": [[0,2,5,7,8,10]], "edgeCount": 17,
-    "analysis": {"numOptima":1,"badFirstMoves":[1,3,4,6,9,11]}
-  }
+  {"id":"mwis-01","problemType":"MWIS","title":"Weighted Maze","subtitle":"A twelve-node weighted grid","purpose":"Coordinate several local choices instead of collecting the three visible weight-five nodes.","hint":"The rightmost weight-five pair conflicts; compare complete row-and-column combinations.","coordinates":[{"x":0.6,"y":0.6},{"x":1.6,"y":0.6},{"x":2.6,"y":0.6},{"x":3.6,"y":0.6},{"x":0.6,"y":1.6},{"x":1.6,"y":1.6},{"x":2.6,"y":1.6},{"x":3.6,"y":1.6},{"x":0.6,"y":2.6},{"x":1.6,"y":2.6},{"x":2.6,"y":2.6},{"x":3.6,"y":2.6}],"weights":[5,4,3,4,3.5,3,1.5,5,4.5,3,3,5],"blockadeRadius":1.18,"edgeRule":"lt","exactMISSize":6,"exactMWISScore":23.5,"exactMWISWitnesses":[[0,2,5,7,8,10]],"edgeCount":17,"analysis":{"numOptima":1,"badFirstMoves":[1,3,4,6,9,11]}},
+  {"id":"mwis-02","problemType":"MWIS","title":"Flower-Wheel Game","subtitle":"A thirteen-node weighted flower wheel","purpose":"Balance a six-node ring, its outer leaves, and a tempting central hub.","hint":"The weight-five hub blocks every inner-ring node; compare it with alternating ring choices.","coordinates":[{"x":2.6,"y":2.6},{"x":3.6,"y":2.6},{"x":3.1,"y":3.466},{"x":2.1,"y":3.466},{"x":1.6,"y":2.6},{"x":2.1,"y":1.734},{"x":3.1,"y":1.734},{"x":4.6,"y":2.6},{"x":3.6,"y":4.332},{"x":1.6,"y":4.332},{"x":0.6,"y":2.6},{"x":1.6,"y":0.868},{"x":3.6,"y":0.868}],"weights":[5,3,4.5,1.5,3.5,3.5,3,3.5,0.5,2.5,1.5,1,0.5],"blockadeRadius":1.18,"edgeRule":"lt","exactMISSize":7,"exactMWISScore":18,"exactMWISWitnesses":[[2,4,6,7,9,11]],"edgeCount":18,"analysis":{"numOptima":1,"badFirstMoves":[0,1,3,5,8,10,12]}},
+  {"id":"mwis-03","problemType":"MWIS","title":"Double-Ring Gear","subtitle":"A fifteen-node weighted gear graph","purpose":"Synchronize choices between two cycles joined by five spokes.","hint":"A strong outer node can change which inner pair remains available; reason around both rings together.","coordinates":[{"x":4.35,"y":2.6},{"x":4.016,"y":3.629},{"x":3.141,"y":4.264},{"x":2.059,"y":4.264},{"x":1.184,"y":3.629},{"x":0.85,"y":2.6},{"x":1.184,"y":1.571},{"x":2.059,"y":0.936},{"x":3.141,"y":0.936},{"x":4.016,"y":1.571},{"x":3.26,"y":2.6},{"x":2.804,"y":3.228},{"x":2.066,"y":2.988},{"x":2.066,"y":2.212},{"x":2.804,"y":1.972}],"weights":[3,2.5,3,3.5,0.5,0.5,1,3.5,4.5,5,3,3.5,3.5,0.5,0.5],"blockadeRadius":1.18,"edgeRule":"lt","exactMISSize":7,"exactMWISScore":21.5,"exactMWISWitnesses":[[1,3,5,7,9,10,12]],"edgeCount":20,"analysis":{"numOptima":1,"badFirstMoves":[0,2,4,6,8,11,13,14]}},
+  {"id":"mwis-04","problemType":"MWIS","title":"Equal Weight, Different Shape","subtitle":"A sixteen-node triangular grid","purpose":"Recognize two equal-weight optima with very different cardinalities inside a dense lattice.","hint":"One optimum uses four heavy nodes; another uses six lighter nodes. Node count is not a tie-breaker.","coordinates":[{"x":0.6,"y":0.6},{"x":1.6,"y":0.6},{"x":2.6,"y":0.6},{"x":3.6,"y":0.6},{"x":1.1,"y":1.55},{"x":2.1,"y":1.55},{"x":3.1,"y":1.55},{"x":4.1,"y":1.55},{"x":0.6,"y":2.5},{"x":1.6,"y":2.5},{"x":2.6,"y":2.5},{"x":3.6,"y":2.5},{"x":1.1,"y":3.45},{"x":2.1,"y":3.45},{"x":3.1,"y":3.45},{"x":4.1,"y":3.45}],"weights":[1.5,3.5,5,2,3,1.5,4.5,0.5,3,5,3,3,0.5,1,3,4.5],"blockadeRadius":1.18,"edgeRule":"lt","exactMISSize":6,"exactMWISScore":17.5,"exactMWISWitnesses":[[1,6,9,15],[0,2,7,8,10,15]],"edgeCount":33,"analysis":{"numOptima":2,"badFirstMoves":[3,4,5,11,12,13,14]}},
+  {"id":"mwis-05","problemType":"MWIS","title":"Lattice Finale","subtitle":"A twenty-node triangular lattice","purpose":"Solve a dense four-row lattice where fourteen possible first moves are globally suboptimal.","hint":"Neither highest-weight-first nor simple row alternation is enough; compare the effect of each choice across adjacent rows.","coordinates":[{"x":0.6,"y":0.6},{"x":1.6,"y":0.6},{"x":2.6,"y":0.6},{"x":3.6,"y":0.6},{"x":4.6,"y":0.6},{"x":1.1,"y":1.55},{"x":2.1,"y":1.55},{"x":3.1,"y":1.55},{"x":4.1,"y":1.55},{"x":5.1,"y":1.55},{"x":0.6,"y":2.5},{"x":1.6,"y":2.5},{"x":2.6,"y":2.5},{"x":3.6,"y":2.5},{"x":4.6,"y":2.5},{"x":1.1,"y":3.45},{"x":2.1,"y":3.45},{"x":3.1,"y":3.45},{"x":4.1,"y":3.45},{"x":5.1,"y":3.45}],"weights":[3,3.5,2.5,2,2,2.5,3.5,1.5,3.5,1,4,0.5,1.5,1,0.5,4.5,2,5,3,1.5],"blockadeRadius":1.18,"edgeRule":"lt","exactMISSize":8,"exactMWISScore":21,"exactMWISWitnesses":[[0,6,8,15,17,19]],"edgeCount":43,"analysis":{"numOptima":1,"badFirstMoves":[1,2,3,4,5,7,9,10,11,12,13,14,16,18]}}
 ];
 
 
@@ -2802,11 +2762,11 @@ window.MWIS_LEVELS = [
     "level-08": ["受挫网络", "带缺陷的晶格几何", "短环让局部密集的选择相互竞争。", "不要太早填满视觉上最明显的一行。"],
     "level-09": ["瓶颈", "不规则单位圆盘图", "一个早期分支，就会改变整张图的容量。", "最差的第一步会让最终答案少两个原子。"],
     "level-10": ["无规则终局", "不规则单位圆盘图", "没有整齐的晶格图案告诉你从哪里开始。", "根据冲突关系推理，不要依赖表面对称。"],
-    "mwis-01": ["重权取舍", "七节点加权链", "权重最高的单点反而是诱饵；最大权重解只选 3 个节点，也不同于 4 节点 MIS。", "权重 5 的节点会挡住关键组合；比较选择它之后的余量与三个交错节点的总和。"],
-    "mwis-02": ["双簇权衡", "耦合双星图", "两个相邻星簇需要采用不同策略：一侧选叶节点，另一侧选中心。", "左簇叶节点合计更高，右簇中心更划算；同时注意两个中心彼此冲突。"],
-    "mwis-03": ["梯阵陷阱", "十节点加权梯", "上下两排彼此耦合，连续选择眼前最高权重会损失整条交错路径。", "把两排一起看：比较锯齿形交错方案与逐个追逐局部高点的总权重。"],
-    "mwis-04": ["同权异构", "九节点加权方格", "两种形状都达到最高总权重，但一种选 4 个节点，另一种只选 3 个。", "一种答案沿四条边展开；另一种跨越上下两排。MWIS 不用节点数打破同权平局。"],
-    "mwis-05": ["网格终局", "十二节点加权网格", "多个局部高点嵌在相互耦合的方格环中，需要同时规划三排四列。", "最高权重节点不能简单拼在一起；尝试逐列比较，并保留跨行交错的组合。"],
+    "mwis-01": ["重权迷阵", "十二节点加权网格", "三个权重 5 并不能直接拼成最优解；需要同时协调三排四列。", "右侧两个权重 5 彼此冲突。不要逐点判断，比较完整的跨行组合。"],
+    "mwis-02": ["花轮博弈", "十三节点花轮图", "中心、内环和外叶三层相互牵制，最显眼的中心重权是诱饵。", "中心会阻塞全部内环节点。比较选择中心与沿内环交错选择的总收益。"],
+    "mwis-03": ["双环齿轮", "十五节点双环图", "内外两环通过五条辐条耦合；外环的一步会改变内环还能保留哪一对。", "不要分别解两个环。先比较某个外环选择会排除哪一个内环高权重节点。"],
+    "mwis-04": ["同权异构", "十六节点三角格", "两种形状都达到最高总权重：一种选 4 个重节点，另一种选 6 个轻节点。", "节点数不能用来打破同权平局。分别寻找稀疏重权解和跨行轻权解。"],
+    "mwis-05": ["晶格终局", "二十节点三角晶格", "四排密集晶格中有 14 个起点会导致次优；最高权重和简单隔行选择都会失效。", "逐行贪心不够。比较每次选择对相邻两排的联动影响，并保留跨行组合。"],
   };
 
   function tr(key) { return copy[state.language][key]; }
@@ -2836,6 +2796,11 @@ window.MWIS_LEVELS = [
   function clonePoints(points) { return points.map((point) => ({ x: point.x, y: point.y })); }
   function snapPoint(point) { return { x: Math.round(point.x * 2) / 2, y: Math.round(point.y * 2) / 2 }; }
   function formatWeight(value) { return Number(value).toFixed(1).replace(/\.0$/, ""); }
+  function nodeWeightScale(weight) {
+    if (!state.weighted) return 1;
+    const normalized = Math.max(0, Math.min(1, (Number(weight) - .5) / 4.5));
+    return .9 + normalized * .3;
+  }
   function randomWeight() { return (Math.floor(Math.random() * 10) + 1) / 2; }
   function newAtomWeight() { return state.weighted ? randomWeight() : 1; }
   function scoreSelection() {
@@ -2955,8 +2920,7 @@ window.MWIS_LEVELS = [
     const screenPoints = state.points.map((point) => transform.toScreen(point));
     // Keep node size stable between levels. Dense layouts remain tappable
     // because interaction is resolved to the nearest node below.
-    const visibleRadiusCss = mobileBoard ? 11 : 16;
-    const visibleRadius = visibleRadiusCss * screenCompensation;
+    const baseVisibleRadiusCss = mobileBoard ? 11 : 16;
     const nodeFontSize = (mobileBoard ? 10 : 13) * screenCompensation;
     const blockedSources = MIS.blockedBy(state.selection.selected, state.graph);
     const excitedCount = state.selection.selected.size;
@@ -2984,6 +2948,8 @@ window.MWIS_LEVELS = [
     state.points.forEach((worldPoint, i) => {
       const point = screenPoints[i];
       const group = svgElement("g", { class: "atom-group", "data-index": i });
+      const visibleRadiusCss = baseVisibleRadiusCss * nodeWeightScale(state.weights[i]);
+      const visibleRadius = visibleRadiusCss * screenCompensation;
       const selected = state.selection.selected.has(i);
       const blocked = blockedSources[i].length > 0;
       if (selected) group.classList.add("excited");
@@ -3197,7 +3163,7 @@ window.MWIS_LEVELS = [
     $("#rule-copy").textContent = state.mode === "builder"
       ? "拖动、添加或删除原子，冲突边会随几何结构实时更新。"
       : state.weighted
-        ? "在满足 blockade 约束的前提下，让已激发原子的总权重最大；选得更多不一定更优。"
+        ? "节点上方数字和圆点大小都表示权重；在满足 blockade 约束的前提下，让已激发原子的总权重最大。"
         : tr("rule");
     $("#progress-label").textContent = `已完成 ${state.completed.size} / ${levels.length}`;
     $("#progress-fill").style.width = `${state.completed.size / levels.length * 100}%`;
