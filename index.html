@@ -2799,7 +2799,9 @@ window.MWIS_LEVELS = [
   function nodeWeightScale(weight) {
     if (!state.weighted) return 1;
     const normalized = Math.max(0, Math.min(1, (Number(weight) - .5) / 4.5));
-    return .9 + normalized * .3;
+    // Keep light nodes readable while making high-value atoms unmistakably larger.
+    // The 0.5–5 weight range maps to 0.9×–1.45× visual radius; hit targets stay fixed.
+    return .9 + normalized * .55;
   }
   function randomWeight() { return (Math.floor(Math.random() * 10) + 1) / 2; }
   function newAtomWeight() { return state.weighted ? randomWeight() : 1; }
